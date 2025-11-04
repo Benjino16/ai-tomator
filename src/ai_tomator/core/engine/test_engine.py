@@ -1,4 +1,4 @@
-from ai_tomator.core.engines.engine_base import BaseEngine
+from ai_tomator.core.engine.base import BaseEngine
 
 class TestEngine(BaseEngine):
     """
