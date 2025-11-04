@@ -24,7 +24,7 @@ def engine_manager():
     em.engine_map = {"mock": MockEngine}
     return em
 
-@patch("ai_tomator.core.engine.engine_manager.read_file", return_value="file content")
+@patch("ai_tomator.core.engine.engine_manager.FileReaderManager.read", return_value="file content")
 def test_process_with_file_content(mock_read, engine_manager):
     endpoint = {"engine": "mock", "token": "abc123", "url": "http://example.com"}
     result = engine_manager.process(

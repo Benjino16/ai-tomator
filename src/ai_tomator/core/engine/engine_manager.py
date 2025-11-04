@@ -1,5 +1,5 @@
 from ai_tomator.core.engine.test_engine import TestEngine
-from ai_tomator.core.file_reader import read_file
+from ai_tomator.core.file_reader.reader_manager import FileReaderManager
 
 class EngineManager:
     def __init__(self):
@@ -22,7 +22,7 @@ class EngineManager:
         if file_reader == "upload":
             include_file_path = file_path
         else:
-            content = read_file(file_reader, file_path)
+            content = FileReaderManager.read(file_reader, file_path)
 
         result = engine.run(model=model, prompt=prompt, temperature=temperature, content=content, file_path=include_file_path)
 
