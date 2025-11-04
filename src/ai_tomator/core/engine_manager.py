@@ -4,6 +4,7 @@ from .file_reader import read_file
 class EngineManager:
     def __init__(self):
         self.engine_map = {
+            "test": TestEngine
         }
 
     def process(self, endpoint: dict, file_reader: str, prompt: str, file_path: str, model: str, temperature: float):
