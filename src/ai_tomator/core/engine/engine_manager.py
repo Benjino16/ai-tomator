@@ -1,5 +1,5 @@
-from ai_tomator.core.engines.test_engine import TestEngine
-from .file_reader import read_file
+from ai_tomator.core.engine.test_engine import TestEngine
+from ai_tomator.core.file_reader import read_file
 
 class EngineManager:
     def __init__(self):

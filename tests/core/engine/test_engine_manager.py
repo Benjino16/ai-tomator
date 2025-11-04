@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from ai_tomator.core.engine_manager import EngineManager
+from ai_tomator.core.engine.engine_manager import EngineManager
 
 class MockEngine:
     def __init__(self, api_token, base_url):
@@ -24,7 +24,7 @@ def engine_manager():
     em.engine_map = {"mock": MockEngine}
     return em
 
-@patch("ai_tomator.core.engine_manager.read_file", return_value="file content")
+@patch("ai_tomator.core.engine.engine_manager.read_file", return_value="file content")
 def test_process_with_file_content(mock_read, engine_manager):
     endpoint = {"engine": "mock", "token": "abc123", "url": "http://example.com"}
     result = engine_manager.process(
