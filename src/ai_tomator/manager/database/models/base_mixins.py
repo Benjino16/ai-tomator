@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 
+
 class RunDataMixin:
     engine: Mapped[str] = mapped_column(nullable=False)
     endpoint: Mapped[str] = mapped_column(nullable=False)

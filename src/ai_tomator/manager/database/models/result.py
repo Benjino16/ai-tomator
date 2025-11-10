@@ -1,9 +1,10 @@
-from sqlalchemy import Text, DateTime, ForeignKey, func
+from sqlalchemy import Text, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
 from .base_mixins import RunDataMixin
 from .batch import Batch, File
+
 
 class Result(Base, RunDataMixin):
     __tablename__ = "results"

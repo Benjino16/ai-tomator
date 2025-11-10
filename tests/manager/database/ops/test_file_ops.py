@@ -2,7 +2,6 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from ai_tomator.manager.database.base import Base
-from ai_tomator.manager.database.models.file import File
 from ai_tomator.manager.database.ops.file_ops import FileOps
 
 

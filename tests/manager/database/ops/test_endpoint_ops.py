@@ -1,8 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, clear_mappers
+from sqlalchemy.orm import sessionmaker
 from ai_tomator.manager.database.base import Base
-from ai_tomator.manager.database.models.endpoint import Endpoint
 from ai_tomator.manager.database.ops.endpoint_ops import EndpointOps
 from ai_tomator.core.exceptions import NameAlreadyExistsError
 

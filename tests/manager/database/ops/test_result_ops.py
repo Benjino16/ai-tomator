@@ -2,7 +2,6 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from ai_tomator.manager.database.base import Base
-from ai_tomator.manager.database.models.result import Result
 from ai_tomator.manager.database.models.batch import Batch
 from ai_tomator.manager.database.models.file import File
 from ai_tomator.manager.database.ops.result_ops import ResultOps
@@ -34,7 +33,7 @@ def sample_data(db_session):
         prompt="say hello",
         model="gpt",
         temperature=0.5,
-        status="done"
+        status="done",
     )
     file = File(
         id=1,
@@ -42,7 +41,7 @@ def sample_data(db_session):
         display_name="File 1",
         tags=["tag"],
         mime_type="text/plain",
-        size=100
+        size=100,
     )
     session.add_all([batch, file])
     session.commit()
@@ -51,10 +50,7 @@ def sample_data(db_session):
 
 def test_save_and_list(result_ops, sample_data):
     result_ops.save(
-        batch_id=1,
-        file_name="file1.txt",
-        input="input text",
-        output="output text"
+        batch_id=1, file_name="file1.txt", input="input text", output="output text"
     )
     data = result_ops.list_by_batch(1)
     assert len(data) == 1
@@ -68,12 +64,7 @@ def test_save_and_list(result_ops, sample_data):
 
 def test_save_with_invalid_batch(result_ops):
     with pytest.raises(ValueError):
-        result_ops.save(
-            batch_id=999,
-            file_name="file1.txt",
-            input="a",
-            output="b"
-        )
+        result_ops.save(batch_id=999, file_name="file1.txt", input="a", output="b")
 
 
 def test_list_by_batch_empty(result_ops, sample_data):

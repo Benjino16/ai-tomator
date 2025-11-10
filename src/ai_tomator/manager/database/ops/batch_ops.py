@@ -1,15 +1,26 @@
 from sqlalchemy.orm import sessionmaker
 from ai_tomator.manager.database.models.batch import Batch, BatchFile
 from ai_tomator.manager.database.models.file import File
-print("BatchOps using:", Batch.__module__, File.__module__)
 
+print("BatchOps using:", Batch.__module__, File.__module__)
 
 
 class BatchOps:
     def __init__(self, session_local: sessionmaker):
         self.SessionLocal = session_local
 
-    def add(self, name: str, status: str, files: list[str], engine: str, endpoint: str, file_reader: str, prompt: str, model: str, temperature: float):
+    def add(
+        self,
+        name: str,
+        status: str,
+        files: list[str],
+        engine: str,
+        endpoint: str,
+        file_reader: str,
+        prompt: str,
+        model: str,
+        temperature: float,
+    ):
         with self.SessionLocal() as session:
             batch = Batch(
                 name=name,
@@ -54,7 +65,11 @@ class BatchOps:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
-            batch_file = session.query(BatchFile).filter_by(storage_name=storage_name, batch_id=batch.id).first()
+            batch_file = (
+                session.query(BatchFile)
+                .filter_by(storage_name=storage_name, batch_id=batch.id)
+                .first()
+            )
             if not batch_file:
                 raise ValueError(f"BatchFile '{storage_name}' not found.")
             batch_file.status = status

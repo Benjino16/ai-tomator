@@ -1,9 +1,10 @@
-from sqlalchemy import DateTime, ForeignKey, func
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
 from .base_mixins import RunDataMixin
 from .file import File
+
 
 class Batch(Base, RunDataMixin):
     __tablename__ = "batches"
@@ -12,9 +13,13 @@ class Batch(Base, RunDataMixin):
     name: Mapped[str] = mapped_column(nullable=False)
     status: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now(), onupdate=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        nullable=False, default=func.now(), onupdate=func.now()
+    )
 
-    batch_files: Mapped[list["BatchFile"]] = relationship(back_populates="batch", cascade="all, delete-orphan")
+    batch_files: Mapped[list["BatchFile"]] = relationship(
+        back_populates="batch", cascade="all, delete-orphan"
+    )
 
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}

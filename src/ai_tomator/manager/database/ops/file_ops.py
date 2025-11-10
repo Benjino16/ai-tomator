@@ -6,9 +6,22 @@ class FileOps:
     def __init__(self, session_local: sessionmaker):
         self.SessionLocal = session_local
 
-    def add(self, storage_name: str, display_name: str, tags: list[str], mime_type: str, size: int):
+    def add(
+        self,
+        storage_name: str,
+        display_name: str,
+        tags: list[str],
+        mime_type: str,
+        size: int,
+    ):
         with self.SessionLocal() as session:
-            file = File(storage_name=storage_name, display_name=display_name, tags=tags, mime_type=mime_type, size=size)
+            file = File(
+                storage_name=storage_name,
+                display_name=display_name,
+                tags=tags,
+                mime_type=mime_type,
+                size=size,
+            )
             session.add(file)
             session.commit()
 
@@ -18,7 +31,6 @@ class FileOps:
             if not file:
                 raise ValueError(f"File '{storage_name}' not found.")
             return file.to_dict()
-
 
     def list(self):
         with self.SessionLocal() as session:

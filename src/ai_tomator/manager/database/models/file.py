@@ -1,7 +1,8 @@
-from sqlalchemy import DateTime, JSON, func
+from sqlalchemy import JSON, func
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
+
 
 class File(Base):
     __tablename__ = "files"

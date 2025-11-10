@@ -13,19 +13,21 @@ class ResultOps:
                 raise ValueError(f"Batch with id '{id}' not found.")
             file_id = session.query(File).filter_by(storage_name=file_name).first().id
 
-            session.add(Result(
-                batch_id=batch_id,
-                file_id=file_id,
-                file_name=file_name,
-                input=input,
-                output=output,
-                engine=batch.engine,
-                endpoint=batch.endpoint,
-                file_reader=batch.file_reader,
-                prompt=batch.prompt,
-                model=batch.model,
-                temperature=batch.temperature
-            ))
+            session.add(
+                Result(
+                    batch_id=batch_id,
+                    file_id=file_id,
+                    file_name=file_name,
+                    input=input,
+                    output=output,
+                    engine=batch.engine,
+                    endpoint=batch.endpoint,
+                    file_reader=batch.file_reader,
+                    prompt=batch.prompt,
+                    model=batch.model,
+                    temperature=batch.temperature,
+                )
+            )
             session.commit()
 
     def list_by_batch(self, batch_id):

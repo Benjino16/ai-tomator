@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from ai_tomator.manager.database.base import Base
 
+
 class Endpoint(Base):
     __tablename__ = "endpoints"
 
@@ -21,5 +22,5 @@ class Endpoint(Base):
         elif token and len(token) > 7:
             data["token"] = f"{token[:1]}......{token[-1:]}"
         elif token:
-            data["token"] = f"......"
+            data["token"] = "......"
         return data
