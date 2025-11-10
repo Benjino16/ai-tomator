@@ -42,4 +42,4 @@ class EngineManager:
         return result
 
     def get_engines(self):
-        return self.engine_map.keys()
+        return list(self.engine_map.keys())
