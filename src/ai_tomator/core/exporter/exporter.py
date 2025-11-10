@@ -4,7 +4,6 @@ from .expanded_mode import ExpandedExportMode
 from typing import List, Any, Dict, Type
 
 
-
 class BatchExporter:
     _modes: Dict[str, Type[BaseExportMode]] = {}
 

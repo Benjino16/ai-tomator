@@ -15,7 +15,7 @@ def csv_to_df(csv_text: str) -> pd.DataFrame:
 def test_simple_rows(exporter):
     data = [
         {"model": "gemini", "temp": 1.0, "output": "raw text"},
-        {"model": "gpt", "temp": 0.7, "output": "another"}
+        {"model": "gpt", "temp": 0.7, "output": "another"},
     ]
     df = csv_to_df(exporter.to_csv(data))
 
@@ -38,7 +38,7 @@ def test_missing_field(exporter):
 def test_mixed_fields(exporter):
     data = [
         {"model": "openai", "temp": 0.5},
-        {"model": "gemini", "engine": "test_engine"}
+        {"model": "gemini", "engine": "test_engine"},
     ]
     df = csv_to_df(exporter.to_csv(data))
 
@@ -48,12 +48,10 @@ def test_mixed_fields(exporter):
 
 
 def test_special_characters_in_output(exporter):
-    data = [
-        {"model": "gemini", "output": "line1\nline2,with,commas"}
-    ]
+    data = [{"model": "gemini", "output": "line1\nline2,with,commas"}]
     csv_text = exporter.to_csv(data)
     # Newlines and commas should be quoted
-    assert '"' in csv_text or '\n' in csv_text
+    assert '"' in csv_text or "\n" in csv_text
 
     df = csv_to_df(csv_text)
     assert df.iloc[0]["output"].startswith("line1")
