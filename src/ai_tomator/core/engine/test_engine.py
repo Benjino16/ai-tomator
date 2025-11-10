@@ -1,5 +1,6 @@
 from ai_tomator.core.engine.base import BaseEngine
 
+
 class TestEngine(BaseEngine):
     """
     TestEngine is a mock implementation of BaseEngine.
@@ -25,7 +26,7 @@ class TestEngine(BaseEngine):
         prompt: str,
         temperature: float,
         file_path: str = None,
-        content: str = None
+        content: str = None,
     ) -> str:
 
         if not file_path and not content:

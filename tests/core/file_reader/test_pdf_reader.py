@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, MagicMock
 from ai_tomator.core.file_reader.pdf_reader import PDFReader
 
