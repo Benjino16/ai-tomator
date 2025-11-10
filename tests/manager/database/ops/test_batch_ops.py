@@ -73,6 +73,7 @@ def test_update_status(setup_data):
 def test_update_batch_file_status(setup_data):
     ops = BatchOps(setup_data)
     batch = ops.add("b1", "created", ["f1"], "e", "e", "r", "p", "m", 0.5)
+    ops.update_batch_file_status(batch["id"], "f1", "processed")
     with setup_data() as s:
         bf = (
             s.query(BatchFile)
