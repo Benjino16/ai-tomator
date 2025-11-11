@@ -15,8 +15,8 @@ def mock_db():
 def mock_batch_manager():
     with patch("ai_tomator.service.batch_service.BatchManager") as MockManager:
         batch_manager = MagicMock()
-        batch_manager.start_batch.return_value  = ""
-        batch_manager.stop_batch.return_value  = ""
+        batch_manager.start_batch.return_value = ""
+        batch_manager.stop_batch.return_value = ""
         batch_manager.get_engines.return_value = ["test"]
         batch_manager.get_file_readers.return_value = ["pdf"]
         MockManager.return_value = batch_manager
@@ -31,11 +31,19 @@ def mock_file_service():
         MockFileService.return_value = file_service
         yield file_service
 
+
 @pytest.fixture
 def mock_endpoint_service():
-    with patch("ai_tomator.service.batch_service.EndpointService") as MockEndpointService:
+    with patch(
+        "ai_tomator.service.batch_service.EndpointService"
+    ) as MockEndpointService:
         endpoint_service = MagicMock()
-        endpoint_service.get.return_value = {"name": "test_endpoint", "engine": "test", "token": "x", "url": "y"}
+        endpoint_service.get.return_value = {
+            "name": "test_endpoint",
+            "engine": "test",
+            "token": "x",
+            "url": "y",
+        }
         MockEndpointService.return_value = endpoint_service
         yield endpoint_service
 
