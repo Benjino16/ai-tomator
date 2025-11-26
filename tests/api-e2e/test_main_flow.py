@@ -1,3 +1,4 @@
+import tempfile
 import pytest
 from fastapi.testclient import TestClient
 from ai_tomator.main import create_app
@@ -6,9 +7,10 @@ import io
 
 @pytest.fixture(scope="session")
 def client():
-    test_app = create_app(db_path="sqlite:///:memory:", storage_dir="/dev/null")
-    with TestClient(test_app) as c:
-        yield c
+    with tempfile.TemporaryDirectory() as tempdir:
+        test_app = create_app(db_path="sqlite:///:memory:", storage_dir=tempdir)
+        with TestClient(test_app) as c:
+            yield c
 
 
 TEST_FILE_A = io.BytesIO(b"hello world")
