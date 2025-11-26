@@ -11,7 +11,7 @@ class FileService:
 
     def upload_file(self, file: UploadFile, tags: Optional[List[str]]) -> dict:
         name = self.file_manager.save(file, tags)
-        return {"filename": name, "status": "uploaded"}
+        return {"storage_name": name, "status": "uploaded"}
 
     def list_files(self) -> list[str]:
         return self.db.files.list()

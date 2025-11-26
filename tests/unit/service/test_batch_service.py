@@ -16,7 +16,6 @@ def mock_batch_manager():
     with patch("ai_tomator.service.batch_service.BatchManager") as MockManager:
         batch_manager = MagicMock()
         batch_manager.start_batch.return_value = ""
-        batch_manager.stop_batch.return_value = ""
         batch_manager.get_engines.return_value = ["test"]
         batch_manager.get_file_readers.return_value = ["pdf"]
         MockManager.return_value = batch_manager
@@ -94,13 +93,19 @@ def test_start_raises_for_invalid_file(service, mock_file_service):
 
 
 def test_stop_calls_batch_manager(service, mock_batch_manager):
+    mock_batch_manager.stop_batch.return_value = {
+        "id": 5,
+        "name": "batch_test",
+        "status": "stopped",
+    }
     result = service.stop(batch_id=5)
     mock_batch_manager.stop_batch.assert_called_once_with(5)
-    assert result == {"batch_id": 5, "status": "stopped"}
+    assert result["id"] == 5
+    assert result["status"] in ("stopped", "stopping")
 
 
 def test_list_runs_returns_batches(service, mock_db):
-    result = service.list_runs()
+    result = service.list_batches()
     assert isinstance(result, list)
     assert result == [{"id": 1}, {"id": 2}]
     mock_db.batches.list.assert_called_once()

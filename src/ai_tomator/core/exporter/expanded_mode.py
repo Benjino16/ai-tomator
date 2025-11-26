@@ -2,6 +2,7 @@ from .base import BaseExportMode
 from typing import List, Any, Dict
 import pandas as pd
 import json
+import csv
 
 
 class ExpandedExportMode(BaseExportMode):
@@ -41,4 +42,5 @@ class ExpandedExportMode(BaseExportMode):
                 expanded_rows.append(new_row)
 
         df = pd.DataFrame(expanded_rows)
-        return df.to_csv(index=False)
+        df = df.replace({r"[\r\n]+": r"\\n"}, regex=True)
+        return df.to_csv(index=False, quoting=csv.QUOTE_ALL)

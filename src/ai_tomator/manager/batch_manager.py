@@ -79,14 +79,14 @@ class BatchManager:
             self.db.results.save(
                 batch_id, file["storage_name"], input="", output=result
             )
-            stop_flag.set()
             time.sleep(delay)
         self.db.batches.update_status(batch_id, "done")
 
     def stop_batch(self, batch_id):
         if batch_id in self._stop_flags:
+            db_batch_entry = self.db.batches.update_status(batch_id, "stopping")
             self._stop_flags[batch_id].set()
-            self.db.batches.update_status(batch_id, "stopping")
+            return db_batch_entry
         else:
             raise ValueError(f"Batch {batch_id} not found or not running.")
 
