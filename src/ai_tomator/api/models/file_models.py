@@ -6,3 +6,8 @@ class FileData(BaseModel):
     storage_name: str
     size: int | None
     mime_type: str | None
+
+
+class UploadFileData(BaseModel):
+    storage_name: str
+    status: str

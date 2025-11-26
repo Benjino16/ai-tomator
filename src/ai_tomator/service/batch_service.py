@@ -63,10 +63,17 @@ class BatchService:
         return db_batch
 
     def stop(self, batch_id: int) -> dict:
-        self.batch_manager.stop_batch(batch_id)
-        return {"batch_id": batch_id, "status": "stopped"}
+        batch = self.db.batches.get(batch_id)
+        if batch is None:
+            raise ValueError(f"Batch {batch_id} does not exist")
+        if batch["status"] in ("stopped", "stopping", "done"):
+            raise RuntimeError(f"Batch {batch_id} already stopped")
+        return self.batch_manager.stop_batch(batch_id)
 
-    def list_runs(self) -> dict:
+    def get_batch(self, batch_id: int) -> dict:
+        return self.db.batches.get(batch_id)
+
+    def list_batches(self) -> dict:
         result = self.db.batches.list()
         return result
 

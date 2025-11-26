@@ -1,9 +1,11 @@
-from fastapi import APIRouter, UploadFile, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import StreamingResponse, FileResponse, Response
+
 from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService
-from ai_tomator.api.models.file_models import FileData
-from typing import Optional
+from ai_tomator.api.models.file_models import FileData, UploadFileData
+from fastapi import UploadFile, File, Form
+from typing import Optional, List
 from io import StringIO
 import os
 
@@ -11,9 +13,11 @@ import os
 def build_file_router(file_service: FileService, export_service: ExportService):
     router = APIRouter(prefix="/files", tags=["Files"])
 
-    @router.post("/upload", response_model=FileData)
-    def upload_file(file: UploadFile, tags: Optional[list[str]] = None):
-        return file_service.upload_file(file, tags)
+    @router.post("/upload", response_model=UploadFileData)
+    def upload_file(
+        file: UploadFile = File(...), tags: Optional[List[str]] = Form(None)
+    ):
+        return UploadFileData(**file_service.upload_file(file, tags))
 
     @router.get("/download/{filename}")
     def download_file(filename: str):
