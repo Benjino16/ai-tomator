@@ -17,7 +17,9 @@ def build_file_router(file_service: FileService, export_service: ExportService):
     def upload_file(
         file: UploadFile = File(...), tags: Optional[List[str]] = Form(None)
     ):
-        return UploadFileData(**file_service.upload_file(file, tags))
+        return UploadFileData(
+            **file_service.upload_file(file, tags)
+        )  # todo: return FileData instead of UploadFileData
 
     @router.get("/download/{filename}")
     def download_file(filename: str):
@@ -37,7 +39,7 @@ def build_file_router(file_service: FileService, export_service: ExportService):
             path=file_path, filename=filename, media_type="application/octet-stream"
         )
 
-    @router.delete("/delete")
+    @router.delete("/delete/{filename}")
     def delete_file(filename: str):
         try:
             file_service.delete_file(filename)
