@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from ai_tomator.api.routes import build_router
 from ai_tomator.manager.database import Database
@@ -10,9 +12,17 @@ from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService
 from ai_tomator.service.batch_service import BatchService
 
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "webui" / "static"
 
 def create_app(db_path, storage_dir) -> FastAPI:
     app = FastAPI(title="AI-Tomator")
+
+    app.mount(
+        "/ui",
+        StaticFiles(directory=STATIC_DIR, html=True),
+        name="webui",
+    )
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -48,4 +58,5 @@ if __name__ == "__main__":
     import uvicorn
 
     print("SwaggerUI: http://localhost:8000/docs")
+    print("WebUI: http://localhost:8000/ui")
     uvicorn.run("ai_tomator.main:app", host="localhost", port=8000, reload=True)
