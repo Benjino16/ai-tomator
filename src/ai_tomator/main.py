@@ -15,6 +15,7 @@ from ai_tomator.service.batch_service import BatchService
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "webui" / "static"
 
+
 def create_app(db_path, storage_dir) -> FastAPI:
     app = FastAPI(title="AI-Tomator")
 
