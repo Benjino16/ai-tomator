@@ -43,13 +43,16 @@ def test_save_creates_file_and_calls_db(temp_dir, mock_db):
     fm = FileManager(temp_dir, mock_db)
     upload = make_upload_file()
 
-    name = fm.save(upload, tags=["tag1"])
-    path = os.path.join(temp_dir, name)
-
-    assert os.path.exists(path)
+    fm.save(upload, tags=["tag1"])
     mock_db.files.add.assert_called_once()
     args, kwargs = mock_db.files.add.call_args
-    assert args[0] == name  # storage name
+    storage_name = args[0]
+
+    path = os.path.join(temp_dir, storage_name)
+
+    #todo: verify fm.save() return type - problem: dict is created by db
+    assert os.path.exists(path)
+    assert args[1] == upload.filename
 
 
 def test_delete_existing_file(temp_dir, mock_db):

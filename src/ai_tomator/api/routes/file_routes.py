@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse, FileResponse, Response
 
 from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService
-from ai_tomator.api.models.file_models import FileData, UploadFileData
+from ai_tomator.api.models.file_models import FileData
 from fastapi import UploadFile, File, Form
 from typing import Optional, List
 from io import StringIO
@@ -13,13 +13,13 @@ import os
 def build_file_router(file_service: FileService, export_service: ExportService):
     router = APIRouter(prefix="/files", tags=["Files"])
 
-    @router.post("/upload", response_model=UploadFileData)
+    @router.post("/upload", response_model=FileData)
     def upload_file(
         file: UploadFile = File(...), tags: Optional[List[str]] = Form(None)
     ):
-        return UploadFileData(
+        return FileData(
             **file_service.upload_file(file, tags)
-        )  # todo: return FileData instead of UploadFileData
+        )
 
     @router.get("/download/{filename}")
     def download_file(filename: str):

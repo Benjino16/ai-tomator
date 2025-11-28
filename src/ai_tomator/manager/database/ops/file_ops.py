@@ -24,6 +24,7 @@ class FileOps:
             )
             session.add(file)
             session.commit()
+            return file.to_dict()
 
     def get(self, storage_name: str):
         with self.SessionLocal() as session:
@@ -43,3 +44,4 @@ class FileOps:
                 raise ValueError(f"File '{storage_name}' not found.")
             session.delete(file)
             session.commit()
+            return file.to_dict()
