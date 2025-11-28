@@ -17,9 +17,7 @@ def build_file_router(file_service: FileService, export_service: ExportService):
     def upload_file(
         file: UploadFile = File(...), tags: Optional[List[str]] = Form(None)
     ):
-        return FileData(
-            **file_service.upload_file(file, tags)
-        )
+        return FileData(**file_service.upload_file(file, tags))
 
     @router.get("/download/{filename}")
     def download_file(filename: str):

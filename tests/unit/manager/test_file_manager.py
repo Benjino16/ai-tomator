@@ -50,7 +50,7 @@ def test_save_creates_file_and_calls_db(temp_dir, mock_db):
 
     path = os.path.join(temp_dir, storage_name)
 
-    #todo: verify fm.save() return type - problem: dict is created by db
+    # todo: verify fm.save() return type - problem: dict is created by db
     assert os.path.exists(path)
     assert args[1] == upload.filename
 
