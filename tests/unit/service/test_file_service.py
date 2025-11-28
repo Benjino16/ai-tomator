@@ -13,7 +13,13 @@ def mock_db():
 @pytest.fixture
 def mock_file_manager():
     fm = MagicMock()
-    fm.save = MagicMock(return_value="saved.txt")
+    fm.save = MagicMock(
+        return_value={
+            "storage_name": "saved.txt",
+            "display_name": "display_file.txt",
+            "tags": ["tag1", "tag2"],
+        }
+    )
     fm.delete = MagicMock(return_value=True)
     fm.get_path = MagicMock(return_value="/tmp/saved.txt")
     return fm
@@ -27,7 +33,11 @@ def service(mock_db, mock_file_manager):
 def test_upload_file_calls_file_manager(service, mock_file_manager):
     result = service.upload_file(file="mock_file", tags=["tag"])
     mock_file_manager.save.assert_called_once_with("mock_file", ["tag"])
-    assert result == {"storage_name": "saved.txt", "status": "uploaded"}
+    assert result == {
+        "storage_name": "saved.txt",
+        "display_name": "display_file.txt",
+        "tags": ["tag1", "tag2"],
+    }
 
 
 def test_list_files_returns_from_db(service, mock_db):
