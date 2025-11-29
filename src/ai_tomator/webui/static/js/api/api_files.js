@@ -1,8 +1,9 @@
 export function createFilesAPI(base) {
     return {
-        upload(file) {
+        upload(file, tags) {
             const formData = new FormData();
             formData.append("file", file);
+            formData.append("tags", tags);
 
             return fetch(`${base}/files/upload`, {
                 method: "POST",

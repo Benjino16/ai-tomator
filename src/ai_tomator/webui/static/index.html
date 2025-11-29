@@ -76,11 +76,8 @@
                     </thead>
                     <tbody></tbody>
                 </table>
-                <div class="dropzone" id="dropzone">
-                    Dateien hierher ziehen oder klicken
-                </div>
-                <input type="file" id="fileInput" multiple style="display:none">
             </div>
+            <button id="openUploadOverlay">+ Dateien hinzufügen</button>
         </section>
 
         <section id="endpoints">
@@ -116,6 +113,27 @@
         </footer>
 
     </main>
+</div>
+<div id="uploadOverlay" class="overlay hidden">
+    <div class="overlay-content">
+        <h3>Dateien hochladen</h3>
+
+        <div class="dropzone" id="overlayDropzone">
+            Dateien hierher ziehen oder klicken
+        </div>
+        <input type="file" id="overlayFileInput" multiple style="display:none">
+
+        <h4>Ausgewählte Dateien</h4>
+        <ul id="selectedFilesList"></ul>
+
+        <label>Tag:</label>
+        <input type="text" id="uploadTag">
+
+        <div class="action-row">
+            <button id="cancelUploadOverlay">Abbrechen</button>
+            <button id="uploadFilesBtn">Hochladen</button>
+        </div>
+    </div>
 </div>
 </body>
 </html>

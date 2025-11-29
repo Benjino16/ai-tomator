@@ -15,20 +15,25 @@ export function createFilesService(api) {
         }
     }
 
+    async function getByTag(tag) {
+        await ensureCache();
+        return cache.filter(r => Array.isArray(r.tags) && r.tags.includes(tag));
+    }
+
     return {
         async getAll() {
             await ensureCache();
             return cache;
         },
 
-        async getByTag(tag) {
-            await ensureCache();
-            return cache.filter(r => r.tag === tag);
+        async getStrListByTag(tag) {
+            const list = await getByTag(tag)
+            return list.flatMap(r => r.storage_name);
         },
 
         async getTags() {
             await ensureCache();
-            return [...new Set(cache.map(r => r.tag))];
+            return [...new Set(cache.flatMap(r => r.tags))];
         },
 
         async delete(storage_name) {
@@ -42,6 +47,7 @@ export function createFilesService(api) {
             }
         },
 
-        refresh
+        refresh,
+        getByTag
     };
 }

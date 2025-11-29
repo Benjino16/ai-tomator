@@ -132,6 +132,7 @@ h2 {
 select, button, input {
     padding: 10px;
     font-size: 15px;
+    margin: 3px;
 }
 
 button {
@@ -181,7 +182,7 @@ footer {
     position: fixed;
     inset: 0;
     background: var(--color-overlay);
-    display: none;
+    display: flex;
     justify-content: center;
     align-items: center;
     z-index: 999;
@@ -197,12 +198,11 @@ footer {
     position: relative;
 }
 
-.close-btn {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    font-size: 22px;
-    background: none;
-    border: none;
-    cursor: pointer;
+.overlay.hidden {
+    display: none;
+}
+
+#selectedFilesList li {
+    border-bottom: 1px solid #ddd;
+    padding: 4px 0;
 }

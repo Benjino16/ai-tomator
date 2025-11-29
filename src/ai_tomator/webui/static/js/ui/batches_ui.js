@@ -1,4 +1,5 @@
 import { API } from "../api/index.js";
+import { Service } from "../service/index.js";
 
 export const RunsUI = {
 
@@ -6,7 +7,7 @@ export const RunsUI = {
         this.table = document.querySelector("#runsTable tbody");
         this.startBtn = document.getElementById("startRunBtn");
         this.endpointSelect = document.getElementById("endpoint-select");
-        this.fileSelect = document.getElementById("file-tag-select");
+        this.fileTagSelect = document.getElementById("file-tag-select");
         this.fileReaderSelect = document.getElementById("file-reader-select");
         this.modelField = document.getElementById("model-input");
         this.temperatureField = document.getElementById("temperature-input");
@@ -21,8 +22,7 @@ export const RunsUI = {
         const runs = await API.Batches.list()
         const endpoints = await API.Endpoints.list()
         const file_readers = await API.Pipeline.listFileReaders()
-        const files = await API.Files.list()
-        console.log(files)
+        const file_tags = await Service.Files.getTags()
 
         this.endpointSelect.innerHTML = "<option value=\"\">Endpoint auswählen</option>";
         for (const endpointsKey of endpoints) {
@@ -31,12 +31,13 @@ export const RunsUI = {
            option.textContent = endpointsKey["name"];
            this.endpointSelect.appendChild(option);
         }
-        this.fileSelect.innerHTML = "<option value=\"\">File Tag auswählen</option>";
-        for (const file of files) {
+        console.log(file_tags)
+        this.fileTagSelect.innerHTML = "<option value=\"\">File Tag auswählen</option>";
+        for (const tag of file_tags) {
             const option = document.createElement("option");
-            option.value = file["storage_name"];
-            option.textContent = file["display_name"];
-            this.fileSelect.appendChild(option);
+            option.value = tag;
+            option.textContent = tag;
+            this.fileTagSelect.appendChild(option);
         }
         this.fileReaderSelect.innerHTML = "<option value=\"\">File Reader auswählen</option>";
         for (const reader of file_readers) {
@@ -67,7 +68,7 @@ export const RunsUI = {
             endpoint: this.endpointSelect.value,
             model: this.modelField.value,
             file_reader: "pypdf2",
-            files: [this.fileSelect.value],
+            files: await Service.Files.getStrListByTag(this.fileTagSelect.value),
             delay: 5,
             temperature: this.temperatureField.value,
         };
