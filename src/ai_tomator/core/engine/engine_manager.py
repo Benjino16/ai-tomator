@@ -6,7 +6,11 @@ from ai_tomator.core.file_reader.reader_manager import FileReaderManager
 
 class EngineManager:
     def __init__(self):
-        self.engine_map = {"test": TestEngine, "gemini": GeminiEngine, "openai": OpenAIEngine}
+        self.engine_map = {
+            "test": TestEngine,
+            "gemini": GeminiEngine,
+            "openai": OpenAIEngine,
+        }
 
     def process(
         self,
