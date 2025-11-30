@@ -4,6 +4,18 @@ from fastapi.testclient import TestClient
 from ai_tomator.main import create_app
 import io
 
+TEST_PDF = b"""%PDF-1.1
+1 0 obj<<>>endobj
+xref
+0 2
+0000000000 65535 f 
+0000000009 00000 n 
+trailer<<</Root 1 0 R/Size 2>> 
+startxref
+44
+%%EOF
+"""
+
 
 @pytest.fixture(scope="session")
 def client():
@@ -33,7 +45,7 @@ def create_endpoint(client):
 
 @pytest.fixture(scope="session")
 def upload_file(client):
-    resp = client.post("/api/files/upload", files={"file": ("test.txt", TEST_FILE_A)})
+    resp = client.post("/api/files/upload", files={"file": ("test.pdf", TEST_PDF)})
     assert resp.status_code == 200
     return resp.json()["storage_name"]
 
