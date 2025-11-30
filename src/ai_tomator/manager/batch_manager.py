@@ -3,6 +3,9 @@ from ai_tomator.core.file_reader.reader_manager import FileReaderManager
 from .database import Database
 import threading
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class BatchManager:
@@ -65,20 +68,26 @@ class BatchManager:
             if stop_flag.is_set():
                 self.db.batches.update_status(batch_id, "stopped")
                 return
-            result = self.engine.process(
-                endpoint=endpoint,
-                file_reader=file_reader,
-                file_path=file["path"],
-                model=model,
-                prompt=prompt,
-                temperature=temperature,
-            )
-            self.db.batches.update_batch_file_status(
-                batch_id, file["storage_name"], "done"
-            )
-            self.db.results.save(
-                batch_id, file["storage_name"], input="", output=result
-            )
+            try:
+                result = self.engine.process(
+                    endpoint=endpoint,
+                    file_reader=file_reader,
+                    file_path=file["path"],
+                    model=model,
+                    prompt=prompt,
+                    temperature=temperature,
+                )
+                self.db.batches.update_batch_file_status(
+                    batch_id, file["storage_name"], "done"
+                )
+                self.db.results.save(
+                    batch_id, file["storage_name"], input="", output=result
+                )
+            except Exception as e:
+                self.db.batches.update_status(batch_id, "error")
+                logger.exception(e)
+                return
+
             time.sleep(delay)
         self.db.batches.update_status(batch_id, "done")
 
