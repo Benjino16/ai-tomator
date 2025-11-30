@@ -19,6 +19,7 @@ dependencies = [
     "PyPDF2",
     "pandas",
     "sqlalchemy",
+    "tiktoken"
 ]
 
 [project.optional-dependencies]
