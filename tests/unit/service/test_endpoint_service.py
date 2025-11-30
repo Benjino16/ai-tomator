@@ -26,7 +26,7 @@ def test_add_calls_db_and_returns_status(service, mock_db):
 
 def test_get_returns_endpoint(service, mock_db):
     result = service.get("x")
-    mock_db.endpoints.get.assert_called_once_with("x")
+    mock_db.endpoints.get.assert_called_once_with("x", False)
     assert result == {"name": "x", "engine": "gpt"}
 
 
