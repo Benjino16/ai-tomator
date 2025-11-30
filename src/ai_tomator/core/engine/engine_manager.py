@@ -1,10 +1,11 @@
+from ai_tomator.core.engine.gemini_engine import GeminiEngine
 from ai_tomator.core.engine.test_engine import TestEngine
 from ai_tomator.core.file_reader.reader_manager import FileReaderManager
 
 
 class EngineManager:
     def __init__(self):
-        self.engine_map = {"test": TestEngine}
+        self.engine_map = {"test": TestEngine, "gemini": GeminiEngine}
 
     def process(
         self,
