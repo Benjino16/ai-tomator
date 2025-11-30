@@ -28,7 +28,7 @@ class BatchService:
         temperature: float,
     ) -> dict:
         batch_name = f"batch_{hash(model + endpoint_name)}"
-        endpoint = self.endpoint_service.get(endpoint_name)
+        endpoint = self.endpoint_service.get(endpoint_name, True)
         engine = endpoint["engine"]
 
         file_infos = []
