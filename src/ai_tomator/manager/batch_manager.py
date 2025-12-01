@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class BatchManager:
-    def __init__(self, db: Database, mode: str = "local"):
+    def __init__(self, db: Database, engine_manger: EngineManager, mode: str = "local"):
         self.db = db
         self.mode = mode
-        self.engine = EngineManager()
+        self.engine = engine_manger
         self.active_batches = {}
         self._stop_flags = {}
 
