@@ -78,12 +78,19 @@ class BatchManager:
                     temperature=temperature,
                 )
                 self.db.batches.update_batch_file_status(
-                    batch_id, file["storage_name"], "done"
+                    batch_id=batch_id,
+                    storage_name=file["storage_name"],
+                    status="done",
                 )
                 self.db.results.save(
                     batch_id, file["storage_name"], input="", output=result
                 )
             except Exception as e:
+                self.db.batches.update_batch_file_status(
+                    batch_id=batch_id,
+                    storage_name=file["storage_name"],
+                    status="error",
+                )
                 self.db.batches.update_status(batch_id, "error")
                 logger.exception(e)
                 return

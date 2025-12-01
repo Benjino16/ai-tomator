@@ -18,7 +18,9 @@ def mock_db():
 
 @pytest.fixture
 def service(mock_db):
-    return EndpointService(db=mock_db, endpoint_manager=EndpointManager(engine_manager=EngineManager()))
+    return EndpointService(
+        db=mock_db, endpoint_manager=EndpointManager(engine_manager=EngineManager())
+    )
 
 
 def test_add_calls_db_and_returns_status(service, mock_db):
