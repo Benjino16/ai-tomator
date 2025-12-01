@@ -1,4 +1,5 @@
 from ai_tomator.core.engine.gemini_engine import GeminiEngine
+from ai_tomator.core.engine.models import EngineHealth
 from ai_tomator.core.engine.openai_engine import OpenAIEngine
 from ai_tomator.core.engine.test_engine import TestEngine
 from ai_tomator.core.file_reader.reader_manager import FileReaderManager
@@ -49,6 +50,26 @@ class EngineManager:
             content=content,
             file_path=include_file_path,
         )
+
+    def endpoint_health(self, endpoint) -> EngineHealth:
+        engine = self._get_engine_instance(endpoint)
+        return engine.health()
+
+    def endpoint_models(self, endpoint):
+        engine = self._get_engine_instance(endpoint)
+        return engine.models()
+
+    def endpoint_time_estimate(self, endpoint, model: str, tokens: int):
+        engine = self._get_engine_instance(endpoint)
+        return engine.time_estimate(model, tokens)
+
+    def endpoint_token_count(self, endpoint, model: str, text: str):
+        engine = self._get_engine_instance(endpoint)
+        return engine.token_count(model, text)
+
+    def endpoint_cost_estimate(self, endpoint, model: str, prompt_tokens: int, completion_tokens: int):
+        engine = self._get_engine_instance(endpoint)
+        return engine.token_count(model, prompt_tokens, completion_tokens)
 
     def get_engines(self):
         return list(self.engine_map.keys())
