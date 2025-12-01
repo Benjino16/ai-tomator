@@ -67,7 +67,9 @@ class EngineManager:
         engine = self._get_engine_instance(endpoint)
         return engine.token_count(model, text)
 
-    def endpoint_cost_estimate(self, endpoint, model: str, prompt_tokens: int, completion_tokens: int):
+    def endpoint_cost_estimate(
+        self, endpoint, model: str, prompt_tokens: int, completion_tokens: int
+    ):
         engine = self._get_engine_instance(endpoint)
         return engine.token_count(model, prompt_tokens, completion_tokens)
 

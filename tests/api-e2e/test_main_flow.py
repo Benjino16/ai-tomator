@@ -1,4 +1,3 @@
-import tempfile
 import pytest
 from fastapi.testclient import TestClient
 from ai_tomator.main import create_app
