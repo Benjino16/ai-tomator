@@ -5,8 +5,10 @@ from pathlib import Path
 
 from ai_tomator.api.routes import build_router
 from ai_tomator.manager.database import Database
+from ai_tomator.manager.endpoint_manager import EndpointManager
 from ai_tomator.manager.file_manager import FileManager
 from ai_tomator.manager.batch_manager import BatchManager
+from ai_tomator.core.engine.engine_manager import EngineManager
 from ai_tomator.service.endpoint_service import EndpointService
 from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService
@@ -30,11 +32,13 @@ def create_app(db_path, storage_dir) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         db = Database(db_path)
+        engine_manager = EngineManager()
         file_manager = FileManager(storage_dir, db)
-        batch_manager = BatchManager(db)
+        batch_manager = BatchManager(db, engine_manager)
+        endpoint_manager = EndpointManager(engine_manager)
 
         file_service = FileService(db, file_manager)
-        endpoint_service = EndpointService(db)
+        endpoint_service = EndpointService(db, endpoint_manager)
         batch_service = BatchService(db, batch_manager, endpoint_service, file_service)
         export_service = ExportService(db)
 

@@ -1,5 +1,8 @@
 import pytest
 from unittest.mock import MagicMock
+
+from ai_tomator.core.engine.engine_manager import EngineManager
+from ai_tomator.manager.endpoint_manager import EndpointManager
 from ai_tomator.service.endpoint_service import EndpointService
 
 
@@ -15,7 +18,9 @@ def mock_db():
 
 @pytest.fixture
 def service(mock_db):
-    return EndpointService(db=mock_db)
+    return EndpointService(
+        db=mock_db, endpoint_manager=EndpointManager(engine_manager=EngineManager())
+    )
 
 
 def test_add_calls_db_and_returns_status(service, mock_db):

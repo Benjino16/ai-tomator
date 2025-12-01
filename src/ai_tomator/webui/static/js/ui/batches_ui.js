@@ -9,12 +9,34 @@ export const RunsUI = {
         this.endpointSelect = document.getElementById("endpoint-select");
         this.fileTagSelect = document.getElementById("file-tag-select");
         this.fileReaderSelect = document.getElementById("file-reader-select");
-        this.modelField = document.getElementById("model-input");
+        this.modelSelect = document.getElementById("model-select");
         this.temperatureField = document.getElementById("temperature-input");
 
+        this.modelSelectDefault = "<option value=\"\">Modell auswählen</option>"
+        this.modelSelect.innerHTML = this.modelSelectDefault;
 
         this.startBtn.onclick = () => this.start();
-        console.log("Test")
+
+        console.log(this.modelSelect)
+        console.log("test")
+
+        this.endpointSelect.addEventListener("change", async () => {
+            if (this.endpointSelect.value === "") {
+                this.modelSelect.innerHTML = this.modelSelectDefault;
+                return;
+            }
+            this.modelSelect.innerHTML = "<option>Lädt…</option>";
+            const models = await API.Endpoints.get_models(this.endpointSelect.value);
+
+            this.modelSelect.innerHTML = this.modelSelectDefault;
+            for (const model of models) {
+                const option = document.createElement("option");
+                option.value = model;
+                option.textContent = model;
+                this.modelSelect.appendChild(option);
+            }
+        });
+
         this.refresh();
     },
 
@@ -66,7 +88,7 @@ export const RunsUI = {
         const data = {
             prompt: "bla bla",
             endpoint: this.endpointSelect.value,
-            model: this.modelField.value,
+            model: this.modelSelect.value,
             file_reader: "pypdf2",
             files: await Service.Files.getStrListByTag(this.fileTagSelect.value),
             delay: 5,

@@ -15,6 +15,12 @@ export function createEndpointsAPI(base) {
             }).then(r => r.json());
         },
 
+        get_models(name) {
+            return fetch(`${base}/endpoints/models/${name}`, {
+                method: "GET"
+            }).then(r => r.json());
+        },
+
         delete(name) {
             return fetch(`${base}/endpoints/delete/${name}`, {
                 method: "DELETE"

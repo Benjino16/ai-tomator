@@ -18,6 +18,14 @@ def build_endpoint_router(endpoint_service: EndpointService):
     def list_endpoints():
         return endpoint_service.list()
 
+    @router.get("/health/{name}", response_model=bool)
+    def get_endpoint_health(name: str):
+        return endpoint_service.health(name)
+
+    @router.get("/models/{name}", response_model=list[str])
+    def get_endpoint_models(name: str):
+        return endpoint_service.models(name)
+
     @router.delete("/delete/{name}", response_model=EndpointData)
     def delete_endpoint(name: str):
         return endpoint_service.delete(name)

@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class BatchManager:
-    def __init__(self, db: Database, mode: str = "local"):
+    def __init__(self, db: Database, engine_manger: EngineManager, mode: str = "local"):
         self.db = db
         self.mode = mode
-        self.engine = EngineManager()
+        self.engine = engine_manger
         self.active_batches = {}
         self._stop_flags = {}
 
@@ -78,12 +78,19 @@ class BatchManager:
                     temperature=temperature,
                 )
                 self.db.batches.update_batch_file_status(
-                    batch_id, file["storage_name"], "done"
+                    batch_id=batch_id,
+                    storage_name=file["storage_name"],
+                    status="done",
                 )
                 self.db.results.save(
                     batch_id, file["storage_name"], input="", output=result
                 )
             except Exception as e:
+                self.db.batches.update_batch_file_status(
+                    batch_id=batch_id,
+                    storage_name=file["storage_name"],
+                    status="error",
+                )
                 self.db.batches.update_status(batch_id, "error")
                 logger.exception(e)
                 return
