@@ -66,17 +66,19 @@
             <div class="card">
                 <div class="flex-wrap">
                     <select id="export-mode-select">
-                        <option value="json">JSON</option>
-                        <option value="yaml">YAML</option>
+                        <option value="raw">CSV/RAW</option>
+                        <option value="expanded">CSV/LONG-FORMAT</option>
                     </select>
+                    <button id="export-button">Export</button>
                 </div>
-                <table id="runsTableExport">
+                <table id="batchTableExport">
                     <thead>
                     <tr>
+                        <th><input type="checkbox" id="select-all-checkbox"></th>
                         <th>ID</th>
                         <th>Status</th>
                         <th>Endpoint</th>
-                        <th>FileReader</th>
+                        <th>File Reader</th>
                     </tr>
                     </thead>
                     <tbody></tbody>
