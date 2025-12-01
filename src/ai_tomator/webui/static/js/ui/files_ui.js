@@ -1,4 +1,5 @@
 import { API } from "../api/index.js";
+import { makeOverlayClosable} from "../utils/overlay.js";
 
 export const FilesUI = {
 
@@ -16,6 +17,8 @@ export const FilesUI = {
         this.openOverlayBtn = document.getElementById("openUploadOverlay");
         this.cancelOverlayBtn = document.getElementById("cancelUploadOverlay");
         this.uploadBtn = document.getElementById("uploadFilesBtn");
+
+        makeOverlayClosable(this.overlay)
 
         this.bindEvents();
         this.refresh();

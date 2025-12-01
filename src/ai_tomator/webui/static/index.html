@@ -17,6 +17,7 @@
 
         <nav>
             <a href="#batch-run">Quick Run</a>
+            <a href="#batch-export">Export Batches</a>
             <a href="#files">Files</a>
             <a href="#endpoints">Endpoints</a>
             <a href="https://github.com/Benjino16/ai-tomator" target="_blank" rel="noopener noreferrer">Docs</a>
@@ -47,6 +48,29 @@
                     <button id="startRunBtn">Run starten</button>
                 </div>
                 <table id="runsTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Status</th>
+                        <th>Endpoint</th>
+                        <th>FileReader</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="batch-export">
+            <h2>Batch Export</h2>
+            <div class="card">
+                <div class="flex-wrap">
+                    <select id="export-mode-select">
+                        <option value="json">JSON</option>
+                        <option value="yaml">YAML</option>
+                    </select>
+                </div>
+                <table id="runsTableExport">
                     <thead>
                     <tr>
                         <th>ID</th>
@@ -133,6 +157,21 @@
             <button id="cancelUploadOverlay">Abbrechen</button>
             <button id="uploadFilesBtn">Hochladen</button>
         </div>
+    </div>
+</div>
+<div id="batchOverlay" class="overlay hidden">
+    <div class="overlay-content">
+        <h3>Batch Details</h3>
+        <table id="batchDetailsTable">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </div>
 </div>
 </body>

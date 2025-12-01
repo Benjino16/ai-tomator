@@ -1,5 +1,6 @@
 import { API } from "../api/index.js";
 import { Service } from "../service/index.js";
+import { makeOverlayClosable} from "../utils/overlay.js";
 
 export const RunsUI = {
 
@@ -11,6 +12,10 @@ export const RunsUI = {
         this.fileReaderSelect = document.getElementById("file-reader-select");
         this.modelSelect = document.getElementById("model-select");
         this.temperatureField = document.getElementById("temperature-input");
+
+        this.overlay = document.getElementById("batchOverlay");
+        makeOverlayClosable(this.overlay);
+        this.batchesDetailsTable = document.getElementById("batchDetailsTable");
 
         this.modelSelectDefault = "<option value=\"\">Modell auswählen</option>"
         this.modelSelect.innerHTML = this.modelSelectDefault;
@@ -76,12 +81,33 @@ export const RunsUI = {
     addRow(r) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td>${r.id}</td>
-            <td>${r.status}</td>
-            <td>${r.endpoint}</td>
-            <td>${r.file_reader}</td>
-        `;
+        <td>${r.id}</td>
+        <td>${r.status}</td>
+        <td>${r.endpoint}</td>
+        <td>${r.file_reader}</td>
+    `;
+
+        tr.addEventListener("click", () => {
+            console.log("Batch element clicked:", r.id);
+            this.openBatchDetailOverlay(r)
+        });
+
         this.table.appendChild(tr);
+    },
+
+    openBatchDetailOverlay(batch) {
+        this.overlay.classList.remove("hidden");
+
+        this.batchesDetailsTable.innerHTML = "";
+
+        for (const [key, value] of Object.entries(batch)) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+            <td>${key}</td>
+            <td>${value}</td>
+        `;
+            this.batchesDetailsTable.appendChild(tr);
+        }
     },
 
     async start() {
