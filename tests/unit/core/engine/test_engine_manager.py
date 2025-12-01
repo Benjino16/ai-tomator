@@ -32,7 +32,7 @@ def engine_manager():
     return_value="file content",
 )
 def test_process_with_file_content(mock_read, engine_manager):
-    endpoint = {"engine": "mock", "token": "abc123", "url": "http://example.com"}
+    endpoint = {"name": "test_endpoint", "engine": "mock", "token": "abc123", "url": "http://example.com"}
     result = engine_manager.process(
         endpoint=endpoint,
         file_reader="text",
@@ -49,7 +49,7 @@ def test_process_with_file_content(mock_read, engine_manager):
 
 
 def test_process_with_upload(engine_manager):
-    endpoint = {"engine": "mock", "token": "abc123", "url": "http://example.com"}
+    endpoint = {"name": "test_endpoint", "engine": "mock", "token": "abc123", "url": "http://example.com"}
     result = engine_manager.process(
         endpoint=endpoint,
         file_reader="upload",
@@ -65,7 +65,7 @@ def test_process_with_upload(engine_manager):
 
 
 def test_invalid_engine_raises(engine_manager):
-    endpoint = {"engine": "invalid", "token": "123", "url": "x"}
+    endpoint = {"name": "test_endpoint", "engine": "invalid", "token": "123", "url": "x"}
     with pytest.raises(ValueError) as e:
         engine_manager.process(endpoint, "text", "prompt", "file.txt", "model", 0.2)
     assert "not supported" in str(e.value)
