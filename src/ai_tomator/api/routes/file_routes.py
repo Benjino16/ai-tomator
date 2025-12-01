@@ -1,16 +1,14 @@
 from fastapi import APIRouter, HTTPException, status
-from fastapi.responses import StreamingResponse, FileResponse, Response
+from fastapi.responses import FileResponse, Response
 
-from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService
 from ai_tomator.api.models.file_models import FileData
 from fastapi import UploadFile, File, Form
 from typing import Optional, List
-from io import StringIO
 import os
 
 
-def build_file_router(file_service: FileService, export_service: ExportService):
+def build_file_router(file_service: FileService):
     router = APIRouter(prefix="/files", tags=["Files"])
 
     @router.post("/upload", response_model=FileData)
@@ -50,15 +48,5 @@ def build_file_router(file_service: FileService, export_service: ExportService):
     @router.get("/", response_model=list[FileData])
     def list_files():
         return file_service.list_files()
-
-    @router.get("/export")
-    def export_csv(batch_id: int, mode: str):
-        csv_str = export_service.export_batch(batch_id, mode)
-        buffer = StringIO(csv_str)
-        return StreamingResponse(
-            buffer,
-            media_type="text/csv",
-            headers={"Content-Disposition": "attachment; filename=results.csv"},
-        )
 
     return router
