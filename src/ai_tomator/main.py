@@ -11,12 +11,14 @@ from ai_tomator.service.endpoint_service import EndpointService
 from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService
 from ai_tomator.service.batch_service import BatchService
+from ai_tomator.logger_config import setup_logging
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "webui" / "static"
 
 
 def create_app(db_path, storage_dir) -> FastAPI:
+    setup_logging()
     app = FastAPI(title="AI-Tomator")
 
     app.mount(

@@ -2,7 +2,10 @@ import tempfile
 import pytest
 from fastapi.testclient import TestClient
 from ai_tomator.main import create_app
-import io
+
+
+SAMPLE_PDF_PATH_1 = "tests/fixtures/sample-1.pdf"
+SAMPLE_PDF_PATH_2 = "tests/fixtures/sample-2.pdf"
 
 
 @pytest.fixture(scope="session")
@@ -11,10 +14,6 @@ def client():
         test_app = create_app(db_path="sqlite:///:memory:", storage_dir=tempdir)
         with TestClient(test_app) as c:
             yield c
-
-
-TEST_FILE_A = io.BytesIO(b"hello world")
-TEST_FILE_B = io.BytesIO(b"my house is you're house")
 
 
 @pytest.fixture(scope="session")
@@ -33,7 +32,11 @@ def create_endpoint(client):
 
 @pytest.fixture(scope="session")
 def upload_file(client):
-    resp = client.post("/api/files/upload", files={"file": ("test.txt", TEST_FILE_A)})
+    with open(SAMPLE_PDF_PATH_1, "rb") as f:
+        resp = client.post(
+            "/api/files/upload",
+            files={"file": ("test.pdf", f, "application/pdf")},
+        )
     assert resp.status_code == 200
     return resp.json()["storage_name"]
 
