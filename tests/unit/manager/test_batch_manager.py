@@ -1,6 +1,8 @@
 import pytest
 import threading
 from unittest.mock import MagicMock, patch
+
+from ai_tomator.core.engine.engine_manager import EngineManager
 from ai_tomator.manager.batch_manager import BatchManager
 
 
@@ -31,7 +33,7 @@ def mock_file_reader():
 
 
 def test_start_batch_local_thread_start(mock_db, mock_engine, mock_file_reader):
-    manager = BatchManager(db=mock_db, mode="local")
+    manager = BatchManager(db=mock_db,engine_manger=EngineManager())
 
     file_infos = [{"path": "test.txt", "storage_name": "test.txt"}]
     endpoint = {"engine": "test", "token": "x", "url": "y"}
@@ -53,12 +55,12 @@ def test_start_batch_local_thread_start(mock_db, mock_engine, mock_file_reader):
 
 def test_run_batch_flow(mock_db, mock_engine, mock_file_reader):
     """Validate the internal _run_batch logic without real threads."""
-    manager = BatchManager(db=mock_db)
+    manager = BatchManager(db=mock_db, engine_manger=EngineManager())
     stop_flag = MagicMock()
     stop_flag.is_set.return_value = False
 
     file_infos = [{"path": "file.txt", "storage_name": "file.txt"}]
-    endpoint = {"engine": "test", "token": "abc", "url": "http://x"}
+    endpoint = {"name": "endpoint", "engine": "test", "token": "abc", "url": "http://x"}
 
     manager._run_batch(
         batch_id=5,
@@ -84,7 +86,7 @@ def test_run_batch_flow(mock_db, mock_engine, mock_file_reader):
 
 
 def test_stop_batch(mock_db):
-    manager = BatchManager(mock_db)
+    manager = BatchManager(mock_db, engine_manger=EngineManager())
     fake_flag = MagicMock()
     manager._stop_flags[42] = fake_flag
 
@@ -95,13 +97,13 @@ def test_stop_batch(mock_db):
 
 
 def test_stop_batch_invalid(mock_db):
-    manager = BatchManager(mock_db)
+    manager = BatchManager(mock_db, engine_manger=EngineManager())
     with pytest.raises(ValueError):
         manager.stop_batch(99)
 
 
 def test_recover_batches(mock_db):
-    manager = BatchManager(mock_db)
+    manager = BatchManager(mock_db, engine_manger=EngineManager())
     mock_db.batches.list.return_value = [{"id": 10}, {"id": 11}]
     manager.recover_batches()
 
@@ -110,10 +112,10 @@ def test_recover_batches(mock_db):
 
 
 def test_get_engines(mock_db, mock_engine):
-    manager = BatchManager(mock_db)
-    assert manager.get_engines() == ["test"]
+    manager = BatchManager(mock_db, engine_manger=EngineManager())
+    assert manager.get_engines() == ["test", "gemini", "openai"]
 
 
 def test_get_file_readers(mock_db, mock_file_reader):
-    manager = BatchManager(mock_db)
+    manager = BatchManager(mock_db, engine_manger=EngineManager())
     assert manager.get_file_readers() == ["pdf"]
