@@ -12,6 +12,9 @@ export const RunsUI = {
         this.fileReaderSelect = document.getElementById("file-reader-select");
         this.modelSelect = document.getElementById("model-select");
         this.temperatureField = document.getElementById("temperature-input");
+        this.delayField = document.getElementById("delay-input");
+        this.promptField = document.getElementById("prompt-input");
+
 
         this.overlay = document.getElementById("batchOverlay");
         makeOverlayClosable(this.overlay);
@@ -20,10 +23,18 @@ export const RunsUI = {
         this.modelSelectDefault = "<option value=\"\">Modell auswählen</option>"
         this.modelSelect.innerHTML = this.modelSelectDefault;
 
-        this.startBtn.onclick = () => this.start();
+        this.form = document.getElementById("runForm");
 
-        console.log(this.modelSelect)
-        console.log("test")
+        this.form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            if (!this.form.checkValidity()) {
+                this.form.reportValidity();
+                return;
+            }
+
+            await this.start();
+        });
 
         this.endpointSelect.addEventListener("change", async () => {
             if (this.endpointSelect.value === "") {
@@ -49,6 +60,7 @@ export const RunsUI = {
         const runs = await API.Batches.list()
         const endpoints = await API.Endpoints.list()
         const file_readers = await API.Pipeline.listFileReaders()
+        file_readers.push("upload")
         const file_tags = await Service.Files.getTags()
 
         this.endpointSelect.innerHTML = "<option value=\"\">Endpoint auswählen</option>";
@@ -112,12 +124,12 @@ export const RunsUI = {
 
     async start() {
         const data = {
-            prompt: "bla bla",
+            prompt: this.promptField.value,
             endpoint: this.endpointSelect.value,
             model: this.modelSelect.value,
-            file_reader: "pypdf2",
+            file_reader: this.fileReaderSelect.value,
             files: await Service.Files.getStrListByTag(this.fileTagSelect.value),
-            delay: 5,
+            delay: this.delayField.value,
             temperature: this.temperatureField.value,
         };
 
