@@ -10,9 +10,19 @@ export const EndpointsUI = {
         this.select = document.getElementById("endpointEngine");
         this.urlInput = document.getElementById("endpointUrl");
         this.tokenInput = document.getElementById("endpointToken");
-        this.addBtn = document.getElementById("addEndpointBtn");
 
-        this.addBtn.onclick = () => this.add();
+        this.form = document.getElementById("endpointForm");
+
+        this.form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            if (!this.form.checkValidity()) {
+                this.form.reportValidity();
+                return;
+            }
+
+            await this.add();
+        });
 
         this.refresh();
     },
