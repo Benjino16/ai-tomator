@@ -1,6 +1,6 @@
 services:
   web:
-    image: ai-tomator:latest
+    image: ghcr.io/benjino16/ai-tomator:latest
     ports:
       - "8000:8000"
     environment:
