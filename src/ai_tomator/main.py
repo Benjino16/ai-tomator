@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from pathlib import Path
+import os
 
 from ai_tomator.api.routes import build_router
 from ai_tomator.manager.database import Database
@@ -18,10 +19,24 @@ from ai_tomator.logger_config import setup_logging
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "webui" / "static"
 
+DB_PATH = os.getenv("DB_PATH", "database.db")
+# ensure db path exists
+db_file = Path(DB_PATH).resolve()
+db_file.parent.mkdir(parents=True, exist_ok=True)
+
+STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "storage")).resolve())
+
+# create absolut db path (robust for docker / local / pyinstaller)
+DATABASE_URL = f"sqlite:///{Path(DB_PATH).resolve()}"
+
 
 def create_app(db_path, storage_dir) -> FastAPI:
     setup_logging()
     app = FastAPI(title="AI-Tomator")
+
+    @app.get("/health")
+    async def health():
+        return {"status": "ok"}
 
     app.mount(
         "/ui",
@@ -59,11 +74,4 @@ def create_app(db_path, storage_dir) -> FastAPI:
     return app
 
 
-app = create_app("sqlite:///ai_tomator.db", "storage")
-
-if __name__ == "__main__":
-    import uvicorn
-
-    print("SwaggerUI: http://localhost:8000/docs")
-    print("WebUI: http://localhost:8000/ui")
-    uvicorn.run("ai_tomator.main:app", host="localhost", port=8000, reload=True)
+app = create_app(DATABASE_URL, STORAGE_DIR)
