@@ -1,0 +1,15 @@
+services:
+  web:
+    image: ai-tomator:latest
+    ports:
+      - "8000:8000"
+    environment:
+      DB_PATH: /data/db/database.db
+      STORAGE_DIR: /data/storage
+    volumes:
+      - db-data:/data/db
+      - storage-data:/data/storage
+
+volumes:
+  db-data:
+  storage-data:
