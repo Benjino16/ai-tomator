@@ -19,12 +19,12 @@ from ai_tomator.logger_config import setup_logging
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "webui" / "static"
 
-DB_PATH = os.getenv("DB_PATH", "database.db")
+DB_PATH = os.getenv("DB_PATH", "data/db/database.db")
 # ensure db path exists
 db_file = Path(DB_PATH).resolve()
 db_file.parent.mkdir(parents=True, exist_ok=True)
 
-STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "storage")).resolve())
+STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "data/storage")).resolve())
 
 # create absolut db path (robust for docker / local / pyinstaller)
 DATABASE_URL = f"sqlite:///{Path(DB_PATH).resolve()}"

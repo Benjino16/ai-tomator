@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from ai_tomator.main import create_app
+from ai_tomator.app import create_app
 import os
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
