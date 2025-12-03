@@ -34,6 +34,10 @@ def create_app(db_path, storage_dir) -> FastAPI:
     setup_logging()
     app = FastAPI(title="AI-Tomator")
 
+    @app.get("/health")
+    async def health():
+        return {"status": "ok"}
+
     app.mount(
         "/ui",
         StaticFiles(directory=STATIC_DIR, html=True),
@@ -71,13 +75,3 @@ def create_app(db_path, storage_dir) -> FastAPI:
 
 
 app = create_app(DATABASE_URL, STORAGE_DIR)
-
-if __name__ == "__main__":
-    import uvicorn
-
-    HOST = os.getenv("HOST", "localhost")
-    PORT = int(os.getenv("PORT", 8000))
-
-    print("SwaggerUI: http://localhost:8000/docs")
-    print("WebUI: http://localhost:8000/ui")
-    uvicorn.run("ai_tomator.main:app", host=HOST, port=PORT, reload=True)

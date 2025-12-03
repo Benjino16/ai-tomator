@@ -21,6 +21,7 @@ jobs:
           context: .
           push: false
           tags: pr-test:latest
+          load: true
 
       # start container and check health route (optional)
       - name: Run container for health check

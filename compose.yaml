@@ -10,6 +10,13 @@ services:
       - db-data:/data/db
       - storage-data:/data/storage
 
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
 volumes:
   db-data:
   storage-data:

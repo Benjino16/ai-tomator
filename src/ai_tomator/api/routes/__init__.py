@@ -4,7 +4,6 @@ from .batch_routes import build_batch_router
 from .endpoint_routes import build_endpoint_router
 from .pipeline_routes import build_pipeline_router
 from .export_routes import build_export_router
-from .system_routes import build_system_router
 
 
 def build_router(file_service, batch_service, endpoint_service, export_service):
@@ -14,5 +13,4 @@ def build_router(file_service, batch_service, endpoint_service, export_service):
     router.include_router(build_endpoint_router(endpoint_service))
     router.include_router(build_pipeline_router(batch_service))
     router.include_router(build_export_router(export_service))
-    router.include_router(build_system_router())
     return router
