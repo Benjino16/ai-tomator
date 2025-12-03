@@ -1,0 +1,41 @@
+name: PR Docker Build
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: pr-test:latest
+
+      # start container and check health route (optional)
+      - name: Run container for health check
+        run: |
+          docker run -d --name pr-test -p 8000:8000 pr-test:latest
+          sleep 3
+
+      - name: Check /health endpoint
+        run: |
+          for i in {1..10}; do
+            if curl -fs http://localhost:8000/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Health check failed"
+          docker logs pr-test
+          exit 1
