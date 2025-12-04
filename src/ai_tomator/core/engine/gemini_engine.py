@@ -53,16 +53,10 @@ class GeminiEngine(BaseEngine):
             file = self.client.files.upload(file=file_path)
             contents = [
                 {
-                    "role": "system",
-                    "parts": [
-                        {"text": prompt},
-                    ],
-                },
-                {
                     "role": "user",
                     "parts": [
-                        {"file_data": {"file_uri": file.uri}},
                         {"text": prompt},
+                        {"file_data": {"file_uri": file.uri}},
                     ],
                 },
             ]
@@ -71,9 +65,10 @@ class GeminiEngine(BaseEngine):
                 {
                     "role": "user",
                     "parts": [
-                        {"text": prompt + content},
+                        {"text": prompt},
+                        {"text": content},
                     ],
-                }
+                },
             ]
         response = self.client.models.generate_content(
             model=model,
