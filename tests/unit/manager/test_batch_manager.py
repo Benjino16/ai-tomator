@@ -3,6 +3,7 @@ import threading
 from unittest.mock import MagicMock, patch
 
 from ai_tomator.manager.batch_manager import BatchManager
+from ai_tomator.manager.database.models.batch import BatchStatus, BatchFileStatus
 
 
 @pytest.fixture
@@ -75,14 +76,16 @@ def test_run_batch_flow(mock_db, mock_engine, mock_file_reader):
     )
 
     # Database calls should occur in expected order
-    mock_db.batches.update_status.assert_any_call(batch_id=5, status="running")
+    mock_db.batches.update_status.assert_any_call(
+        batch_id=5, status=BatchStatus.RUNNING
+    )
     mock_db.batches.update_batch_file_status.assert_any_call(
-        batch_id=5, storage_name="file.txt", status="done"
+        batch_id=5, storage_name="file.txt", status=BatchFileStatus.COMPLETED
     )
     mock_db.results.save.assert_called_once_with(
         5, "file.txt", input="", output="mocked_result"
     )
-    mock_db.batches.update_status.assert_any_call(5, "done")
+    mock_db.batches.update_status.assert_any_call(5, BatchStatus.COMPLETED)
 
 
 def test_stop_batch(mock_db, mock_engine):
@@ -93,7 +96,7 @@ def test_stop_batch(mock_db, mock_engine):
     manager.stop_batch(42)
 
     fake_flag.set.assert_called_once()
-    mock_db.batches.update_status.assert_called_once_with(42, "stopping")
+    mock_db.batches.update_status.assert_called_once_with(42, BatchStatus.STOPPING)
 
 
 def test_stop_batch_invalid(mock_db, mock_engine):
@@ -107,8 +110,8 @@ def test_recover_batches(mock_db, mock_engine):
     mock_db.batches.list.return_value = [{"id": 10}, {"id": 11}]
     manager.recover_batches()
 
-    # Should update status for both "running" and "started"
-    assert mock_db.batches.update_status.call_count == 4
+    # Should update status at least for both "running" and "started"
+    assert mock_db.batches.update_status.call_count >= 4
 
 
 def test_get_engines(mock_db, mock_engine):

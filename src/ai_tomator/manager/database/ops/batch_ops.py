@@ -1,5 +1,10 @@
 from sqlalchemy.orm import sessionmaker
-from ai_tomator.manager.database.models.batch import Batch, BatchFile
+from ai_tomator.manager.database.models.batch import (
+    Batch,
+    BatchFile,
+    BatchStatus,
+    BatchFileStatus,
+)
 from ai_tomator.manager.database.models.file import File
 
 print("BatchOps using:", Batch.__module__, File.__module__)
@@ -12,7 +17,7 @@ class BatchOps:
     def add(
         self,
         name: str,
-        status: str,
+        status: BatchStatus,
         files: list[str],
         engine: str,
         endpoint: str,
@@ -41,7 +46,11 @@ class BatchOps:
                 raise ValueError(f"Files not found in database: {missing}")
 
             batch.batch_files = [
-                BatchFile(file_id=storage_to_id[f], storage_name=f, status="pending")
+                BatchFile(
+                    file_id=storage_to_id[f],
+                    storage_name=f,
+                    status=BatchFileStatus.QUEUED,
+                )
                 for f in files
             ]
 
@@ -50,7 +59,7 @@ class BatchOps:
             session.refresh(batch)
             return batch.to_dict()
 
-    def update_status(self, batch_id: int, status: str):
+    def update_status(self, batch_id: int, status: BatchStatus):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:
@@ -60,7 +69,9 @@ class BatchOps:
             session.refresh(batch)
             return batch.to_dict()
 
-    def update_batch_file_status(self, batch_id: int, storage_name: str, status: str):
+    def update_batch_file_status(
+        self, batch_id: int, storage_name: str, status: BatchFileStatus
+    ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:
@@ -85,7 +96,7 @@ class BatchOps:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             return batch.to_dict()
 
-    def list(self, status=None):
+    def list(self, status: BatchStatus = None):
         with self.SessionLocal() as session:
             query = session.query(Batch)
             if status:
