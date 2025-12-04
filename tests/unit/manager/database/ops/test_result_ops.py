@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from ai_tomator.manager.database.base import Base
-from ai_tomator.manager.database.models.batch import Batch
+from ai_tomator.manager.database.models.batch import Batch, BatchStatus
 from ai_tomator.manager.database.models.file import File
 from ai_tomator.manager.database.ops.result_ops import ResultOps
 
@@ -33,7 +33,7 @@ def sample_data(db_session):
         prompt="say hello",
         model="gpt",
         temperature=0.5,
-        status="done",
+        status=BatchStatus.COMPLETED,
     )
     file = File(
         id=1,

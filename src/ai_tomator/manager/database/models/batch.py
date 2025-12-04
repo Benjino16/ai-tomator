@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import ForeignKey, func, Enum, Column
+from sqlalchemy import ForeignKey, func, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
@@ -25,8 +25,7 @@ class Batch(Base, RunDataMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=False)
     status: Mapped["BatchStatus"] = mapped_column(
-        Enum(BatchStatus, name="batch_status_enum"),
-        nullable=False
+        Enum(BatchStatus, name="batch_status_enum"), nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -42,7 +41,7 @@ class Batch(Base, RunDataMixin):
 
 
 class BatchFileStatus(enum.Enum):
-    QUEUED  = "QUEUED"
+    QUEUED = "QUEUED"
     RUNNING = "RUNNING"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
@@ -57,7 +56,8 @@ class BatchFile(Base):
     storage_name: Mapped[str] = mapped_column(nullable=False)
     status: Mapped["BatchFileStatus"] = mapped_column(
         Enum(BatchFileStatus, name="batch_file_status_enum"),
-        nullable=False, default=BatchFileStatus.QUEUED
+        nullable=False,
+        default=BatchFileStatus.QUEUED,
     )
 
     batch: Mapped["Batch"] = relationship(back_populates="batch_files")

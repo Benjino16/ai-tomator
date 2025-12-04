@@ -101,7 +101,9 @@ class BatchManager:
 
     def stop_batch(self, batch_id):
         if batch_id in self._stop_flags:
-            db_batch_entry = self.db.batches.update_status(batch_id, BatchStatus.STOPPING)
+            db_batch_entry = self.db.batches.update_status(
+                batch_id, BatchStatus.STOPPING
+            )
             self._stop_flags[batch_id].set()
             return db_batch_entry
         else:

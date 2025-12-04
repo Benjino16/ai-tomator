@@ -67,7 +67,12 @@ class BatchService:
         batch = self.db.batches.get(batch_id)
         if batch is None:
             raise ValueError(f"Batch {batch_id} does not exist")
-        if batch["status"] in (BatchStatus.STOPPED, BatchStatus.STOPPING, BatchStatus.COMPLETED, BatchStatus.FAILED):
+        if batch["status"] in (
+            BatchStatus.STOPPED,
+            BatchStatus.STOPPING,
+            BatchStatus.COMPLETED,
+            BatchStatus.FAILED,
+        ):
             raise RuntimeError(f"Batch {batch_id} already stopped")
         return self.batch_manager.stop_batch(batch_id)
 
