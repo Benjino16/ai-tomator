@@ -67,7 +67,7 @@ def create_app(db_path, storage_dir) -> FastAPI:
             batch_service,
             endpoint_service,
             export_service,
-            prompt_service
+            prompt_service,
         )
         app.include_router(router, prefix="/api")
 

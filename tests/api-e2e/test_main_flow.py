@@ -1,20 +1,9 @@
 import pytest
-from fastapi.testclient import TestClient
-from ai_tomator.app import create_app
 import os
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 SAMPLE_PDF_PATH_1 = os.path.join(CURRENT_DIR, "..", "fixtures", "sample-1.pdf")
 SAMPLE_PDF_PATH_2 = os.path.join(CURRENT_DIR, "..", "fixtures", "sample-2.pdf")
-
-
-@pytest.fixture(scope="session")
-def client(tmp_path_factory):
-    tempdir = tmp_path_factory.mktemp("storage")
-    test_app = create_app(db_path="sqlite:///:memory:", storage_dir=str(tempdir))
-
-    with TestClient(test_app) as c:
-        yield c
 
 
 @pytest.fixture(scope="session")

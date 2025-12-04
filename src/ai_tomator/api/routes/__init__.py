@@ -7,7 +7,9 @@ from .export_routes import build_export_router
 from .prompt_routes import build_prompt_router
 
 
-def build_router(file_service, batch_service, endpoint_service, export_service, prompt_service):
+def build_router(
+    file_service, batch_service, endpoint_service, export_service, prompt_service
+):
     router = APIRouter()
     router.include_router(build_file_router(file_service))
     router.include_router(build_batch_router(batch_service))

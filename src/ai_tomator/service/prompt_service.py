@@ -5,8 +5,7 @@ class PromptService:
     def __init__(self, db: Database):
         self.db = db
 
-    def add(
-        self, name: str, prompt: str) -> dict:
+    def add(self, name: str, prompt: str) -> dict:
         return self.db.prompts.add(name=name, prompt=prompt)
 
     def list(self) -> list[dict]:
