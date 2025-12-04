@@ -19,6 +19,7 @@
             <a href="#batch-run">Quick Run</a>
             <a href="#batch-export">Export Batches</a>
             <a href="#files">Files</a>
+            <a href="#prompts">Prompts</a>
             <a href="#endpoints">Endpoints</a>
             <a href="https://github.com/Benjino16/ai-tomator" target="_blank" rel="noopener noreferrer">Docs</a>
         </nav>
@@ -44,10 +45,10 @@
                     <select id="file-tag-select" required></select>
                     <select id="file-reader-select" required></select>
                     <select id="model-select" required></select>
+                    <select id="prompt-select" required></select>
 
                     <input id="temperature-input" placeholder="Temperature" required type="number" value="1" min="0.0" max="3.0" step="0.1">
                     <input id="delay-input" placeholder="Delay (seconds)" required type="number" min="0" max="360">
-                    <input id="prompt-input" placeholder="Prompt" required type="text" minlength="5">
 
                     <button type="submit">Run starten</button>
                 </form>
@@ -108,6 +109,32 @@
                 </table>
             </div>
             <button id="openUploadOverlay">+ Dateien hinzufügen</button>
+        </section>
+
+        <section id="prompts">
+            <h2>Prompts</h2>
+            <div class="card">
+                <form id="promptsForm">
+                    <input id="promptName" placeholder="Name" required type="text" minlength="3">
+                    <input id="promptInput" placeholder="Prompt" type="text" minlength="3">
+                    <button type="submit">Add</button>
+                    <input type="file" id="promptTXTFileInput" accept="text/plain">
+                </form>
+
+
+                <table id="promptsTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Prompt</th>
+                        <th>Aktionen</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </div>
         </section>
 
         <section id="endpoints">
