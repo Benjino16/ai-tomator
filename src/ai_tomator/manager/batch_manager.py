@@ -1,6 +1,7 @@
 from ai_tomator.core.engine.engine_manager import EngineManager
 from ai_tomator.core.file_reader.reader_manager import FileReaderManager
 from .database import Database
+from .database.models.batch import BatchStatus, BatchFileStatus
 import threading
 import time
 import logging
@@ -63,10 +64,10 @@ class BatchManager:
         temperature,
         stop_flag,
     ):
-        self.db.batches.update_status(batch_id=batch_id, status="running")
+        self.db.batches.update_status(batch_id=batch_id, status=BatchStatus.RUNNING)
         for file in file_infos:
             if stop_flag.is_set():
-                self.db.batches.update_status(batch_id, "stopped")
+                self.db.batches.update_status(batch_id, BatchStatus.STOPPED)
                 return
             try:
                 result = self.engine.process(
@@ -80,7 +81,7 @@ class BatchManager:
                 self.db.batches.update_batch_file_status(
                     batch_id=batch_id,
                     storage_name=file["storage_name"],
-                    status="done",
+                    status=BatchFileStatus.COMPLETED,
                 )
                 self.db.results.save(
                     batch_id, file["storage_name"], input="", output=result
@@ -89,27 +90,27 @@ class BatchManager:
                 self.db.batches.update_batch_file_status(
                     batch_id=batch_id,
                     storage_name=file["storage_name"],
-                    status="error",
+                    status=BatchFileStatus.FAILED,
                 )
-                self.db.batches.update_status(batch_id, "error")
+                self.db.batches.update_status(batch_id, BatchStatus.FAILED)
                 logger.exception(e)
                 return
 
             time.sleep(delay)
-        self.db.batches.update_status(batch_id, "done")
+        self.db.batches.update_status(batch_id, BatchStatus.COMPLETED)
 
     def stop_batch(self, batch_id):
         if batch_id in self._stop_flags:
-            db_batch_entry = self.db.batches.update_status(batch_id, "stopping")
+            db_batch_entry = self.db.batches.update_status(batch_id, BatchStatus.STOPPING)
             self._stop_flags[batch_id].set()
             return db_batch_entry
         else:
             raise ValueError(f"Batch {batch_id} not found or not running.")
 
     def recover_batches(self):
-        for status in ("running", "started"):
+        for status in (BatchStatus.RUNNING, BatchStatus.STARTING, BatchStatus.STOPPING):
             for batch in self.db.batches.list(status=status):
-                self.db.batches.update_status(batch["id"], "error")
+                self.db.batches.update_status(batch["id"], BatchStatus.FAILED)
 
     def get_engines(self):
         return self.engine.get_engines()

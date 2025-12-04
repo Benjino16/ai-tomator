@@ -2,6 +2,7 @@ from .endpoint_service import EndpointService
 from .file_service import FileService
 from ..manager.batch_manager import BatchManager
 from ..manager.database import Database
+from ..manager.database.models.batch import BatchStatus
 
 
 class BatchService:
@@ -40,7 +41,7 @@ class BatchService:
 
         db_batch = self.db.batches.add(
             name=batch_name,
-            status="starting",
+            status=BatchStatus.STARTING,
             files=files,
             engine=engine,
             endpoint=endpoint_name,
@@ -66,7 +67,7 @@ class BatchService:
         batch = self.db.batches.get(batch_id)
         if batch is None:
             raise ValueError(f"Batch {batch_id} does not exist")
-        if batch["status"] in ("stopped", "stopping", "done"):
+        if batch["status"] in (BatchStatus.STOPPED, BatchStatus.STOPPING, BatchStatus.COMPLETED, BatchStatus.FAILED):
             raise RuntimeError(f"Batch {batch_id} already stopped")
         return self.batch_manager.stop_batch(batch_id)
 
