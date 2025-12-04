@@ -11,7 +11,7 @@ class EngineManager:
         self.engine_map = {
             "test": TestEngine,
             "gemini": GeminiEngine,
-            "openai": OpenAIEngine,
+            #"openai": OpenAIEngine,
             "ollama": OllamaEngine,
         }
         self._instances = {}
