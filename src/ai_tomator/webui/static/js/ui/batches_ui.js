@@ -13,7 +13,7 @@ export const RunsUI = {
         this.modelSelect = document.getElementById("model-select");
         this.temperatureField = document.getElementById("temperature-input");
         this.delayField = document.getElementById("delay-input");
-        this.promptField = document.getElementById("prompt-input");
+        this.promptSelect = document.getElementById("prompt-select");
 
 
         this.overlay = document.getElementById("batchOverlay");
@@ -62,6 +62,7 @@ export const RunsUI = {
         const file_readers = await API.Pipeline.listFileReaders()
         file_readers.push("upload")
         const file_tags = await Service.Files.getTags()
+        const prompts = await API.Prompts.list()
 
         this.endpointSelect.innerHTML = "<option value=\"\">Endpoint auswählen</option>";
         for (const endpointsKey of endpoints) {
@@ -84,6 +85,13 @@ export const RunsUI = {
             option.value = reader;
             option.textContent = reader;
             this.fileReaderSelect.appendChild(option);
+        }
+        this.promptSelect.innerHTML = "<option value=\"\">Prompt auswählen</option>";
+        for (const prompt of prompts) {
+            const option = document.createElement("option");
+            option.value = prompt.prompt;
+            option.textContent = prompt.name;
+            this.promptSelect.appendChild(option);
         }
         console.log(runs);
         this.table.innerHTML = "";
@@ -124,7 +132,7 @@ export const RunsUI = {
 
     async start() {
         const data = {
-            prompt: this.promptField.value,
+            prompt: this.promptSelect.value,
             endpoint: this.endpointSelect.value,
             model: this.modelSelect.value,
             file_reader: this.fileReaderSelect.value,
