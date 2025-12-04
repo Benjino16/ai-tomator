@@ -64,7 +64,7 @@ class GeminiEngine(BaseEngine):
                         {"file_data": {"file_uri": file.uri}},
                         {"text": prompt},
                     ],
-                }
+                },
             ]
         else:
             contents = [

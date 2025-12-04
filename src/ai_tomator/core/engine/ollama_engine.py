@@ -1,10 +1,7 @@
 from ai_tomator.core.engine.base import BaseEngine
 from ai_tomator.core.engine.models import EngineHealth
 import tiktoken
-from ollama import ChatResponse
 from ollama import Client
-
-
 
 
 class OllamaEngine(BaseEngine):
@@ -15,7 +12,6 @@ class OllamaEngine(BaseEngine):
             self.client: Client = Client()
         else:
             self.client: Client = Client(base_url)
-
 
     def models(self) -> list[str]:
         models = self.client.list().models
@@ -56,18 +52,23 @@ class OllamaEngine(BaseEngine):
             raise ValueError("Either file_path or content must be specified")
 
         if file_path:
-            raise ValueError("Ollama engine does not support file uploads. Please use a file reader instead.")
+            raise ValueError(
+                "Ollama engine does not support file uploads. Please use a file reader instead."
+            )
         else:
-            response = self.client.chat(model=model, keep_alive=0, options={"temperature": temperature},
+            response = self.client.chat(
+                model=model,
+                keep_alive=0,
+                options={"temperature": temperature},
                 messages=[
                     {
-                        'role': 'system',
-                        'content': prompt,
+                        "role": "system",
+                        "content": prompt,
                     },
                     {
-                        'role': 'user',
-                        'content': content,
+                        "role": "user",
+                        "content": content,
                     },
-                ]
+                ],
             )
-            return response['message']['content']
+            return response["message"]["content"]

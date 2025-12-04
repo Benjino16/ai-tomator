@@ -1,7 +1,6 @@
 from ai_tomator.core.engine.gemini_engine import GeminiEngine
 from ai_tomator.core.engine.models import EngineHealth
 from ai_tomator.core.engine.ollama_engine import OllamaEngine
-from ai_tomator.core.engine.openai_engine import OpenAIEngine
 from ai_tomator.core.engine.test_engine import TestEngine
 from ai_tomator.core.file_reader.reader_manager import FileReaderManager
 
@@ -11,7 +10,7 @@ class EngineManager:
         self.engine_map = {
             "test": TestEngine,
             "gemini": GeminiEngine,
-            #"openai": OpenAIEngine,
+            # "openai": OpenAIEngine,
             "ollama": OllamaEngine,
         }
         self._instances = {}
