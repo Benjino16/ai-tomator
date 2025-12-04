@@ -53,6 +53,12 @@ class GeminiEngine(BaseEngine):
             file = self.client.files.upload(file=file_path)
             contents = [
                 {
+                    "role": "system",
+                    "parts": [
+                        {"text": prompt},
+                    ],
+                },
+                {
                     "role": "user",
                     "parts": [
                         {"file_data": {"file_uri": file.uri}},
