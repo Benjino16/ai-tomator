@@ -14,6 +14,7 @@ from ai_tomator.service.endpoint_service import EndpointService
 from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService
 from ai_tomator.service.batch_service import BatchService
+from ai_tomator.service.prompt_service import PromptService
 from ai_tomator.logger_config import setup_logging
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -56,6 +57,7 @@ def create_app(db_path, storage_dir) -> FastAPI:
         endpoint_service = EndpointService(db, endpoint_manager)
         batch_service = BatchService(db, batch_manager, endpoint_service, file_service)
         export_service = ExportService(db)
+        prompt_service = PromptService(db)
 
         file_manager.sync_storage_with_db()
         batch_manager.recover_batches()
@@ -65,6 +67,7 @@ def create_app(db_path, storage_dir) -> FastAPI:
             batch_service,
             endpoint_service,
             export_service,
+            prompt_service
         )
         app.include_router(router, prefix="/api")
 
