@@ -1,19 +1,21 @@
 from ai_tomator.core.engine.base import BaseEngine
-import tiktoken
-from google import genai
-
 from ai_tomator.core.engine.models import EngineHealth
+import tiktoken
+from ollama import Client
 
 
-class GeminiEngine(BaseEngine):
+class OllamaEngine(BaseEngine):
 
     def __init__(self, api_token=None, base_url=None):
         super().__init__(api_token, base_url)
-        self.client = genai.Client(api_key=api_token)
+        if base_url is None:
+            self.client: Client = Client()
+        else:
+            self.client: Client = Client(base_url)
 
     def models(self) -> list[str]:
-        models = self.client.models.list()
-        model_ids = [m.name for m in models]
+        models = self.client.list().models
+        model_ids = [m.model for m in models]
         return model_ids
 
     def health(self) -> EngineHealth:
@@ -50,34 +52,23 @@ class GeminiEngine(BaseEngine):
             raise ValueError("Either file_path or content must be specified")
 
         if file_path:
-            file = self.client.files.upload(file=file_path)
-            contents = [
-                {
-                    "role": "system",
-                    "parts": [
-                        {"text": prompt},
-                    ],
-                },
-                {
-                    "role": "user",
-                    "parts": [
-                        {"file_data": {"file_uri": file.uri}},
-                        {"text": prompt},
-                    ],
-                },
-            ]
+            raise ValueError(
+                "Ollama engine does not support file uploads. Please use a file reader instead."
+            )
         else:
-            contents = [
-                {
-                    "role": "user",
-                    "parts": [
-                        {"text": prompt + content},
-                    ],
-                }
-            ]
-        response = self.client.models.generate_content(
-            model=model,
-            contents=contents,
-            config={"temperature": temperature},
-        )
-        return response.text
+            response = self.client.chat(
+                model=model,
+                keep_alive=0,
+                options={"temperature": temperature},
+                messages=[
+                    {
+                        "role": "system",
+                        "content": prompt,
+                    },
+                    {
+                        "role": "user",
+                        "content": content,
+                    },
+                ],
+            )
+            return response["message"]["content"]
