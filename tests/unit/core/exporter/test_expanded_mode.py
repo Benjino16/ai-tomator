@@ -29,9 +29,9 @@ def test_list_of_objects(exporter):
     df = csv_to_df(exporter.to_csv(data))
 
     assert len(df) == 2
-    assert set(df.columns) == {"model", "temp", "id", "answer", "quote"}
-    assert df["id"].astype(str).tolist() == ["1", "2"]
-    assert df["answer"].tolist() == [False, True]
+    assert set(df.columns) == {"model", "temp", "_id", "_answer", "_quote"}
+    assert df["_id"].astype(str).tolist() == ["1", "2"]
+    assert df["_answer"].tolist() == [False, True]
 
 
 def test_dict_output(exporter):
@@ -39,9 +39,9 @@ def test_dict_output(exporter):
     df = csv_to_df(exporter.to_csv(data))
 
     assert len(df) == 1
-    assert set(df.columns) == {"model", "x", "y"}
-    assert df.iloc[0]["x"] == 5
-    assert df.iloc[0]["y"] == "ok"
+    assert set(df.columns) == {"model", "_x", "_y"}
+    assert df.iloc[0]["_x"] == 5
+    assert df.iloc[0]["_y"] == "ok"
 
 
 def test_primitive_output(exporter):
@@ -57,8 +57,8 @@ def test_invalid_json(exporter):
     data = [{"id": 2, "output": "{not valid json}"}]
     df = csv_to_df(exporter.to_csv(data))
 
-    assert "_output_raw" in df.columns
-    assert df.iloc[0]["_output_raw"] == "{not valid json}"
+    assert "__output_raw" in df.columns
+    assert df.iloc[0]["__output_raw"] == "{not valid json}"
 
 
 def test_missing_output_field(exporter):
