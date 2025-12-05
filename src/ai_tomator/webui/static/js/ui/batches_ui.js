@@ -100,9 +100,16 @@ export const RunsUI = {
 
     addRow(r) {
         const tr = document.createElement("tr");
+
+        const statusClass = {
+            "FAILED": "status-failed",
+            "RUNNING": "status-running",
+            "COMPLETED": "status-completed"
+        }[r.status] || "status-unknown";
+
         tr.innerHTML = `
         <td>${r.id}</td>
-        <td>${r.status}</td>
+        <td><span class="status-pill ${statusClass}">${r.status}</span></td>
         <td>${r.endpoint}</td>
         <td>${r.file_reader}</td>
     `;
@@ -114,6 +121,7 @@ export const RunsUI = {
 
         this.table.appendChild(tr);
     },
+
 
     openBatchDetailOverlay(batch) {
         this.overlay.classList.remove("hidden");

@@ -3,6 +3,9 @@ from typing import List, Any, Dict
 import pandas as pd
 import json
 import csv
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ExpandedExportMode(BaseExportMode):
@@ -14,27 +17,43 @@ class ExpandedExportMode(BaseExportMode):
 
     name = "expanded"
 
+    @staticmethod
+    def normalize_json(raw: str) -> str:
+        s = raw.strip()
+        if s.startswith("```") and s.endswith("```"):
+            s = s.strip("`")
+            s = s.split("\n", 1)[1] if "\n" in s else ""
+        return s.strip()
+
     def to_csv(self, results: List[Dict[str, Any]]) -> str:
         expanded_rows = []
 
         for row in results:
             base = {k: v for k, v in row.items() if k != "output"}
-            try:
-                parsed = json.loads(row.get("output", "{}"))
-            except json.JSONDecodeError:
-                parsed = {"_output_raw": row.get("output", "")}
+            raw = row.get("output")
+            if not raw or not raw.strip():
+                parsed = {}
+            else:
+                raw = self.normalize_json(raw)
+                try:
+                    parsed = json.loads(raw)
+                except json.JSONDecodeError as e:
+                    logger.exception(e)
+                    parsed = {"_output_raw": raw}
 
             if isinstance(parsed, list):
                 for item in parsed:
                     new_row = base.copy()
                     if isinstance(item, dict):
-                        new_row.update(item)
+                        for k, v in item.items():
+                            new_row[f"_{k}"] = v
                     else:
                         new_row["value"] = item
                     expanded_rows.append(new_row)
             elif isinstance(parsed, dict):
                 new_row = base.copy()
-                new_row.update(parsed)
+                for k, v in parsed.items():
+                    new_row[f"_{k}"] = v
                 expanded_rows.append(new_row)
             else:
                 new_row = base.copy()
