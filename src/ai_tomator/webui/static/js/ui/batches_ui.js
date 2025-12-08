@@ -53,6 +53,7 @@ export const RunsUI = {
             }
         });
 
+        this.startTimers();
         this.refresh();
     },
 
@@ -107,12 +108,19 @@ export const RunsUI = {
             "COMPLETED": "status-completed"
         }[r.status] || "status-unknown";
 
+        const createdCell = (r.status === "RUNNING")
+            ? `<td class="timer" data-start="${r.created_at}" data-id="${r.id}"></td>`
+            : `<td class="text-grey">${r.updated_at}</td>`;
+
+
         tr.innerHTML = `
-        <td>${r.id}</td>
-        <td><span class="status-pill ${statusClass}">${r.status}</span></td>
-        <td>${r.endpoint}</td>
-        <td>${r.file_reader}</td>
-    `;
+            <td>${r.id}</td>
+            <td><span class="status-pill ${statusClass}">${r.status}</span></td>
+            ${createdCell}
+            <td>${r.endpoint}</td>
+            <td>${r.file_reader}</td>
+        `;
+
 
         tr.addEventListener("click", () => {
             console.log("Batch element clicked:", r.id);
@@ -152,5 +160,20 @@ export const RunsUI = {
         const run = await API.Batches.start(data);
 
         this.addRow(run);
-    }
+    },
+
+    startTimers() {
+        setInterval(() => {
+            const now = Date.now();
+            document.querySelectorAll("td.timer").forEach(td => {
+                const start = new Date(td.dataset.start).getTime();
+                const diff = Math.floor((now - start) / 1000) - 3600;
+
+                const m = String(Math.floor(diff / 60)).padStart(2, '0');
+                const s = String(diff % 60).padStart(2, '0');
+
+                td.textContent = `${m}:${s}`;
+            });
+        }, 1000);
+    },
 };
