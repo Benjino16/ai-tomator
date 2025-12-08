@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 from typing import List
 
@@ -25,3 +27,5 @@ class BatchData(BaseModel):
     model: str
     # todo: delay
     temperature: float
+    created_at: datetime
+    updated_at: datetime
