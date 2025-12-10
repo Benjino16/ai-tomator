@@ -1,7 +1,12 @@
+from typing import Optional
+
 from ai_tomator.core.engine.base import BaseEngine
-from ai_tomator.core.engine.models import EngineHealth
+from ai_tomator.core.engine.models.engine_health_model import EngineHealth
 import tiktoken
-from ollama import Client
+from ollama import Client, ChatResponse
+
+from ai_tomator.core.engine.models.model_settings_model import ModelSettings
+from ai_tomator.core.engine.models.response_model import EngineResponse
 
 
 class OllamaEngine(BaseEngine):
@@ -44,10 +49,10 @@ class OllamaEngine(BaseEngine):
         self,
         model: str,
         prompt: str,
-        temperature: float,
-        file_path: str = None,
-        content: str = None,
-    ):
+        file_path: Optional[str] = None,
+        content: Optional[str] = None,
+        model_settings: Optional[ModelSettings] = None,
+    ) -> EngineResponse:
         if file_path is None and content is None:
             raise ValueError("Either file_path or content must be specified")
 
@@ -56,10 +61,10 @@ class OllamaEngine(BaseEngine):
                 "Ollama engine does not support file uploads. Please use a file reader instead."
             )
         else:
-            response = self.client.chat(
+            response: ChatResponse = self.client.chat(
                 model=model,
                 keep_alive=0,
-                options={"temperature": temperature},
+                options={"temperature": model_settings.temperature},
                 messages=[
                     {
                         "role": "system",
@@ -71,4 +76,18 @@ class OllamaEngine(BaseEngine):
                     },
                 ],
             )
-            return response["message"]["content"]
+            return EngineResponse(
+                engine=self.__class__.__name__,
+                model=model,
+                temperature=model_settings.temperature,
+                top_p=model_settings.top_p,
+                top_k=model_settings.top_k,
+                max_output_tokens=model_settings.max_output_tokens,
+                seed=model_settings.seed,
+                context_window=None,
+                prompt=prompt,
+                input=content or "[Uploaded File]",
+                output=response.message.content,
+                input_tokens=response.prompt_eval_count,
+                output_tokens=response.eval_count,
+            )

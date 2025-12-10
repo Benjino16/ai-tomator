@@ -1,8 +1,12 @@
+from typing import Optional
+
 from ai_tomator.core.engine.base import BaseEngine
 import tiktoken
 import openai
 
-from ai_tomator.core.engine.models import EngineHealth
+from ai_tomator.core.engine.models.engine_health_model import EngineHealth
+from ai_tomator.core.engine.models.model_settings_model import ModelSettings
+from ai_tomator.core.engine.models.response_model import EngineResponse
 
 
 class OpenAIEngine(BaseEngine):
@@ -45,10 +49,10 @@ class OpenAIEngine(BaseEngine):
         self,
         model: str,
         prompt: str,
-        temperature: float,
-        file_path: str = None,
-        content: str = None,
-    ):
+        file_path: Optional[str] = None,
+        content: Optional[str] = None,
+        model_settings: Optional[ModelSettings] = None,
+    ) -> EngineResponse:
         if file_path is None and content is None:
             raise ValueError("Either file_path or content must be specified")
 
@@ -62,13 +66,27 @@ class OpenAIEngine(BaseEngine):
                     {"type": "text", "text": prompt},
                     {"type": "input_file", "file_id": uploaded.id},
                 ],
-                temperature=temperature,
+                temperature=model_settings.temperature,
             )
-            return response.output_text
         else:
             response = self.client.responses.create(
                 model=model,
                 input=f"{prompt}\n\n{content}",
-                temperature=temperature,
+                temperature=model_settings.temperature,
             )
-            return response.output_text
+
+        return EngineResponse(
+            engine=self.__class__.__name__,
+            model=model,
+            temperature=response.temperature,
+            top_p=response.top_p,
+            top_k=None,
+            max_output_tokens=response.max_output_tokens,
+            seed=None,
+            context_window=None,
+            prompt=prompt,
+            input=content or "[Uploaded File]",
+            output=response.output_text,
+            input_tokens=response.usage.input_tokens,
+            output_tokens=response.usage.output_tokens,
+        )

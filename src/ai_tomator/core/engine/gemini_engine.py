@@ -1,8 +1,12 @@
+from typing import Optional
+
 from ai_tomator.core.engine.base import BaseEngine
 import tiktoken
 from google import genai
 
-from ai_tomator.core.engine.models import EngineHealth
+from ai_tomator.core.engine.models.engine_health_model import EngineHealth
+from ai_tomator.core.engine.models.model_settings_model import ModelSettings
+from ai_tomator.core.engine.models.response_model import EngineResponse
 
 
 class GeminiEngine(BaseEngine):
@@ -42,10 +46,10 @@ class GeminiEngine(BaseEngine):
         self,
         model: str,
         prompt: str,
-        temperature: float,
-        file_path: str = None,
-        content: str = None,
-    ):
+        file_path: Optional[str] = None,
+        content: Optional[str] = None,
+        model_settings: Optional[ModelSettings] = None,
+    ) -> EngineResponse:
         if file_path is None and content is None:
             raise ValueError("Either file_path or content must be specified")
 
@@ -73,6 +77,20 @@ class GeminiEngine(BaseEngine):
         response = self.client.models.generate_content(
             model=model,
             contents=contents,
-            config={"temperature": temperature},
+            config={"temperature": model_settings.temperature},
         )
-        return response.text
+        return EngineResponse(
+            engine=self.__class__.__name__,
+            model=model,
+            temperature=model_settings.temperature,
+            top_p=model_settings.top_p,
+            top_k=model_settings.top_k,
+            max_output_tokens=model_settings.max_output_tokens,
+            seed=model_settings.seed,
+            context_window=None,
+            prompt=prompt,
+            input=content or "[Uploaded File]",
+            output=response.text,
+            input_tokens=response.usage_metadata.prompt_token_count,
+            output_tokens=response.usage_metadata.total_token_count,
+        )
