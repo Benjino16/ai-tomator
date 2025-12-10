@@ -28,6 +28,7 @@ class BatchManager:
         delay,
         temperature,
     ):
+        self.db.batches.add_batch_log(batch_id, "Starting new batch with id: {}".format(batch_id))
         if self.mode == "local":
             stop_flag = threading.Event()
             self._stop_flags[batch_id] = stop_flag
@@ -64,12 +65,14 @@ class BatchManager:
         temperature,
         stop_flag,
     ):
+        self.db.batches.add_batch_log(batch_id, "Batch with id: {} now running".format(batch_id))
         self.db.batches.update_status(batch_id=batch_id, status=BatchStatus.RUNNING)
         for file in file_infos:
             if stop_flag.is_set():
                 self.db.batches.update_status(batch_id, BatchStatus.STOPPED)
                 return
             try:
+                self.db.batches.add_file_log(batch_id, file["storage_name"], "API Request for file : {}".format(file["storage_name"]))
                 result = self.engine.process(
                     endpoint=endpoint,
                     file_reader=file_reader,
@@ -78,29 +81,35 @@ class BatchManager:
                     prompt=prompt,
                     temperature=temperature,
                 )
-                self.db.batches.update_batch_file_status(
+                batch_file = self.db.batches.update_batch_file_status(
                     batch_id=batch_id,
                     storage_name=file["storage_name"],
                     status=BatchFileStatus.COMPLETED,
                 )
+                self.db.batches.add_batch_log(batch_id, "Engine successfully responded for file: {}".format(batch_file.storage_name), batch_file.id)
+                self.db.batches.add_batch_log(batch_id, "Response: {}".format(result.output), batch_file.id)
                 self.db.results.save(
                     batch_id, file["storage_name"], engine_response=result
                 )
             except Exception as e:
-                self.db.batches.update_batch_file_status(
+                batch_file = self.db.batches.update_batch_file_status(
                     batch_id=batch_id,
                     storage_name=file["storage_name"],
                     status=BatchFileStatus.FAILED,
                 )
+                self.db.batches.add_batch_log(batch_id, "Error while processing file: {}".format(batch_file.storage_name), batch_file.id)
                 self.db.batches.update_status(batch_id, BatchStatus.FAILED)
+                self.db.batches.add_batch_log(batch_id, "Batch with id {} will terminate now!".format(batch_id))
                 logger.exception(e)
                 return
 
             time.sleep(delay)
+        self.db.batches.add_batch_log(batch_id, "Batch with id {} successfully ended!".format(batch_id))
         self.db.batches.update_status(batch_id, BatchStatus.COMPLETED)
 
     def stop_batch(self, batch_id):
         if batch_id in self._stop_flags:
+            self.db.batches.add_batch_log(batch_id, "Stopping batch with id: {}".format(batch_id))
             db_batch_entry = self.db.batches.update_status(
                 batch_id, BatchStatus.STOPPING
             )

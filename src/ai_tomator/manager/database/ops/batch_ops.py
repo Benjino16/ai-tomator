@@ -3,7 +3,7 @@ from ai_tomator.manager.database.models.batch import (
     Batch,
     BatchFile,
     BatchStatus,
-    BatchFileStatus,
+    BatchFileStatus, BatchLog,
 )
 from ai_tomator.manager.database.models.file import File
 
@@ -87,7 +87,50 @@ class BatchOps:
             session.commit()
             session.refresh(batch)
             session.refresh(batch_file)
-            return batch.to_dict()
+            return batch_file
+
+    def add_file_log(self, batch_id: int, storage_name: str, log: str):
+        with self.SessionLocal() as session:
+            batch_file = (
+                session.query(BatchFile)
+                .filter_by(batch_id=batch_id, storage_name=storage_name)
+                .first()
+            )
+            if not batch_file:
+                raise ValueError(
+                    f"BatchFile with storage_name '{storage_name}' not found in batch {batch_id}."
+                )
+
+        return self.add_batch_log(
+            batch_id=batch_id,
+            batch_file_id=batch_file.id,
+            log=log,
+        )
+
+    def add_batch_log(
+        self, batch_id: int, log: str, batch_file_id: int | None = None
+    ):
+        with self.SessionLocal() as session:
+            batch = session.query(Batch).filter_by(id=batch_id).first()
+            if not batch:
+                raise ValueError(f"Batch id '{batch_id}' not found.")
+            if batch_file_id:
+                batch_file = (
+                    session.query(BatchFile)
+                    .filter_by(id=batch_file_id)
+                    .first()
+                )
+                if not batch_file:
+                    raise ValueError(f"BatchFile '{batch_file_id}' not found.")
+            batch_log = BatchLog(
+                batch_id=batch_id,
+                batch_file_id=batch_file_id,
+                log=log,
+            )
+            session.add(batch_log)
+            session.commit()
+            session.refresh(batch_log)
+            return batch_log.to_dict()
 
     def get(self, batch_id: int) -> dict:
         with self.SessionLocal() as session:

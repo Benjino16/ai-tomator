@@ -89,5 +89,5 @@ class TestEngine(BaseEngine):
             input=content or "[Uploaded File]",
             output=response,
             input_tokens=self.token_count(model, prompt),
-            output_tokens=self.token_count(model, content + ""),
+            output_tokens=self.token_count(model, f"{content} token"),
         )
