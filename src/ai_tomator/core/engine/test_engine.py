@@ -71,21 +71,23 @@ class TestEngine(BaseEngine):
             f"[TEST ENGINE] Response"
             f"using model '{model}' at {self.base_url} "
             f"with token '{self.api_token}'."
-            f"{"File Path: " + file_path if file_path else "Content: " + content}"
+            f"File Path: {file_path}"
+            if file_path
+            else f"Content: {content}"
         )
 
         return EngineResponse(
-            engine = self.__class__.__name__,
-            model = model,
-            temperature = model_settings.temperature,
-            top_p = model_settings.top_p,
-            top_k = model_settings.top_k,
-            max_output_tokens= model_settings.max_output_tokens,
-            seed = model_settings.seed,
-            context_window = 50,
-            prompt = prompt,
-            input = content or "[Uploaded File]",
-            output = response,
+            engine=self.__class__.__name__,
+            model=model,
+            temperature=model_settings.temperature,
+            top_p=model_settings.top_p,
+            top_k=model_settings.top_k,
+            max_output_tokens=model_settings.max_output_tokens,
+            seed=model_settings.seed,
+            context_window=50,
+            prompt=prompt,
+            input=content or "[Uploaded File]",
+            output=response,
             input_tokens=self.token_count(model, prompt),
             output_tokens=self.token_count(model, content + ""),
         )

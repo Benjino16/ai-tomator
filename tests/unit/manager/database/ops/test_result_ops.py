@@ -9,20 +9,21 @@ from ai_tomator.manager.database.models.file import File
 from ai_tomator.manager.database.ops.result_ops import ResultOps
 
 ENGINE_RESPONSE = EngineResponse(
-            model="test",
-            prompt="test prompt",
-            temperature=0.0,
-            output="output text",
-            engine="Test Engine",
-            input="input text",
-            input_tokens=0,
-            output_tokens=0,
-            top_k=None,
-            top_p=None,
-            max_output_tokens=None,
-            seed=None,
-            context_window=None,
+    model="test",
+    prompt="test prompt",
+    temperature=0.0,
+    output="output text",
+    engine="Test Engine",
+    input="input text",
+    input_tokens=0,
+    output_tokens=0,
+    top_k=None,
+    top_p=None,
+    max_output_tokens=None,
+    seed=None,
+    context_window=None,
 )
+
 
 @pytest.fixture
 def db_session():
@@ -81,7 +82,9 @@ def test_save_and_list(result_ops, sample_data):
 
 def test_save_with_invalid_batch(result_ops):
     with pytest.raises(ValueError):
-        result_ops.save(batch_id=999, storage_file_name="file1.txt", engine_response=ENGINE_RESPONSE)
+        result_ops.save(
+            batch_id=999, storage_file_name="file1.txt", engine_response=ENGINE_RESPONSE
+        )
 
 
 def test_list_by_batch_empty(result_ops, sample_data):

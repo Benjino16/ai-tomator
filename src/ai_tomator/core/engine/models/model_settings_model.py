@@ -3,7 +3,7 @@ from typing import Optional
 
 
 @dataclass
-class ModelSettings():
+class ModelSettings:
     temperature: Optional[float] = None
     top_p: Optional[float] = None
     top_k: Optional[int] = None

@@ -8,7 +8,9 @@ class ResultOps:
     def __init__(self, session_local: sessionmaker):
         self.SessionLocal = session_local
 
-    def save(self, batch_id: int, storage_file_name: str, engine_response: EngineResponse):
+    def save(
+        self, batch_id: int, storage_file_name: str, engine_response: EngineResponse
+    ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:

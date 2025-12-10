@@ -46,12 +46,12 @@ class OllamaEngine(BaseEngine):
         return tokens / 150  # todo: implement real statistic
 
     def run(
-            self,
-            model: str,
-            prompt: str,
-            file_path: Optional[str] = None,
-            content: Optional[str] = None,
-            model_settings: Optional[ModelSettings] = None,
+        self,
+        model: str,
+        prompt: str,
+        file_path: Optional[str] = None,
+        content: Optional[str] = None,
+        model_settings: Optional[ModelSettings] = None,
     ) -> EngineResponse:
         if file_path is None and content is None:
             raise ValueError("Either file_path or content must be specified")
@@ -91,4 +91,3 @@ class OllamaEngine(BaseEngine):
                 input_tokens=response.prompt_eval_count,
                 output_tokens=response.eval_count,
             )
-

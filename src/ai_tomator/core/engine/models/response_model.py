@@ -3,7 +3,7 @@ from typing import Optional
 
 
 @dataclass
-class EngineResponse():
+class EngineResponse:
     engine: str
     model: str
     prompt: str

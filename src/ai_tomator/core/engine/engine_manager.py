@@ -36,7 +36,9 @@ class EngineManager:
 
         return self._instances[name]
 
-    def process(self, endpoint, file_reader, prompt, file_path, model, temperature) -> EngineResponse:
+    def process(
+        self, endpoint, file_reader, prompt, file_path, model, temperature
+    ) -> EngineResponse:
         engine = self._get_engine_instance(endpoint)
 
         if file_reader == "upload":

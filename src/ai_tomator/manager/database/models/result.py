@@ -2,7 +2,6 @@ from sqlalchemy import Text, ForeignKey, func, Float, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
-from .base_mixins import RunDataMixin
 from .batch import Batch, File
 
 
@@ -30,7 +29,7 @@ class Result(Base):
     top_p: Mapped[float | None] = mapped_column(Float, nullable=True)
     top_k: Mapped[int | None] = mapped_column(Integer, nullable=True)
     max_output_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    seed : Mapped[int | None] = mapped_column(Integer, nullable=True)
+    seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
     context_window: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     batch: Mapped["Batch"] = relationship()
