@@ -3,7 +3,8 @@ from ai_tomator.manager.database.models.batch import (
     Batch,
     BatchFile,
     BatchStatus,
-    BatchFileStatus, BatchLog,
+    BatchFileStatus,
+    BatchLog,
 )
 from ai_tomator.manager.database.models.file import File
 
@@ -107,18 +108,14 @@ class BatchOps:
             log=log,
         )
 
-    def add_batch_log(
-        self, batch_id: int, log: str, batch_file_id: int | None = None
-    ):
+    def add_batch_log(self, batch_id: int, log: str, batch_file_id: int | None = None):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             if batch_file_id:
                 batch_file = (
-                    session.query(BatchFile)
-                    .filter_by(id=batch_file_id)
-                    .first()
+                    session.query(BatchFile).filter_by(id=batch_file_id).first()
                 )
                 if not batch_file:
                     raise ValueError(f"BatchFile '{batch_file_id}' not found.")
