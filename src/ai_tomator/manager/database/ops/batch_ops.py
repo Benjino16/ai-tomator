@@ -136,6 +136,13 @@ class BatchOps:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             return batch.to_dict()
 
+    def get_files(self, batch_id: int) -> dict:
+        with self.SessionLocal() as session:
+            batch = session.query(Batch).filter_by(id=batch_id).first()
+            if not batch:
+                raise ValueError(f"Batch id '{batch_id}' not found.")
+            return [bl.to_dict() for bl in batch.batch_files]
+
     def get_log(self, batch_id: int) -> dict:
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
