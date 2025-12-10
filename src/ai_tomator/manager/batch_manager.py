@@ -84,7 +84,7 @@ class BatchManager:
                     status=BatchFileStatus.COMPLETED,
                 )
                 self.db.results.save(
-                    batch_id, file["storage_name"], input="", output=result
+                    batch_id, file["storage_name"], engine_response=result
                 )
             except Exception as e:
                 self.db.batches.update_batch_file_status(

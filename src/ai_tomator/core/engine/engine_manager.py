@@ -1,5 +1,7 @@
 from ai_tomator.core.engine.gemini_engine import GeminiEngine
-from ai_tomator.core.engine.models import EngineHealth
+from ai_tomator.core.engine.models.engine_health_model import EngineHealth
+from ai_tomator.core.engine.models.model_settings_model import ModelSettings
+from ai_tomator.core.engine.models.response_model import EngineResponse
 from ai_tomator.core.engine.ollama_engine import OllamaEngine
 from ai_tomator.core.engine.test_engine import TestEngine
 from ai_tomator.core.file_reader.reader_manager import FileReaderManager
@@ -34,7 +36,7 @@ class EngineManager:
 
         return self._instances[name]
 
-    def process(self, endpoint, file_reader, prompt, file_path, model, temperature):
+    def process(self, endpoint, file_reader, prompt, file_path, model, temperature) -> EngineResponse:
         engine = self._get_engine_instance(endpoint)
 
         if file_reader == "upload":
@@ -44,13 +46,14 @@ class EngineManager:
             include_file_path = None
             content = FileReaderManager.read(file_reader, file_path)
 
-        return engine.run(
+        response: EngineResponse = engine.run(
             model=model,
             prompt=prompt,
-            temperature=temperature,
             content=content,
             file_path=include_file_path,
+            model_settings=ModelSettings(temperature=temperature),
         )
+        return response
 
     def endpoint_health(self, endpoint) -> EngineHealth:
         engine = self._get_engine_instance(endpoint)

@@ -1,5 +1,9 @@
+from typing import Optional
+
 from ai_tomator.core.engine.base import BaseEngine
-from ai_tomator.core.engine.models import EngineHealth
+from ai_tomator.core.engine.models.engine_health_model import EngineHealth
+from ai_tomator.core.engine.models.model_settings_model import ModelSettings
+from ai_tomator.core.engine.models.response_model import EngineResponse
 
 MODELS = ["test_model_pro", "test_model_fast"]
 
@@ -52,10 +56,10 @@ class TestEngine(BaseEngine):
         self,
         model: str,
         prompt: str,
-        temperature: float,
-        file_path: str = None,
-        content: str = None,
-    ) -> str:
+        file_path: Optional[str] = None,
+        content: Optional[str] = None,
+        model_settings: Optional[ModelSettings] = None,
+    ) -> EngineResponse:
 
         if not file_path and not content:
             raise ValueError("Either file_path or content must be specified")
@@ -63,15 +67,25 @@ class TestEngine(BaseEngine):
         if model not in MODELS:
             raise ValueError(f"Unknown model {model}")
 
-        if file_path:
-            return (
-                f"[TEST ENGINE] Processed file '{file_path}' "
-                f"using model '{model}' at {self.base_url} "
-                f"with token '{self.api_token}'."
-            )
-
-        return (
-            f"[TEST ENGINE] Processed content '{content}' "
+        response = (
+            f"[TEST ENGINE] Response"
             f"using model '{model}' at {self.base_url} "
             f"with token '{self.api_token}'."
+            f"{"File Path: " + file_path if file_path else "Content: " + content}"
+        )
+
+        return EngineResponse(
+            engine = self.__class__.__name__,
+            model = model,
+            temperature = model_settings.temperature,
+            top_p = model_settings.top_p,
+            top_k = model_settings.top_k,
+            max_output_tokens= model_settings.max_output_tokens,
+            seed = model_settings.seed,
+            context_window = 50,
+            prompt = prompt,
+            input = content or "[Uploaded File]",
+            output = response,
+            input_tokens=self.token_count(model, prompt),
+            output_tokens=self.token_count(model, content + ""),
         )

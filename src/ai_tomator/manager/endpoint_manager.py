@@ -1,4 +1,4 @@
-from ai_tomator.core.engine.models import EngineHealth
+from ai_tomator.core.engine.models.engine_health_model import EngineHealth
 from ai_tomator.core.engine.engine_manager import EngineManager
 
 
