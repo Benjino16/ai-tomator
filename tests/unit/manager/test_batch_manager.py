@@ -75,7 +75,7 @@ def test_run_batch_flow(mock_db, mock_engine, mock_file_reader):
         max_output_tokens=None,
         seed=None,
         context_window=None,
-)
+    )
 
     file_infos = [{"path": "file.txt", "storage_name": "file.txt"}]
     endpoint = {"name": "endpoint", "engine": "test", "token": "abc", "url": "http://x"}

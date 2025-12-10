@@ -33,6 +33,11 @@ def build_batch_router(batch_service: BatchService):
         result = batch_service.get_batch(batch_id)
         return BatchData(**result)
 
+    @router.get("/log/{batch_id}")
+    def get_batch_log(batch_id: int):
+        result = batch_service.get_batch_log(batch_id)
+        return result
+
     @router.get("/", response_model=list[BatchData])
     def list_runs():
         return batch_service.list_batches()
