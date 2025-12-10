@@ -2,6 +2,7 @@ import pytest
 import threading
 from unittest.mock import MagicMock, patch
 
+from ai_tomator.core.engine.models.response_model import EngineResponse
 from ai_tomator.manager.batch_manager import BatchManager
 from ai_tomator.manager.database.models.batch import BatchStatus, BatchFileStatus
 
@@ -11,6 +12,8 @@ def mock_db():
     db = MagicMock()
     db.batches.update_status = MagicMock()
     db.batches.update_batch_file_status = MagicMock()
+    db.batches.add_batch_log = MagicMock()
+    db.batches.add_file_log = MagicMock()
     db.batches.list = MagicMock(return_value=[{"id": 1}, {"id": 2}])
     db.results.save = MagicMock()
     return db
@@ -58,7 +61,21 @@ def test_run_batch_flow(mock_db, mock_engine, mock_file_reader):
     manager = BatchManager(db=mock_db, engine_manger=mock_engine)
     stop_flag = MagicMock()
     stop_flag.is_set.return_value = False
-    mock_engine.process.return_value = "mocked_result"
+    mock_engine.process.return_value = EngineResponse(
+        model="test",
+        prompt="test prompt",
+        temperature=0.0,
+        output="output text",
+        engine="Test Engine",
+        input="input text",
+        input_tokens=0,
+        output_tokens=0,
+        top_k=None,
+        top_p=None,
+        max_output_tokens=None,
+        seed=None,
+        context_window=None,
+)
 
     file_infos = [{"path": "file.txt", "storage_name": "file.txt"}]
     endpoint = {"name": "endpoint", "engine": "test", "token": "abc", "url": "http://x"}
@@ -83,7 +100,7 @@ def test_run_batch_flow(mock_db, mock_engine, mock_file_reader):
         batch_id=5, storage_name="file.txt", status=BatchFileStatus.COMPLETED
     )
     mock_db.results.save.assert_called_once_with(
-        5, "file.txt", engine_response="mocked_result"
+        5, "file.txt", engine_response=mock_engine.process.return_value
     )
     mock_db.batches.update_status.assert_any_call(5, BatchStatus.COMPLETED)
 

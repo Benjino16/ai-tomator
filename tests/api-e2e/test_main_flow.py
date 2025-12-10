@@ -47,7 +47,7 @@ def test_main_run(client, create_endpoint, upload_file):
         "files": [upload_file],
         "endpoint": create_endpoint,
         "file_reader": "pypdf2",
-        "model": "gpt-4o",
+        "model": "test_model_fast",
         "delay": 0,
         "temperature": 0.2,
     }
@@ -70,7 +70,7 @@ def test_stop_batch(client, create_endpoint, upload_file):
         "files": [upload_file, upload_file, upload_file],
         "endpoint": create_endpoint,
         "file_reader": "pypdf2",
-        "model": "gpt-4o",
+        "model": "test_model_fast",
         "delay": 0.01,
         "temperature": 0.2,
     }
