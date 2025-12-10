@@ -58,6 +58,7 @@ class BatchFile(Base):
     batch_id: Mapped[int] = mapped_column(ForeignKey("batches.id"), nullable=False)
     file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
     storage_name: Mapped[str] = mapped_column(nullable=False)
+    display_name: Mapped[str] = mapped_column(nullable=False)
     status: Mapped["BatchFileStatus"] = mapped_column(
         Enum(BatchFileStatus, name="batch_file_status_enum"),
         nullable=False,

@@ -48,11 +48,12 @@ class BatchOps:
 
             batch.batch_files = [
                 BatchFile(
-                    file_id=storage_to_id[f],
-                    storage_name=f,
+                    file_id=f.id,
+                    storage_name=f.storage_name,
+                    display_name=f.display_name,
                     status=BatchFileStatus.QUEUED,
                 )
-                for f in files
+                for f in db_files
             ]
 
             session.add(batch)
