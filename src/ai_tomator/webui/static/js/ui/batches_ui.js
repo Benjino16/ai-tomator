@@ -109,7 +109,7 @@ export const RunsUI = {
         }[r.status] || "status-unknown";
 
         const createdCell = (r.status === "RUNNING")
-            ? `<td class="timer" data-start="${r.created_at}" data-id="${r.id}"></td>`
+            ? `<td class="timer" data-start="${r.created_at}" data-id="${r.id}">${this.calculateTime(r.created_at)}</td>`
             : `<td class="text-grey">${r.updated_at}</td>`;
 
 
@@ -166,14 +166,18 @@ export const RunsUI = {
         setInterval(() => {
             const now = Date.now();
             document.querySelectorAll("td.timer").forEach(td => {
-                const start = new Date(td.dataset.start).getTime();
-                const diff = Math.floor((now - start) / 1000) - 3600;
-
-                const m = String(Math.floor(diff / 60)).padStart(2, '0');
-                const s = String(diff % 60).padStart(2, '0');
-
-                td.textContent = `${m}:${s}`;
+                td.textContent = this.calculateTime(td.dataset.start)
             });
         }, 1000);
+    },
+
+    calculateTime(start_date) {
+        const now = Date.now();
+        const start = new Date(start_date).getTime();
+        const diff = Math.floor((now - start) / 1000) - 3600;
+
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        return `${m}:${s}`;
     },
 };
