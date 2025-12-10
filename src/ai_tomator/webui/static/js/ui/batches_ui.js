@@ -16,10 +16,17 @@ export const RunsUI = {
         this.promptSelect = document.getElementById("prompt-select");
 
 
-        this.overlay = document.getElementById("batchOverlay");
-        makeOverlayClosable(this.overlay);
+        this.detailOverlay = document.getElementById("batchDetailOverlay");
         this.batchesDetailsTable = document.getElementById("batchDetailsTable");
-        this.batchLogPre = document.getElementById("batch-log");
+        makeOverlayClosable(this.detailOverlay);
+
+        this.logOverlay = document.getElementById("batchLogsOverlay");
+        this.batchLogPre = document.getElementById("batch-logs");
+        makeOverlayClosable(this.logOverlay);
+
+        this.filesOverlay = document.getElementById("batchFilesOverlay");
+        this.batchFilesPre = document.getElementById("batch-files");
+        makeOverlayClosable(this.filesOverlay);
 
         this.modelSelectDefault = "<option value=\"\">Modell auswählen</option>"
         this.modelSelect.innerHTML = this.modelSelectDefault;
@@ -133,7 +140,7 @@ export const RunsUI = {
 
 
     openBatchDetailOverlay(batch) {
-        this.overlay.classList.remove("hidden");
+        this.detailOverlay.classList.remove("hidden");
 
         this.batchesDetailsTable.innerHTML = "";
 
@@ -150,7 +157,7 @@ export const RunsUI = {
                 const date = new Date(entry.created_at).toLocaleString();
                 let logText = entry.log;
 
-                const maxLength = 150;
+                const maxLength = 80;
                 if (logText.length > maxLength) {
                     logText = logText.slice(0, maxLength) + '…';
                 }
