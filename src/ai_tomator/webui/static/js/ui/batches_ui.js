@@ -19,6 +19,7 @@ export const RunsUI = {
         this.overlay = document.getElementById("batchOverlay");
         makeOverlayClosable(this.overlay);
         this.batchesDetailsTable = document.getElementById("batchDetailsTable");
+        this.batchLogPre = document.getElementById("batch-log");
 
         this.modelSelectDefault = "<option value=\"\">Modell auswählen</option>"
         this.modelSelect.innerHTML = this.modelSelectDefault;
@@ -144,6 +145,28 @@ export const RunsUI = {
         `;
             this.batchesDetailsTable.appendChild(tr);
         }
+        API.Batches.get_logs(batch.id).then(logs => {
+            const formattedLogs = logs.map(entry => {
+                const date = new Date(entry.created_at).toLocaleString();
+                let logText = entry.log;
+
+                const maxLength = 150;
+                if (logText.length > maxLength) {
+                    logText = logText.slice(0, maxLength) + '…';
+                }
+
+                logText = logText.split('\n').map((line, index) => {
+                    return index === 0 ? line : '    ' + line;
+                }).join('\n');
+
+                return `${date} - ${logText}`;
+            });
+
+
+            this.batchLogPre.textContent = formattedLogs.join("\n");
+        }).catch(error => {
+            console.log("Error while loading log for overlay: " + error);
+        })
     },
 
     async start() {
