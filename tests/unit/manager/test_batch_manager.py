@@ -83,7 +83,7 @@ def test_run_batch_flow(mock_db, mock_engine, mock_file_reader):
         batch_id=5, storage_name="file.txt", status=BatchFileStatus.COMPLETED
     )
     mock_db.results.save.assert_called_once_with(
-        5, "file.txt", input="", output="mocked_result"
+        5, "file.txt", engine_response="mocked_result"
     )
     mock_db.batches.update_status.assert_any_call(5, BatchStatus.COMPLETED)
 

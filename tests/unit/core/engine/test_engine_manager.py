@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch
 from ai_tomator.core.engine.engine_manager import EngineManager
+from ai_tomator.core.engine.models.response_model import EngineResponse
 
 
 class MockEngine:
@@ -8,16 +9,22 @@ class MockEngine:
         self.api_token = api_token
         self.base_url = base_url
 
-    def run(self, model, prompt, temperature, content, file_path):
-        return {
-            "model": model,
-            "prompt": prompt,
-            "temperature": temperature,
-            "content": content,
-            "file_path": file_path,
-            "token": self.api_token,
-            "url": self.base_url,
-        }
+    def run(self, model, prompt, content, file_path, model_settings):
+        return EngineResponse(
+            model=model,
+            prompt=prompt,
+            temperature=model_settings.temperature,
+            output=content,
+            engine="Test Engine",
+            input=content or f"[Uploaded File: {file_path}]",
+            input_tokens=0,
+            output_tokens=0,
+            top_k=None,
+            top_p=None,
+            max_output_tokens=None,
+            seed=None,
+            context_window=None,
+        )
 
 
 @pytest.fixture
@@ -48,9 +55,8 @@ def test_process_with_file_content(mock_read, engine_manager):
     )
 
     mock_read.assert_called_once_with("text", "path/to/file.txt")
-    assert result["content"] == "file content"
-    assert result["file_path"] is None
-    assert result["model"] == "gpt-test"
+    assert result.output == "file content"
+    assert result.model == "gpt-test"
 
 
 def test_process_with_upload(engine_manager):
@@ -69,9 +75,8 @@ def test_process_with_upload(engine_manager):
         temperature=1.0,
     )
 
-    assert result["file_path"] == "path/to/upload.txt"
-    assert result["content"] is None
-    assert result["prompt"] == "Another test"
+    assert result.input == "[Uploaded File: path/to/upload.txt]"
+    assert result.prompt == "Another test"
 
 
 def test_invalid_engine_raises(engine_manager):
