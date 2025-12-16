@@ -63,7 +63,7 @@ export const EndpointsUI = {
             <td>${ep.engine}</td>
             <td>${ep.url}</td>
             <td>${ep.token}</td>
-            <td><button data-delete="${ep.name}">Löschen</button></td>
+            <td><button class="button button--red" data-delete="${ep.name}">Del</button></td>
         `;
 
         const endpointDeleteBtn = tr.querySelector("[data-delete]");

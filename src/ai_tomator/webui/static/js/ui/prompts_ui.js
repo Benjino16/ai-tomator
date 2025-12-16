@@ -62,7 +62,7 @@ export const PromptsUI = {
             <td>${pr.id}</td>
             <td>${pr.name}</td>
             <td>${pr.prompt}</td>
-            <td><button data-delete="${pr.id}">Löschen</button></td>
+            <td><button class="button button--red" data-delete="${pr.id}">Del</button></td>
         `;
 
         const promptDeleteBtn = tr.querySelector("[data-delete]");

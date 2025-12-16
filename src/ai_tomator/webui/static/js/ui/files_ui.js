@@ -111,7 +111,7 @@ export const FilesUI = {
             <td>${size}</td>
             <td>${mime_type}</td>
             <td>${tags}</td>
-            <td><button data-delete="${storage_name}">Löschen</button></td>
+            <td><button class="button button--red" data-delete="${storage_name}">Del</button></td>
         `;
 
         tr.querySelector("[data-delete]").addEventListener("click", async () => {

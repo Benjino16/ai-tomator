@@ -25,7 +25,8 @@ export const RunsUI = {
         makeOverlayClosable(this.logOverlay);
 
         this.filesOverlay = document.getElementById("batchFilesOverlay");
-        this.batchFilesPre = document.getElementById("batch-files");
+        this.filesStatusPre = document.getElementById("batchFilesStatusPre");
+        this.batchesFilesTable = document.getElementById("batchFileTable");
         makeOverlayClosable(this.filesOverlay);
 
         this.modelSelectDefault = "<option value=\"\">Modell auswählen</option>"
@@ -75,10 +76,10 @@ export const RunsUI = {
 
         this.endpointSelect.innerHTML = "<option value=\"\">Endpoint auswählen</option>";
         for (const endpointsKey of endpoints) {
-           const option = document.createElement("option");
-           option.value = endpointsKey["name"];
-           option.textContent = endpointsKey["name"];
-           this.endpointSelect.appendChild(option);
+            const option = document.createElement("option");
+            option.value = endpointsKey["name"];
+            option.textContent = endpointsKey["name"];
+            this.endpointSelect.appendChild(option);
         }
         console.log(file_tags)
         this.fileTagSelect.innerHTML = "<option value=\"\">File Tag auswählen</option>";
@@ -125,16 +126,32 @@ export const RunsUI = {
             <td>${r.id}</td>
             <td><span class="status-pill ${statusClass}">${r.status}</span></td>
             ${createdCell}
-            <td>${r.endpoint}</td>
-            <td>${r.file_reader}</td>
+            <td>${r.model}</td>
+            <td>${r.temperature}</td>
+            <td>
+                <button class="button button--grey" data-detail-id="${r.id}">Details</button>
+                <button class="button button--grey" data-log-id="${r.id}">Logs</button>
+                <button class="button button--grey" data-status-id="${r.id}">Status</button>
+            </td>
         `;
 
-
-        tr.addEventListener("click", () => {
-            console.log("Batch element clicked:", r.id);
-            this.openBatchDetailOverlay(r)
-        });
-
+        const batchDetailBtn = tr.querySelector("[data-detail-id]");
+        batchDetailBtn.addEventListener("click", async () => {
+            const batch_id = batchDetailBtn.getAttribute("data-detail-id");
+            const batch = await API.Batches.get(batch_id)
+            this.openBatchDetailOverlay(batch)
+        })
+        const batchLogBtn = tr.querySelector("[data-log-id]");
+        batchLogBtn.addEventListener("click", async () => {
+            const batch_id = batchLogBtn.getAttribute("data-log-id");
+            this.openBatchLogOverlay(batch_id)
+        })
+        const batchStatusBtn = tr.querySelector("[data-status-id]");
+        batchStatusBtn.addEventListener("click", async () => {
+            const batch_id = batchStatusBtn.getAttribute("data-status-id");
+            const files = await API.Batches.get_files(batch_id);
+            this.openBatchFilesOverlay(files)
+        })
         this.table.appendChild(tr);
     },
 
@@ -152,7 +169,14 @@ export const RunsUI = {
         `;
             this.batchesDetailsTable.appendChild(tr);
         }
-        API.Batches.get_logs(batch.id).then(logs => {
+    },
+
+    openBatchLogOverlay(batch_id) {
+        this.logOverlay.classList.remove("hidden");
+
+        this.batchLogPre.innerHTML = "";
+
+        API.Batches.get_logs(batch_id).then(logs => {
             const formattedLogs = logs.map(entry => {
                 const date = new Date(entry.created_at).toLocaleString();
                 let logText = entry.log;
@@ -174,6 +198,36 @@ export const RunsUI = {
         }).catch(error => {
             console.log("Error while loading log for overlay: " + error);
         })
+    },
+
+    openBatchFilesOverlay(files) {
+        this.filesOverlay.classList.remove("hidden");
+
+        this.batchesFilesTable.innerHTML = "";
+        this.filesStatusPre.innerHTML = "";
+
+        const statusCounts = {};
+
+        for (const file of files) {
+            statusCounts[file.status] = (statusCounts[file.status] || 0) + 1;
+
+            const statusClass = {
+                FAILED: "status-failed",
+                RUNNING: "status-running",
+                COMPLETED: "status-completed"
+            }[file.status] || "status-unknown";
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+            <td>${file.display_name}</td>
+            <td><span class="status-pill ${statusClass}">${file.status}</span></td>
+        `;
+            this.batchesFilesTable.appendChild(tr);
+        }
+
+        this.filesStatusPre.textContent = Object.entries(statusCounts)
+            .map(([status, count]) => `${status}: ${count}`)
+            .join("\n");
     },
 
     async start() {
