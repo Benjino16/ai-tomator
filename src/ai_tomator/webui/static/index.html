@@ -5,6 +5,7 @@
     <title>AI-Tomator</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/batch_status.css">
+    <link rel="stylesheet" href="css/batch_overlay.css">
     <script type="module" src="js/app.js"></script>
 </head>
 
@@ -17,7 +18,7 @@
         </div>
 
         <nav>
-            <a href="#batch-run">Quick Run</a>
+            <a href="#batch-run">Batch Run</a>
             <a href="#batch-export">Export Batches</a>
             <a href="#files">Files</a>
             <a href="#prompts">Prompts</a>
@@ -48,10 +49,10 @@
                     <select id="model-select" required></select>
                     <select id="prompt-select" required></select>
 
-                    <input id="temperature-input" placeholder="Temperature" required type="number" value="1" min="0.0" max="3.0" step="0.1">
-                    <input id="delay-input" placeholder="Delay (seconds)" required type="number" min="0" max="360">
+                    <input id="temperature-input" placeholder="Temperature" required type="number" value="1.0" min="0.0" max="3.0" step="0.1">
+                    <input id="delay-input" placeholder="Delay (seconds)" required type="number" min="0" max="360" value="10">
 
-                    <button type="submit">Run starten</button>
+                    <button class="button button--blue" type="submit">Run</button>
                 </form>
                 <table id="runsTable">
                     <thead>
@@ -59,8 +60,9 @@
                         <th>ID</th>
                         <th>Status</th>
                         <th>Date/Uptime</th>
-                        <th>Endpoint</th>
-                        <th>FileReader</th>
+                        <th>Model</th>
+                        <th>Temp</th>
+                        <th>Info</th>
                     </tr>
                     </thead>
                     <tbody></tbody>
@@ -76,7 +78,7 @@
                         <option value="raw">CSV/RAW</option>
                         <option value="expanded">CSV/LONG-FORMAT</option>
                     </select>
-                    <button id="export-button">Export</button>
+                    <button class="button button--blue" id="export-button">Export</button>
                 </div>
                 <table id="batchTableExport">
                     <thead>
@@ -104,13 +106,13 @@
                         <th>Size</th>
                         <th>Mime</th>
                         <th>Tags</th>
-                        <th>Aktionen</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
-            <button id="openUploadOverlay">+ Dateien hinzufügen</button>
+            <button class="button button--blue" id="openUploadOverlay">+ Dateien hinzufügen</button>
         </section>
 
         <section id="prompts">
@@ -130,7 +132,7 @@
                         <th>ID</th>
                         <th>Name</th>
                         <th>Prompt</th>
-                        <th>Aktionen</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
                     <tbody></tbody>
@@ -145,8 +147,8 @@
                 <form id="endpointForm">
                     <input id="endpointName" placeholder="Name" required type="text" minlength="3">
                     <select id="endpointEngine" required></select>
-                    <input id="endpointUrl" placeholder="Index-URL" type="url" minlength="5">
-                    <input id="endpointToken" placeholder="Index-Token" type="text" minlength="3">
+                    <input id="endpointUrl" placeholder="URL (optional)" type="url" minlength="5">
+                    <input id="endpointToken" placeholder="Token (optional)" type="text" minlength="3">
                     <button type="submit">Add</button>
                 </form>
 
@@ -167,7 +169,7 @@
         </section>
 
         <footer>
-            AI-Tomator • Ben Kathöfer • v0.1.0
+            AI-Tomator • Ben Kathöfer • v0.3.0
         </footer>
 
     </main>
@@ -193,19 +195,40 @@
         </div>
     </div>
 </div>
-<div id="batchOverlay" class="overlay hidden">
+<div id="batchDetailOverlay" class="overlay hidden">
     <div class="overlay-content">
-        <h3>Batch Details</h3>
-        <table id="batchDetailsTable">
-            <thead>
-                <tr>
-                    <th>Property</th>
-                    <th>Value</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="card">
+            <h4>Batch Details</h4>
+            <table id="batchDetailsTable">
+            </table>
+        </div>
+    </div>
+</div>
+<div id="batchLogsOverlay" class="overlay hidden">
+    <div class="overlay-content">
+        <div class="card">
+            <h4>Batch Logs</h4>
+            <pre id="batch-logs"></pre>
+        </div>
+    </div>
+</div>
+<div id="batchFilesOverlay" class="overlay hidden">
+    <div class="overlay-content">
+        <div class="card">
+            <h4>Batch File Status</h4>
+            <pre id="batchFilesStatusPre"></pre>
+            <table id="batchFileTable">
+            </table>
+        </div>
+    </div>
+</div>
+<div id="warning-overlay" class="overlay hidden">
+    <div class="overlay-content">
+        <h4>⚠️ WARNING</h4>
+        <p>This is a beta version. Breaking changes may occur with any update. Please make sure to export your batches before updating, as database changes may also occur.</p>
+        <p>If you are running this on a server, note that no authentication is required. Anyone with access to the link can view and modify the data.</p>
+        <p>This may also be a shared instance. Only make changes related to your own data.</p>
+        <button id="understand-warning-btn">I understand</button>
     </div>
 </div>
 </body>

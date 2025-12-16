@@ -36,6 +36,10 @@ class Batch(Base, RunDataMixin):
         back_populates="batch", cascade="all, delete-orphan"
     )
 
+    batch_logs: Mapped[list["BatchLog"]] = relationship(
+        back_populates="batch", cascade="all, delete-orphan"
+    )
+
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
 
@@ -54,6 +58,7 @@ class BatchFile(Base):
     batch_id: Mapped[int] = mapped_column(ForeignKey("batches.id"), nullable=False)
     file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
     storage_name: Mapped[str] = mapped_column(nullable=False)
+    display_name: Mapped[str] = mapped_column(nullable=False)
     status: Mapped["BatchFileStatus"] = mapped_column(
         Enum(BatchFileStatus, name="batch_file_status_enum"),
         nullable=False,
@@ -62,6 +67,26 @@ class BatchFile(Base):
 
     batch: Mapped["Batch"] = relationship(back_populates="batch_files")
     file: Mapped["File"] = relationship()
+
+    batch_logs: Mapped[list["BatchLog"]] = relationship(back_populates="batch_file")
+
+    def to_dict(self):
+        return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
+
+
+class BatchLog(Base):
+    __tablename__ = "batch_logs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    batch_id: Mapped[int] = mapped_column(ForeignKey("batches.id"), nullable=False)
+    batch_file_id: Mapped[int] = mapped_column(
+        ForeignKey("batch_files.id"), nullable=True
+    )
+    log: Mapped[str] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
+
+    batch: Mapped["Batch"] = relationship(back_populates="batch_logs")
+    batch_file: Mapped["BatchFile"] = relationship(back_populates="batch_logs")
 
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}

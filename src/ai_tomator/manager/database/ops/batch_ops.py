@@ -4,6 +4,7 @@ from ai_tomator.manager.database.models.batch import (
     BatchFile,
     BatchStatus,
     BatchFileStatus,
+    BatchLog,
 )
 from ai_tomator.manager.database.models.file import File
 
@@ -47,11 +48,12 @@ class BatchOps:
 
             batch.batch_files = [
                 BatchFile(
-                    file_id=storage_to_id[f],
-                    storage_name=f,
+                    file_id=f.id,
+                    storage_name=f.storage_name,
+                    display_name=f.display_name,
                     status=BatchFileStatus.QUEUED,
                 )
-                for f in files
+                for f in db_files
             ]
 
             session.add(batch)
@@ -87,7 +89,46 @@ class BatchOps:
             session.commit()
             session.refresh(batch)
             session.refresh(batch_file)
-            return batch.to_dict()
+            return batch_file
+
+    def add_file_log(self, batch_id: int, storage_name: str, log: str):
+        with self.SessionLocal() as session:
+            batch_file = (
+                session.query(BatchFile)
+                .filter_by(batch_id=batch_id, storage_name=storage_name)
+                .first()
+            )
+            if not batch_file:
+                raise ValueError(
+                    f"BatchFile with storage_name '{storage_name}' not found in batch {batch_id}."
+                )
+
+        return self.add_batch_log(
+            batch_id=batch_id,
+            batch_file_id=batch_file.id,
+            log=log,
+        )
+
+    def add_batch_log(self, batch_id: int, log: str, batch_file_id: int | None = None):
+        with self.SessionLocal() as session:
+            batch = session.query(Batch).filter_by(id=batch_id).first()
+            if not batch:
+                raise ValueError(f"Batch id '{batch_id}' not found.")
+            if batch_file_id:
+                batch_file = (
+                    session.query(BatchFile).filter_by(id=batch_file_id).first()
+                )
+                if not batch_file:
+                    raise ValueError(f"BatchFile '{batch_file_id}' not found.")
+            batch_log = BatchLog(
+                batch_id=batch_id,
+                batch_file_id=batch_file_id,
+                log=log,
+            )
+            session.add(batch_log)
+            session.commit()
+            session.refresh(batch_log)
+            return batch_log.to_dict()
 
     def get(self, batch_id: int) -> dict:
         with self.SessionLocal() as session:
@@ -95,6 +136,20 @@ class BatchOps:
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             return batch.to_dict()
+
+    def get_files(self, batch_id: int) -> dict:
+        with self.SessionLocal() as session:
+            batch = session.query(Batch).filter_by(id=batch_id).first()
+            if not batch:
+                raise ValueError(f"Batch id '{batch_id}' not found.")
+            return [bl.to_dict() for bl in batch.batch_files]
+
+    def get_log(self, batch_id: int) -> dict:
+        with self.SessionLocal() as session:
+            batch = session.query(Batch).filter_by(id=batch_id).first()
+            if not batch:
+                raise ValueError(f"Batch id '{batch_id}' not found.")
+            return [bl.to_dict() for bl in batch.batch_logs]
 
     def list(self, status: BatchStatus = None):
         with self.SessionLocal() as session:

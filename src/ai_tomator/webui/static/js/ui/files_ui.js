@@ -8,7 +8,7 @@ export const FilesUI = {
     init() {
         this.table = document.querySelector("#filesTable tbody");
 
-        this.overlay = document.getElementById("uploadOverlay");
+        this.detailOverlay = document.getElementById("uploadOverlay");
         this.overlayDropzone = document.getElementById("overlayDropzone");
         this.overlayFileInput = document.getElementById("overlayFileInput");
         this.selectedFilesList = document.getElementById("selectedFilesList");
@@ -18,7 +18,7 @@ export const FilesUI = {
         this.cancelOverlayBtn = document.getElementById("cancelUploadOverlay");
         this.uploadBtn = document.getElementById("uploadFilesBtn");
 
-        makeOverlayClosable(this.overlay)
+        makeOverlayClosable(this.detailOverlay)
 
         this.bindEvents();
         this.refresh();
@@ -31,12 +31,12 @@ export const FilesUI = {
             this.selectedFiles = [];
             this.selectedFilesList.innerHTML = "";
             this.tagInput.value = "";
-            this.overlay.classList.remove("hidden");
+            this.detailOverlay.classList.remove("hidden");
         });
 
         // close overlay
         this.cancelOverlayBtn.addEventListener("click", () => {
-            this.overlay.classList.add("hidden");
+            this.detailOverlay.classList.add("hidden");
         });
 
         // overlay: click on dropzone
@@ -83,7 +83,7 @@ export const FilesUI = {
             await API.Files.upload(file, [tag]);
         }
 
-        this.overlay.classList.add("hidden");
+        this.detailOverlay.classList.add("hidden");
         await this.refresh();
     },
 
@@ -111,7 +111,7 @@ export const FilesUI = {
             <td>${size}</td>
             <td>${mime_type}</td>
             <td>${tags}</td>
-            <td><button data-delete="${storage_name}">Löschen</button></td>
+            <td><button class="button button--red" data-delete="${storage_name}">Del</button></td>
         `;
 
         tr.querySelector("[data-delete]").addEventListener("click", async () => {

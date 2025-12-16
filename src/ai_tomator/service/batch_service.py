@@ -79,6 +79,12 @@ class BatchService:
     def get_batch(self, batch_id: int) -> dict:
         return self.db.batches.get(batch_id)
 
+    def get_batch_files(self, batch_id: int) -> dict:
+        return self.db.batches.get_files(batch_id)
+
+    def get_batch_log(self, batch_id: int) -> dict:
+        return self.db.batches.get_log(batch_id)
+
     def list_batches(self) -> dict:
         result = self.db.batches.list()
         return result

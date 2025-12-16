@@ -135,16 +135,30 @@ select, button, input {
     margin: 3px;
 }
 
-button {
+.button {
     cursor: pointer;
     border: none;
-    background: var(--color-selectable);
     color: var(--color-button-text);
     border-radius: var(--radius-sm);
 }
 
-button:hover {
+.button--blue {
+    background: var(--color-selectable);
+}
+.button--blue:hover {
     background: var(--color-click);
+}
+.button--red {
+    background: #a33131;
+}
+.button--red:hover {
+    background: #882929;
+}
+.button--grey {
+    background: #707070;
+}
+.button--grey:hover {
+    background: #6a6a6a;
 }
 
 /* Tables */
