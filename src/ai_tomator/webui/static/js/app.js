@@ -13,6 +13,21 @@ function init() {
     PromptUI.init();
 }
 
+
+
+const warningOverlay = document.getElementById("warning-overlay");
+const understandWarningBtn = document.getElementById("understand-warning-btn");
+
+const understoodWarning = sessionStorage.getItem("understoodWarning");
+if (!understoodWarning) {
+    warningOverlay.classList.remove("hidden");
+}
+
+understandWarningBtn.addEventListener("click", function() {
+    warningOverlay.classList.add("hidden");
+    sessionStorage.setItem("understoodWarning", "true");
+})
+
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
 } else {
