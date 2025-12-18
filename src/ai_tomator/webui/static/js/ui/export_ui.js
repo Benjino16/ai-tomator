@@ -1,4 +1,5 @@
 import { API } from "../api/index.js";
+import { Service } from "../service/index.js";
 
 export const ExportUI = {
 
@@ -17,7 +18,7 @@ export const ExportUI = {
     },
 
     async refresh() {
-        const runs = await API.Batches.list();
+        const runs = await Service.Batches.getAll();
         this.table.innerHTML = "";
         runs.forEach(r => this.addRow(r));
     },

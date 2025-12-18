@@ -1,6 +1,7 @@
 // js/endpoints_ui.js
 
 import { API } from "../api/index.js";
+import { Service } from "../service/index.js";
 
 export const EndpointsUI = {
 
@@ -28,7 +29,7 @@ export const EndpointsUI = {
     },
 
     async refresh() {
-        const endpoints = await API.Endpoints.list()
+        const endpoints = await Service.Endpoints.getAll()
         const engines = await API.Pipeline.listEngines()
         console.log(endpoints)
 
@@ -52,7 +53,7 @@ export const EndpointsUI = {
             token: this.tokenInput.value,
         };
 
-        await API.Endpoints.add(data);
+        await Service.Endpoints.add(data);
         this.refresh();
     },
 
@@ -75,7 +76,7 @@ export const EndpointsUI = {
             tr.remove();
 
             try {
-                await API.Endpoints.delete(name);
+                await Service.Endpoints.delete(name);
             } catch (err) {
                 console.error("Delete failed:", err);
                 await this.refresh();
