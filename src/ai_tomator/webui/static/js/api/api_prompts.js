@@ -1,7 +1,7 @@
 export function createPromptsAPI(base) {
     return {
         list() {
-            return fetch(`${base}/prompts`)
+            return fetch(`${base}/prompts/`)
                 .then(r => r.json());
         },
 
@@ -10,7 +10,7 @@ export function createPromptsAPI(base) {
                 name: name,
                 prompt: prompt,
             }
-            return fetch(`${base}/prompts/add`, {
+            return fetch(`${base}/prompts/add/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -23,7 +23,7 @@ export function createPromptsAPI(base) {
         },
 
         delete(id) {
-            return fetch(`${base}/prompts/delete/${id}`, {
+            return fetch(`${base}/prompts/delete/${id}/`, {
                 method: "DELETE"
             }).then(r => r.json());
         }

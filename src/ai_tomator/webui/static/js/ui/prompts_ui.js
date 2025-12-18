@@ -1,4 +1,5 @@
 import { API } from "../api/index.js";
+import { Service } from "../service/index.js";
 
 export const PromptsUI = {
 
@@ -31,13 +32,13 @@ export const PromptsUI = {
     },
 
     async refresh() {
-        const prompts = await API.Prompts.list()
+        const prompts = await Service.Prompts.getAll()
         this.table.innerHTML = "";
         prompts.forEach(ep => this.addRow(ep));
     },
 
     async add() {
-        await API.Prompts.add(this.nameInput.value, this.promptInput.value);
+        await Service.Prompts.add(this.nameInput.value, this.promptInput.value);
         this.refresh();
     },
 
@@ -72,7 +73,7 @@ export const PromptsUI = {
             console.log("Delete clicked for:", id);
 
             try {
-                await API.Prompts.delete(id);
+                await Service.Prompts.delete(id);
                 tr.remove();
             } catch (err) {
                 console.error("Delete failed:", err);

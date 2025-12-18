@@ -67,12 +67,12 @@ export const RunsUI = {
     },
 
     async refresh() {
-        const runs = await API.Batches.list()
-        const endpoints = await API.Endpoints.list()
+        const runs = await Service.Batches.getAll()
+        const endpoints = await Service.Endpoints.getAll()
         const file_readers = await API.Pipeline.listFileReaders()
         file_readers.push("upload")
         const file_tags = await Service.Files.getTags()
-        const prompts = await API.Prompts.list()
+        const prompts = await Service.Prompts.getAll()
 
         this.endpointSelect.innerHTML = "<option value=\"\">Endpoint auswählen</option>";
         for (const endpointsKey of endpoints) {
@@ -138,7 +138,7 @@ export const RunsUI = {
         const batchDetailBtn = tr.querySelector("[data-detail-id]");
         batchDetailBtn.addEventListener("click", async () => {
             const batch_id = batchDetailBtn.getAttribute("data-detail-id");
-            const batch = await API.Batches.get(batch_id)
+            const batch = await Service.Batches.getById(batch_id)
             this.openBatchDetailOverlay(batch)
         })
         const batchLogBtn = tr.querySelector("[data-log-id]");
@@ -149,7 +149,7 @@ export const RunsUI = {
         const batchStatusBtn = tr.querySelector("[data-status-id]");
         batchStatusBtn.addEventListener("click", async () => {
             const batch_id = batchStatusBtn.getAttribute("data-status-id");
-            const files = await API.Batches.get_files(batch_id);
+            const files = await Service.Batches.getFileStatus(batch_id);
             this.openBatchFilesOverlay(files)
         })
         this.table.appendChild(tr);
@@ -176,7 +176,7 @@ export const RunsUI = {
 
         this.batchLogPre.innerHTML = "";
 
-        API.Batches.get_logs(batch_id).then(logs => {
+        Service.Batches.getLogs(batch_id).then(logs => {
             const formattedLogs = logs.map(entry => {
                 const date = new Date(entry.created_at).toLocaleString();
                 let logText = entry.log;
@@ -241,7 +241,7 @@ export const RunsUI = {
             temperature: this.temperatureField.value,
         };
 
-        const run = await API.Batches.start(data);
+        const run = await Service.Batches.add(data);
 
         this.addRow(run);
     },

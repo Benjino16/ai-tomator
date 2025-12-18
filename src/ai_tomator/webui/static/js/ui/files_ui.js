@@ -1,4 +1,5 @@
 import { API } from "../api/index.js";
+import { Service } from "../service/index.js";
 import { makeOverlayClosable} from "../utils/overlay.js";
 
 export const FilesUI = {
@@ -88,7 +89,7 @@ export const FilesUI = {
     },
 
     async refresh() {
-        const files = await API.Files.list();
+        const files = await Service.Files.getAll();
         this.table.innerHTML = "";
 
         for (const f of files) {

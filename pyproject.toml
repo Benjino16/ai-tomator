@@ -31,6 +31,8 @@ dev = [
     "httpx",
     "black",
     "ruff",
+    "playwright",
+    "pytest-playwright",
 ]
 
 [tool.setuptools.package-data]
