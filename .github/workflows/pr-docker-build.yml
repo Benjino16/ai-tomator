@@ -1,4 +1,4 @@
-name: PR Docker Build
+name: PR Docker Build + Playwright UI
 
 on:
   pull_request:
@@ -23,8 +23,7 @@ jobs:
           tags: pr-test:latest
           load: true
 
-      # start container and check health route (optional)
-      - name: Run container for health check
+      - name: Run container
         run: |
           docker run -d --name pr-test -p 8000:8000 pr-test:latest
           sleep 3
@@ -40,3 +39,20 @@ jobs:
           echo "Health check failed"
           docker logs pr-test
           exit 1
+
+      - name: Install Python dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[dev]
+
+      - name: Install Playwright Chromium (cached)
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium
+          restore-keys: ${{ runner.os }}-playwright-
+      - run: playwright install chromium
+
+      - name: Run Playwright UI tests
+        run: |
+          pytest tests/webui-e2e
