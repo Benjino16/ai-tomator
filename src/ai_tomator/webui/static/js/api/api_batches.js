@@ -20,11 +20,11 @@ export function createBatchesAPI(base) {
                 .then(r => r.json());
         },
         get_files(batcheId) {
-            return fetch(`${base}/batches/files/${batcheId}/`)
+            return fetch(`${base}/batches/files/${batcheId}`)
                 .then(r => r.json());
         },
         get_logs(batcheId) {
-            return fetch(`${base}/batches/log/${batcheId}/`)
+            return fetch(`${base}/batches/log/${batcheId}`)
                 .then(r => r.json());
         },
 

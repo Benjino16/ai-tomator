@@ -241,7 +241,7 @@ export const RunsUI = {
             temperature: this.temperatureField.value,
         };
 
-        const run = await Service.Batches.start(data);
+        const run = await Service.Batches.add(data);
 
         this.addRow(run);
     },

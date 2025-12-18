@@ -7,8 +7,8 @@ export function createFilesService(api) {
         cacheKey: 'files',
         extra: {
             getByTag: (cache, tag) => cache.filter(r => Array.isArray(r.tags) && r.tags.includes(tag)),
-            getStrListByTag: async (cache, tag, service) => {
-                const list = await service.getByTag(tag);
+            getStrListByTag: (cache, tag) => {
+                const list = cache.filter(r => Array.isArray(r.tags) && r.tags.includes(tag));
                 return list.flatMap(r => r.storage_name);
             },
             getTags: (cache) => [...new Set(cache.flatMap(r => r.tags))]
