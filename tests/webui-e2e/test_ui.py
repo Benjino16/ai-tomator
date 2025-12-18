@@ -15,5 +15,3 @@ def test_homepage_elements(page):
     page.goto("http://localhost:8000/ui")
 
     assert "AI-Tomator" in page.query_selector("aside").inner_html()
-
-
