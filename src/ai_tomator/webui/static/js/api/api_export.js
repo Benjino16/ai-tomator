@@ -1,7 +1,7 @@
 export function createExportAPI(base) {
     return {
         async batches(mode, batch_ids) {
-            const url = new URL(`${base}/export/batches`, window.location.origin);
+            const url = new URL(`${base}/export/batches/`, window.location.origin);
             url.searchParams.set("mode", mode);
 
             batch_ids.forEach(id => url.searchParams.append("batch_ids", id));
