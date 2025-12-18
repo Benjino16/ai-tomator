@@ -32,4 +32,4 @@ jobs:
           pip install .[dev]
 
       - name: run tests with coverage
-        run: pytest --cov=ai_tomator
+        run: pytest tests/api-e2e tests/unit --cov=ai_tomator
