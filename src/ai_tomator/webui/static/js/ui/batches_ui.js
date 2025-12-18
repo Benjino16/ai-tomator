@@ -68,11 +68,11 @@ export const RunsUI = {
 
     async refresh() {
         const runs = await Service.Batches.getAll()
-        const endpoints = await API.Endpoints.list()
+        const endpoints = await Service.Endpoints.getAll()
         const file_readers = await API.Pipeline.listFileReaders()
         file_readers.push("upload")
         const file_tags = await Service.Files.getTags()
-        const prompts = await API.Prompts.list()
+        const prompts = await Service.Prompts.getAll()
 
         this.endpointSelect.innerHTML = "<option value=\"\">Endpoint auswählen</option>";
         for (const endpointsKey of endpoints) {
