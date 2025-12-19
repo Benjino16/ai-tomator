@@ -8,6 +8,9 @@
    cd ai-tomator
 ```
 2. Place the [compose.yaml](/compose.yaml) file inside this directory.
+```
+   curl -L https://raw.githubusercontent.com/Benjino16/ai-tomator/main/compose.yaml -o compose.yaml
+```
 
 3. Start the service:
 ```
