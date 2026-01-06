@@ -15,5 +15,8 @@ class File(Base):
     size: Mapped[int | None] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 
+    owner_id: Mapped[int] = mapped_column(nullable=False)
+    group_id: Mapped[int] = mapped_column(nullable=True)
+
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
