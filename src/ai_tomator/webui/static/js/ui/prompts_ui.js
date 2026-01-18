@@ -38,7 +38,11 @@ export const PromptsUI = {
     },
 
     async add() {
-        await Service.Prompts.add(this.nameInput.value, this.promptInput.value);
+        const data = {
+            name: this.nameInput.value,
+            prompt: this.promptInput.value,
+        }
+        await Service.Prompts.add(data);
         this.refresh();
     },
 
