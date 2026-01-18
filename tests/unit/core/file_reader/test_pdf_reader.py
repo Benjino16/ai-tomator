@@ -17,7 +17,7 @@ def test_pdf_reader_concatenates_text(mock_pdfreader, tmp_path):
     pdf_path.write_bytes(b"%PDF-1.4\n%EOF")
 
     reader = PDFReader()
-    text = reader.read(str(pdf_path))
+    text = reader.read(str(pdf_path), "default")
 
     assert text == "HelloWorld"
     mock_pdfreader.assert_called_once()
@@ -36,6 +36,6 @@ def test_pdf_reader_returns_empty_if_no_text(mock_pdfreader, tmp_path):
     pdf_path.write_bytes(b"%PDF-1.4\n%EOF")
 
     reader = PDFReader()
-    text = reader.read(str(pdf_path))
+    text = reader.read(str(pdf_path), "default")
 
     assert text == ""

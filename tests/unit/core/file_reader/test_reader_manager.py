@@ -19,7 +19,7 @@ def test_manager_reads_via_registered_reader(mock_pdfreader, dummy_pdf):
     mock_reader.pages = [mock_page]
     mock_pdfreader.return_value = mock_reader
 
-    result = FileReaderManager.read("pypdf2", str(dummy_pdf))
+    result = FileReaderManager.read("pypdf2_default", str(dummy_pdf))
     assert result == "Text"
 
 
@@ -33,4 +33,4 @@ def test_get_supported_readers():
     """Verify registered reader names are discoverable."""
     readers = FileReaderManager.get_supported()
     assert isinstance(readers, list)
-    assert "pypdf2" in readers
+    assert "pypdf2_default" in readers
