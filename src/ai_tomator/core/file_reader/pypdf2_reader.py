@@ -3,7 +3,7 @@ from PyPDF2 import PdfReader
 from ai_tomator.core.file_reader.base import BaseFileReader
 
 
-class PDFReader(BaseFileReader):
+class PyPDF2FileReader(BaseFileReader):
     base_name = "pypdf2"
 
     modes = (
