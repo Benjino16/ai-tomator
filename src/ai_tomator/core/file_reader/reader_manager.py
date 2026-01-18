@@ -1,6 +1,7 @@
 from typing import Dict, Tuple, Type
 from ai_tomator.core.file_reader.base import BaseFileReader
 from ai_tomator.core.file_reader.pypdf2_reader import PyPDF2FileReader
+from ai_tomator.core.file_reader.pymupdf_reader import PyMuPDFFileReader
 
 
 class FileReaderManager:
@@ -31,3 +32,4 @@ class FileReaderManager:
 
 # register default readers
 FileReaderManager.register(PyPDF2FileReader)
+FileReaderManager.register(PyMuPDFFileReader)
