@@ -20,6 +20,10 @@ class LoginService:
         return self.db.users.get_for_verification(username=username)["password_hash"]
 
     def verify_password(self, username: str, password: str) -> bool:
+        user = self.db.users.get_by_username(username=username)
+        if not user:
+            return False
+
         hashed_password = self.__get_hashed_password(username)
         try:
             ph.verify(hashed_password, password)
@@ -30,6 +34,8 @@ class LoginService:
     def register_user(self, username: str, password: str) -> bool:
         if len(username) < 3:
             raise ValueError("Username must be at least 3 characters")
+        if len(username) > 10:
+            raise ValueError("Username must be a max of 10 characters")
         if len(password) < 6:
             raise ValueError("Password must be at least 6 characters")
 

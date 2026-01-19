@@ -11,6 +11,21 @@
 
 <body>
 
+<div id="authOverlay" class="overlay">
+    <div class="overlay-content">
+        <h2>Willkommen bei AI-Tomator</h2>
+        <form id="authForm">
+            <input type="text" id="username" placeholder="Benutzername" required>
+            <input type="password" id="password" placeholder="Passwort" required>
+            <div class="auth-buttons">
+                <button type="submit" id="loginBtn">Login</button>
+                <button type="button" id="registerBtn">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 <div class="layout">
     <aside class="sidebar">
         <div class="logo">
@@ -27,13 +42,7 @@
         </nav>
 
         <div class="sidebar-badges">
-            <a href="https://github.com/Benjino16/ai-tomator">
-                <img src="https://img.shields.io/github/v/tag/Benjino16/ai-tomator?label=latest%20version&sort=semver" alt="Latest Version"/>
-            </a>
-
-            <a href="https://github.com/Benjino16/ai-tomator">
-                <img src="https://img.shields.io/github/last-commit/Benjino16/ai-tomator?label=last%20update" alt="Last Commit Status"/>
-            </a>
+            <button id="logoutBtn" class="button button--red">Logout</button>
         </div>
     </aside>
 
