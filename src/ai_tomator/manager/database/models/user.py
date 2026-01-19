@@ -1,7 +1,6 @@
 from sqlalchemy import Text, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
-from ai_tomator.manager.database.models.group import Group
 from ai_tomator.manager.database.base import Base
 
 

@@ -32,7 +32,7 @@ class Result(Base):
     seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
     context_window: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
-    owner_id: Mapped[int] = mapped_column(nullable=False)
+    owner_id: Mapped[int] = mapped_column(nullable=True)
     group_id: Mapped[int] = mapped_column(nullable=True)
 
     batch: Mapped["Batch"] = relationship()
