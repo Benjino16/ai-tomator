@@ -3,7 +3,6 @@ from argon2 import PasswordHasher
 from datetime import datetime, timedelta
 from jose import jwt
 
-
 ph = PasswordHasher()
 
 

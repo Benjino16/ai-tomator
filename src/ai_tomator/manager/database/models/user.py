@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
 
-
 if TYPE_CHECKING:
     from .group import Group
 
