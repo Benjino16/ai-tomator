@@ -4,6 +4,7 @@ import { createBatchesAPI } from "./api_batches.js";
 import { createPipelineAPI } from "./api_pipeline.js";
 import {createExportAPI} from "./api_export.js";
 import {createPromptsAPI} from "./api_prompts.js";
+import {createLoginAPI} from "./api_login.js";
 
 export const API_BASE = "/api";
 
@@ -14,4 +15,5 @@ export const API = {
     Pipeline: createPipelineAPI(API_BASE),
     Export: createExportAPI(API_BASE),
     Prompts: createPromptsAPI(API_BASE),
+    Login: createLoginAPI(API_BASE),
 };

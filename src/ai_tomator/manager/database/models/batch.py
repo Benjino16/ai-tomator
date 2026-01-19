@@ -40,6 +40,9 @@ class Batch(Base, RunDataMixin):
         back_populates="batch", cascade="all, delete-orphan"
     )
 
+    owner_id: Mapped[int] = mapped_column(nullable=True)
+    group_id: Mapped[int] = mapped_column(nullable=True)
+
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
 

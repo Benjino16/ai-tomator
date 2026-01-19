@@ -14,8 +14,11 @@ from ai_tomator.service.endpoint_service import EndpointService
 from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService
 from ai_tomator.service.batch_service import BatchService
+from ai_tomator.service.jwt_authenticator import JWTAuthenticator
+from ai_tomator.service.login_service import LoginService
 from ai_tomator.service.prompt_service import PromptService
 from ai_tomator.logger_config import setup_logging
+from ai_tomator.service.user_service import UserService
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "webui" / "static"
@@ -29,6 +32,10 @@ STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "data/storage")).resolve())
 
 # create absolut db path (robust for docker / local / pyinstaller)
 DATABASE_URL = f"sqlite:///{Path(DB_PATH).resolve()}"
+
+SECRET_KEY = "change_this"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # One Day
 
 
 def create_app(db_path, storage_dir) -> FastAPI:
@@ -53,6 +60,12 @@ def create_app(db_path, storage_dir) -> FastAPI:
         batch_manager = BatchManager(db, engine_manager)
         endpoint_manager = EndpointManager(engine_manager)
 
+        jwt_authenticator = JWTAuthenticator(SECRET_KEY, ALGORITHM, db)
+        login_service = LoginService(
+            db, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+        user_service = UserService(db)
+
         file_service = FileService(db, file_manager)
         endpoint_service = EndpointService(db, endpoint_manager)
         batch_service = BatchService(db, batch_manager, endpoint_service, file_service)
@@ -68,6 +81,9 @@ def create_app(db_path, storage_dir) -> FastAPI:
             endpoint_service,
             export_service,
             prompt_service,
+            login_service,
+            jwt_authenticator,
+            user_service,
         )
         app.include_router(router, prefix="/api")
 
