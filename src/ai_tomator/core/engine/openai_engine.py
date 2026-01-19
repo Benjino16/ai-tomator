@@ -77,6 +77,7 @@ class OpenAIEngine(BaseEngine):
                     {"role": "user", "content": content},
                 ],
                 stream=False,
+                response_format={"type": "json_object"},
             )
 
         return EngineResponse(

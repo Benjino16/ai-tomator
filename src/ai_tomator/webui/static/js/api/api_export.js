@@ -9,7 +9,7 @@ export function createExportAPI(base) {
             const res = await fetch(url, { method: "GET" });
             if (!res.ok) throw new Error("Request failed");
 
-            return await res.blob();
+            return res;
         },
     };
 }

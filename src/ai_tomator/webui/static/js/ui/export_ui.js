@@ -53,12 +53,20 @@ export const ExportUI = {
             return;
         }
 
-        const blob = await API.Export.batches(mode, batch_ids);
+        const res = await API.Export.batches(mode, batch_ids);
+
+        const blob = await res.blob();
+
+        const disposition = res.headers.get("Content-Disposition");
+        let filename = "export";
+        if (disposition && disposition.includes("filename=")) {
+            filename = disposition.split("filename=")[1].replace(/"/g, "");
+        }
 
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "export.csv";
+        a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
     }
