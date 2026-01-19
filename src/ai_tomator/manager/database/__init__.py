@@ -1,6 +1,6 @@
 from .base import get_session
-from ai_tomator.manager.database.models.user import User
-from ai_tomator.manager.database.models.group import Group
+from ai_tomator.manager.database.models.user import User as User
+from ai_tomator.manager.database.models.group import Group as Group
 from ai_tomator.manager.database.ops.endpoint_ops import EndpointOps
 from ai_tomator.manager.database.ops.result_ops import ResultOps
 from ai_tomator.manager.database.ops.batch_ops import BatchOps

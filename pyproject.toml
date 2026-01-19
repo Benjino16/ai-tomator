@@ -22,7 +22,9 @@ dependencies = [
     "pandas",
     "sqlalchemy",
     "tiktoken",
-    "ollama"
+    "ollama",
+    "python-jose[cryptography]",
+    "argon2-cffi"
 ]
 
 [project.optional-dependencies]

@@ -25,6 +25,13 @@ class UserOps:
                 raise ValueError(f"User '{username}' not found.")
             return user.to_dict_internal()
 
+    def get_by_username(self, username: str):
+        with self.SessionLocal() as session:
+            user = session.query(User).filter_by(username=username).first()
+            if user:
+                return user.to_dict_public()
+            return None
+
     def list(self):
         with self.SessionLocal() as session:
             return [e.to_dict_public() for e in session.query(User).all()]
