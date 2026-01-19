@@ -72,11 +72,15 @@ class OpenAIEngine(BaseEngine):
             response = self.client.chat.completions.create(
                 model=model,
                 temperature=model_settings.temperature,
+
                 messages=[
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": content},
                 ],
                 stream=False,
+                response_format={
+                    'type': 'json_object'
+                }
             )
 
         return EngineResponse(
