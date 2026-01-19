@@ -15,7 +15,11 @@ class ExpandedExportMode(BaseExportMode):
     separate rows or columns for CSV export.
     """
 
-    name = "expanded"
+    base_name = "long_format_csv"
+
+    modes = ("default",)
+
+    default_mode = "default"
 
     @staticmethod
     def normalize_json(raw: str) -> str:
@@ -25,7 +29,7 @@ class ExpandedExportMode(BaseExportMode):
             s = s.split("\n", 1)[1] if "\n" in s else ""
         return s.strip()
 
-    def to_csv(self, results: List[Dict[str, Any]]) -> str:
+    def export(self, results: List[Dict[str, Any]], mode) -> str:
         expanded_rows = []
 
         for row in results:

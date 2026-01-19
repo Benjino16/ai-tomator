@@ -1,8 +1,12 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Iterable
 
 
 class BaseExportMode:
-    name: str = "base"
+    """Common class for all export modes."""
 
-    def to_csv(self, results: List[Dict[str, Any]]) -> str:
+    base_name: str
+    modes: Iterable[str]
+    default_mode: str
+
+    def export(self, results: List[Dict[str, Any]], mode: str) -> str:
         raise NotImplementedError

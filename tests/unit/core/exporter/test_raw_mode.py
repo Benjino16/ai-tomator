@@ -17,7 +17,7 @@ def test_simple_rows(exporter):
         {"model": "gemini", "temp": 1.0, "output": "raw text"},
         {"model": "gpt", "temp": 0.7, "output": "another"},
     ]
-    df = csv_to_df(exporter.to_csv(data))
+    df = csv_to_df(exporter.export(data))
 
     assert len(df) == 2
     assert set(df.columns) == {"model", "temp", "output"}
@@ -28,7 +28,7 @@ def test_simple_rows(exporter):
 
 def test_missing_field(exporter):
     data = [{"model": "ollama"}]
-    df = csv_to_df(exporter.to_csv(data))
+    df = csv_to_df(exporter.export(data))
 
     assert "model" in df.columns
     assert "output" not in df.columns
@@ -40,7 +40,7 @@ def test_mixed_fields(exporter):
         {"model": "openai", "temp": 0.5},
         {"model": "gemini", "engine": "test_engine"},
     ]
-    df = csv_to_df(exporter.to_csv(data))
+    df = csv_to_df(exporter.export(data))
 
     assert set(df.columns) == {"model", "temp", "engine"}
     assert pd.isna(df.iloc[0]["engine"])
@@ -49,7 +49,7 @@ def test_mixed_fields(exporter):
 
 def test_special_characters_in_output(exporter):
     data = [{"model": "gemini", "output": "line1\nline2,with,commas"}]
-    csv_text = exporter.to_csv(data)
+    csv_text = exporter.export(data)
     # Newlines and commas should be quoted
     assert '"' in csv_text or "\n" in csv_text
 

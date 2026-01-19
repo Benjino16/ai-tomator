@@ -26,7 +26,7 @@ def test_list_of_objects(exporter):
             ),
         }
     ]
-    df = csv_to_df(exporter.to_csv(data))
+    df = csv_to_df(exporter.export(data))
 
     assert len(df) == 2
     assert set(df.columns) == {"model", "temp", "_id", "_answer", "_quote"}
@@ -36,7 +36,7 @@ def test_list_of_objects(exporter):
 
 def test_dict_output(exporter):
     data = [{"model": "gpt", "output": json.dumps({"x": 5, "y": "ok"})}]
-    df = csv_to_df(exporter.to_csv(data))
+    df = csv_to_df(exporter.export(data))
 
     assert len(df) == 1
     assert set(df.columns) == {"model", "_x", "_y"}
@@ -46,7 +46,7 @@ def test_dict_output(exporter):
 
 def test_primitive_output(exporter):
     data = [{"id": 1, "output": json.dumps("simple string")}]
-    df = csv_to_df(exporter.to_csv(data))
+    df = csv_to_df(exporter.export(data))
 
     assert len(df) == 1
     assert "value" in df.columns
@@ -55,7 +55,7 @@ def test_primitive_output(exporter):
 
 def test_invalid_json(exporter):
     data = [{"id": 2, "output": "{not valid json}"}]
-    df = csv_to_df(exporter.to_csv(data))
+    df = csv_to_df(exporter.export(data))
 
     assert "__output_raw" in df.columns
     assert df.iloc[0]["__output_raw"] == "{not valid json}"
@@ -63,7 +63,7 @@ def test_invalid_json(exporter):
 
 def test_missing_output_field(exporter):
     data = [{"id": 3, "model": "ollama"}]
-    df = csv_to_df(exporter.to_csv(data))
+    df = csv_to_df(exporter.export(data))
 
     assert len(df) == 1
     assert "model" in df.columns

@@ -5,9 +5,13 @@ import csv
 
 
 class RawExportMode(BaseExportMode):
-    name = "raw"
+    base_name = "raw_csv"
 
-    def to_csv(self, results: List[Dict[str, Any]]) -> str:
+    modes = ("default",)
+
+    default_mode = "default"
+
+    def export(self, results: List[Dict[str, Any]], mode) -> str:
         df = pd.DataFrame(results)
         df = df.replace({r"[\r\n]+": r"\\n"}, regex=True)
         return df.to_csv(index=False, quoting=csv.QUOTE_ALL)

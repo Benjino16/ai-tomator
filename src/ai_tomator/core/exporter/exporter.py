@@ -1,24 +1,31 @@
 from .base import BaseExportMode
 from .raw_mode import RawExportMode
 from .expanded_mode import ExpandedExportMode
-from typing import List, Any, Dict, Type
+from typing import List, Any, Dict, Type, Tuple
 
 
 class BatchExporter:
-    _modes: Dict[str, Type[BaseExportMode]] = {}
+    _modes: Dict[str, Tuple[Type[BaseExportMode], str]] = {}
 
     @classmethod
-    def register_mode(cls, mode_cls: Type[BaseExportMode]):
-        cls._modes[mode_cls.name] = mode_cls
+    def register(cls, reader_cls: Type[BaseExportMode]):
+        for mode in reader_cls.modes:
+            public_name = f"{reader_cls.base_name}_{mode}".lower()
+            cls._modes[public_name] = (reader_cls, mode)
 
-    def __init__(self, mode: str = "raw"):
-        if mode not in self._modes:
-            raise ValueError(f"Unknown export mode: {mode}")
-        self.mode = self._modes[mode]()
+    def __init__(self, mode: str):
+        exporter_name = mode.lower()
 
-    def to_csv(self, results: List[Dict[str, Any]]) -> str:
-        return self.mode.to_csv(results)
+        if exporter_name not in self._modes:
+            raise ValueError(f"Unknown export mode: {exporter_name}")
+
+        reader_cls, setting = self._modes[exporter_name]
+        self.mode = reader_cls()
+        self.setting = setting
+
+    def export(self, results: List[Dict[str, Any]]) -> str:
+        return self.mode.export(results=results, mode=self.setting)
 
 
-BatchExporter.register_mode(RawExportMode)
-BatchExporter.register_mode(ExpandedExportMode)
+BatchExporter.register(RawExportMode)
+BatchExporter.register(ExpandedExportMode)

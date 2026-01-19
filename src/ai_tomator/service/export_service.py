@@ -14,4 +14,4 @@ class ExportService:
         for batch_id in batch_ids:
             results.extend(self.db.results.list_by_batch(batch_id))
         exporter = BatchExporter(mode)
-        return exporter.to_csv(results)
+        return exporter.export(results)
