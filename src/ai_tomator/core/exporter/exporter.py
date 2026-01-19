@@ -1,7 +1,7 @@
 from .base import BaseExportMode
 from .raw_mode import RawExportMode
 from .expanded_mode import ExpandedExportMode
-from typing import List, Any, Dict, Type,  Union, Tuple
+from typing import List, Any, Dict, Type, Union, Tuple
 from io import BytesIO, StringIO
 
 
@@ -24,7 +24,9 @@ class BatchExporter:
         self.mode = reader_cls()
         self.setting = setting
 
-    def export(self, results: List[Dict[str, Any]]) -> Tuple[Union[StringIO, BytesIO], str, str]:
+    def export(
+        self, results: List[Dict[str, Any]]
+    ) -> Tuple[Union[StringIO, BytesIO], str, str]:
         return self.mode.export(results=results, mode=self.setting)
 
 

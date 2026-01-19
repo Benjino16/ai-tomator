@@ -1,4 +1,3 @@
-from io import StringIO
 from fastapi import Query
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -11,7 +10,9 @@ def build_export_router(export_service: ExportService):
 
     @router.get("/batches")
     def export_csv(mode: str, batch_ids: list[int] = Query()):
-        file_buffer, filename, content_type = export_service.export_batches(batch_ids, mode)
+        file_buffer, filename, content_type = export_service.export_batches(
+            batch_ids, mode
+        )
         return StreamingResponse(
             file_buffer,
             media_type=content_type,
