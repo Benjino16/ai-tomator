@@ -5,15 +5,11 @@ export function createPromptsAPI(base) {
                 .then(r => r.json());
         },
 
-        add(name, prompt) {
-            const payload = {
-                name: name,
-                prompt: prompt,
-            }
-            return fetch(`${base}/prompts/add/`, {
+        add(data) {
+            return fetch(`${base}/prompts/add`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(data)
             }).then(r => r.json());
         },
 

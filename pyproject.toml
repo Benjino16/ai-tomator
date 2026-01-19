@@ -17,6 +17,8 @@ dependencies = [
     "openai",
     "google-genai",
     "PyPDF2",
+    "PyMuPDF",
+    "openpyxl",
     "pandas",
     "sqlalchemy",
     "tiktoken",

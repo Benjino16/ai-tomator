@@ -1,5 +1,6 @@
 from .base import BaseExportMode
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Union, Tuple
+from io import BytesIO, StringIO
 import pandas as pd
 import json
 import csv
@@ -15,7 +16,11 @@ class ExpandedExportMode(BaseExportMode):
     separate rows or columns for CSV export.
     """
 
-    name = "expanded"
+    base_name = "long_format"
+
+    modes = ("csv", "excel")
+
+    default_mode = "csv"
 
     @staticmethod
     def normalize_json(raw: str) -> str:
@@ -25,7 +30,9 @@ class ExpandedExportMode(BaseExportMode):
             s = s.split("\n", 1)[1] if "\n" in s else ""
         return s.strip()
 
-    def to_csv(self, results: List[Dict[str, Any]]) -> str:
+    def export(
+        self, results: List[Dict[str, Any]], mode
+    ) -> Tuple[Union[StringIO, BytesIO], str, str]:
         expanded_rows = []
 
         for row in results:
@@ -62,4 +69,21 @@ class ExpandedExportMode(BaseExportMode):
 
         df = pd.DataFrame(expanded_rows)
         df = df.replace({r"[\r\n]+": r"\\n"}, regex=True)
-        return df.to_csv(index=False, quoting=csv.QUOTE_ALL)
+        if mode == self.default_mode:
+            buffer = StringIO()
+            df.to_csv(buffer, index=False, quoting=csv.QUOTE_ALL)
+            buffer.seek(0)
+            return (
+                buffer,
+                f"batch_export_{self.scientific_date_for_filename()}.csv",
+                "text/csv",
+            )
+        else:
+            excel_buffer = BytesIO()
+            df.to_excel(excel_buffer, index=False)
+            excel_buffer.seek(0)
+            return (
+                excel_buffer,
+                f"batch_export_{self.scientific_date_for_filename()}.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )

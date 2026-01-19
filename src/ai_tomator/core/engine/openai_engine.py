@@ -69,24 +69,29 @@ class OpenAIEngine(BaseEngine):
                 temperature=model_settings.temperature,
             )
         else:
-            response = self.client.responses.create(
+            response = self.client.chat.completions.create(
                 model=model,
-                input=f"{prompt}\n\n{content}",
                 temperature=model_settings.temperature,
+                messages=[
+                    {"role": "system", "content": prompt},
+                    {"role": "user", "content": content},
+                ],
+                stream=False,
+                response_format={"type": "json_object"},
             )
 
         return EngineResponse(
             engine=self.__class__.__name__,
             model=model,
-            temperature=response.temperature,
-            top_p=response.top_p,
+            temperature=model_settings.temperature,
+            top_p=model_settings.top_p,
             top_k=None,
-            max_output_tokens=response.max_output_tokens,
+            max_output_tokens=None,
             seed=None,
             context_window=None,
             prompt=prompt,
             input=content or "[Uploaded File]",
-            output=response.output_text,
-            input_tokens=response.usage.input_tokens,
-            output_tokens=response.usage.output_tokens,
+            output=response.choices[0].message.content,
+            input_tokens=0,
+            output_tokens=0,
         )
