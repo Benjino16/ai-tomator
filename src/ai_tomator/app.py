@@ -16,6 +16,7 @@ from ai_tomator.service.file_service import FileService
 from ai_tomator.service.batch_service import BatchService
 from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 from ai_tomator.service.login_service import LoginService
+from ai_tomator.service.price_service import PriceService
 from ai_tomator.service.prompt_service import PromptService
 from ai_tomator.logger_config import setup_logging
 from ai_tomator.service.user_service import UserService
@@ -71,6 +72,7 @@ def create_app(db_path, storage_dir) -> FastAPI:
         batch_service = BatchService(db, batch_manager, endpoint_service, file_service)
         export_service = ExportService(db)
         prompt_service = PromptService(db)
+        price_service = PriceService(db, file_service)
 
         file_manager.sync_storage_with_db()
         batch_manager.recover_batches()
@@ -84,6 +86,7 @@ def create_app(db_path, storage_dir) -> FastAPI:
             login_service,
             jwt_authenticator,
             user_service,
+            price_service,
         )
         app.include_router(router, prefix="/api")
 
