@@ -224,3 +224,23 @@ footer {
 .text-grey {
     color: #a3a3a3;
 }
+
+/* Form Grid */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 12px 16px;
+    align-items: center;
+    max-width: 500px;
+}
+
+.form-grid label {
+    text-align: right;
+    font-weight: 500;
+}
+
+.form-grid input,
+.form-grid select {
+    width: 100%;
+}
