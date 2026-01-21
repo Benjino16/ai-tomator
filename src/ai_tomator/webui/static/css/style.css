@@ -71,6 +71,20 @@ body {
     color: var(--color-hover);
 }
 
+/* Login Page */
+
+.auth-switch {
+    margin-top: 12px;
+    font-size: 0.9rem;
+}
+
+.auth-switch a {
+    margin-left: 6px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+
 /* Main Content */
 
 main {

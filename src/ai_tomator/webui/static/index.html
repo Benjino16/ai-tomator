@@ -13,17 +13,31 @@
 
 <div id="authOverlay" class="overlay">
     <div class="overlay-content">
-        <h2>Willkommen bei AI-Tomator</h2>
+        <h2 id="authTitle">Willkommen bei AI-Tomator</h2>
+
         <form id="authForm">
             <input type="text" id="username" placeholder="Benutzername" required>
+
             <input type="password" id="password" placeholder="Passwort" required>
-            <div class="auth-buttons">
-                <button type="submit" id="loginBtn">Login</button>
-                <button type="button" id="registerBtn">Register</button>
-            </div>
+
+            <!-- Nur im Register-Modus sichtbar -->
+            <input
+                    type="password"
+                    id="passwordConfirm"
+                    placeholder="Passwort wiederholen"
+                    style="display:none;"
+            >
+
+            <button type="submit" id="submitBtn">Login</button>
         </form>
+
+        <p class="auth-switch">
+            <span id="switchText">Noch keinen Account?</span>
+            <a href="#" id="switchMode">Registrieren</a>
+        </p>
     </div>
 </div>
+
 
 
 <div class="layout">
@@ -202,7 +216,7 @@
         </section>
 
         <footer>
-            AI-Tomator • Ben Kathöfer • v0.3.0
+            AI-Tomator • Ben Kathöfer • v0.4.0
         </footer>
 
     </main>
