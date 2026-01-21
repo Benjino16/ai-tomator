@@ -15,6 +15,9 @@ export const RunsUI = {
         this.delayField = document.getElementById("delay-input");
         this.promptSelect = document.getElementById("prompt-select");
 
+        this.openStartOverlayBtn = document.getElementById("open-start-overlay-btn");
+        this.startOverlay = document.getElementById("batchStartOverlay");
+        makeOverlayClosable(this.startOverlay);
 
         this.detailOverlay = document.getElementById("batchDetailOverlay");
         this.batchesDetailsTable = document.getElementById("batchDetailsTable");
@@ -34,6 +37,10 @@ export const RunsUI = {
 
         this.form = document.getElementById("runForm");
 
+        this.openStartOverlayBtn.addEventListener("click", () => {
+            this.startOverlay.classList.remove("hidden");
+        });
+
         this.form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
@@ -41,8 +48,8 @@ export const RunsUI = {
                 this.form.reportValidity();
                 return;
             }
-
             await this.start();
+            this.startOverlay.classList.add("hidden");
         });
 
         this.endpointSelect.addEventListener("change", async () => {
@@ -103,7 +110,6 @@ export const RunsUI = {
             option.textContent = prompt.name;
             this.promptSelect.appendChild(option);
         }
-        console.log(runs);
         this.table.innerHTML = "";
         runs.forEach(r => this.addRow(r));
     },

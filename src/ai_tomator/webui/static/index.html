@@ -35,6 +35,7 @@
         <nav>
             <a href="#batch-run">Batch Run</a>
             <a href="#batch-export">Export Batches</a>
+            <a href="#price-calculator">Price Calculator</a>
             <a href="#files">Files</a>
             <a href="#prompts">Prompts</a>
             <a href="#endpoints">Endpoints</a>
@@ -51,18 +52,6 @@
         <section id="batch-run">
             <h2>Batch Run</h2>
             <div class="card">
-                <form id="runForm">
-                    <select id="endpoint-select" required></select>
-                    <select id="file-tag-select" required></select>
-                    <select id="file-reader-select" required></select>
-                    <select id="model-select" required></select>
-                    <select id="prompt-select" required></select>
-
-                    <input id="temperature-input" placeholder="Temperature" required type="number" value="1.0" min="0.0" max="3.0" step="0.1">
-                    <input id="delay-input" placeholder="Delay (seconds)" required type="number" min="0" max="360" value="10">
-
-                    <button class="button button--blue" type="submit">Run</button>
-                </form>
                 <table id="runsTable">
                     <thead>
                     <tr>
@@ -77,6 +66,7 @@
                     <tbody></tbody>
                 </table>
             </div>
+            <button class="button button--blue" id="open-start-overlay-btn">New Batch</button>
         </section>
 
         <section id="batch-export">
@@ -103,6 +93,38 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+        </section>
+
+        <section id="price-calculator">
+            <h2>Price Calculator</h2>
+            <div class="card">
+                <form id="priceForm" class="form-grid">
+                    <label for="price-provider-select">Provider</label>
+                    <select id="price-provider-select" required>
+                        <option value="OPENAI">OPENAI</option>
+                        <option value="GOOGLE">GOOGLE</option>
+                        <option value="DEEPSEEK">DEEPSEEK</option>
+                    </select>
+
+                    <label for="price-model-input">Model</label>
+                    <input id="price-model-input" required type="text" placeholder="Example: gpt-4o">
+
+                    <label for="price-file-tag-select">File-Tag</label>
+                    <select id="price-file-tag-select" required></select>
+
+                    <label for="price-file-reader-select">File Reader</label>
+                    <select id="price-file-reader-select" required></select>
+
+                    <label for="price-prompt-select">Prompt</label>
+                    <select id="price-prompt-select" required></select>
+
+                    <label for="price-example-output">Output</label>
+                    <input id="price-example-output" required type="text" placeholder="Optional: example model output">
+
+                    <button class="button button--blue" type="submit">Calculate</button>
+                </form>
+                <h2 id="price-result-header">Calculated Price: -</h2>
             </div>
         </section>
 
@@ -184,6 +206,36 @@
         </footer>
 
     </main>
+</div>
+<div id="batchStartOverlay" class="overlay hidden">
+    <div class="overlay-content">
+        <h3>Start new batch:</h3>
+        <form id="runForm" class="form-grid">
+            <label for="endpoint-select">Endpoint</label>
+            <select id="endpoint-select" required></select>
+
+            <label for="file-tag-select">File-Tag</label>
+            <select id="file-tag-select" required></select>
+
+            <label for="file-reader-select">File Reader</label>
+            <select id="file-reader-select" required></select>
+
+            <label for="model-select">Model</label>
+            <select id="model-select" required></select>
+
+            <label for="prompt-select">Prompt</label>
+            <select id="prompt-select" required></select>
+
+            <label for="temperature-input">Temperature</label>
+            <input id="temperature-input" placeholder="Temperature" required type="number" value="1.0" min="0.0" max="3.0" step="0.1">
+
+            <label for="delay-input">Delay (seconds)</label>
+            <input id="delay-input" placeholder="Delay (seconds)" required type="number" min="0" max="360" value="10">
+
+            <button class="button button--blue" type="submit">Run</button>
+        </form>
+
+    </div>
 </div>
 <div id="uploadOverlay" class="overlay hidden">
     <div class="overlay-content">
