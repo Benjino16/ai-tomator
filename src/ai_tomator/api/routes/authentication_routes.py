@@ -18,7 +18,7 @@ def build_authentication_router(
         token = login_service.create_access_token(request.username)
 
         response.set_cookie(
-            key="access_token", value=token, httponly=True, samesite="lax", secure=True
+            key="access_token", value=token, httponly=True, samesite="lax", secure=False
         )
 
         return {"success": True}
