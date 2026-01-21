@@ -31,6 +31,7 @@ class ResultOps:
                     endpoint=batch.endpoint,
                     file_reader=batch.file_reader,
                     prompt=batch.prompt,
+                    prompt_name=batch.prompt_name,
                     model=batch.model,
                     temperature=batch.temperature,
                     top_p=engine_response.top_p,

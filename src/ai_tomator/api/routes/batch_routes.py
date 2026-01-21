@@ -2,15 +2,22 @@ from fastapi import APIRouter, HTTPException, status
 
 from ai_tomator.api.models.batch_models import BatchData, BatchRunRequest
 from ai_tomator.service.batch_service import BatchService
+from ai_tomator.service.prompt_service import PromptService
 
 
-def build_batch_router(batch_service: BatchService):
+def build_batch_router(batch_service: BatchService, prompt_service: PromptService):
     router = APIRouter(prefix="/batches", tags=["Batches"])
 
     @router.post("/start", response_model=BatchData)
     def start_run(request: BatchRunRequest):
+        try:
+            prompt_data = prompt_service.get(request.prompt_id)
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
         result = batch_service.start(
-            prompt=request.prompt,
+            prompt=prompt_data["prompt"],
+            prompt_name=prompt_data["name"],
             files=request.files,
             endpoint_name=request.endpoint,
             file_reader=request.file_reader,

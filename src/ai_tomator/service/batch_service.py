@@ -21,6 +21,7 @@ class BatchService:
     def start(
         self,
         prompt: str,
+        prompt_name: str,
         files: list[str],
         endpoint_name: str,
         file_reader: str,
@@ -47,6 +48,7 @@ class BatchService:
             endpoint=endpoint_name,
             file_reader=file_reader,
             prompt=prompt,
+            prompt_name=prompt_name,
             model=model,
             temperature=temperature,
         )

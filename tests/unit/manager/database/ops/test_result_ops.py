@@ -49,6 +49,7 @@ def sample_data(db_session):
         endpoint="https://api.openai.com",
         file_reader="txt",
         prompt="say hello",
+        prompt_name="test_prompt",
         model="gpt",
         temperature=0.5,
         status=BatchStatus.COMPLETED,

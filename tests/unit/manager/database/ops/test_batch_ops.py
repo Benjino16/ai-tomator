@@ -53,6 +53,7 @@ def test_add_and_get_batch(setup_data):
         "endpoint",
         "reader",
         "prompt",
+        "prompt_name",
         "model",
         0.5,
     )
@@ -64,19 +65,19 @@ def test_add_and_get_batch(setup_data):
 def test_add_missing_file_raises(setup_data):
     ops = BatchOps(setup_data)
     with pytest.raises(ValueError):
-        ops.add("b1", BatchStatus.STARTING, ["missing"], "e", "e", "r", "p", "m", 0.5)
+        ops.add("b1", BatchStatus.STARTING, ["missing"], "e", "e", "r", "p", "pn", "m", 0.5)
 
 
 def test_update_status(setup_data):
     ops = BatchOps(setup_data)
-    batch = ops.add("b1", BatchStatus.STARTING, ["f1"], "e", "e", "r", "p", "m", 0.5)
+    batch = ops.add("b1", BatchStatus.STARTING, ["f1"], "e", "e", "r", "p", "pn", "m", 0.5)
     updated = ops.update_status(batch["id"], BatchStatus.COMPLETED)
     assert updated["status"] == BatchStatus.COMPLETED
 
 
 def test_update_batch_file_status(setup_data):
     ops = BatchOps(setup_data)
-    batch = ops.add("b1", BatchStatus.STARTING, ["f1"], "e", "e", "r", "p", "m", 0.5)
+    batch = ops.add("b1", BatchStatus.STARTING, ["f1"], "e", "e", "r", "p", "pn", "m", 0.5)
     ops.update_batch_file_status(batch["id"], "f1", BatchFileStatus.COMPLETED)
     with setup_data() as s:
         bf = (
@@ -89,8 +90,8 @@ def test_update_batch_file_status(setup_data):
 
 def test_list_batches(setup_data):
     ops = BatchOps(setup_data)
-    ops.add("b1", BatchStatus.STARTING, ["f1"], "e", "e", "r", "p", "m", 0.5)
-    ops.add("b2", BatchStatus.COMPLETED, ["f2"], "e", "e", "r", "p", "m", 0.5)
+    ops.add("b1", BatchStatus.STARTING, ["f1"], "e", "e", "r", "p", "pn", "m", 0.5)
+    ops.add("b2", BatchStatus.COMPLETED, ["f2"], "e", "e", "r", "p", "pn", "m", 0.5)
     all_batches = ops.list()
     done_batches = ops.list(BatchStatus.COMPLETED)
     assert len(all_batches) == 2

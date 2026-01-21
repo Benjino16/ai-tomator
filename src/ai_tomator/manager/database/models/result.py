@@ -21,6 +21,7 @@ class Result(Base):
     endpoint: Mapped[str] = mapped_column(nullable=False)
     file_reader: Mapped[str] = mapped_column(nullable=False)
     prompt: Mapped[str] = mapped_column(nullable=False)
+    prompt_name: Mapped[str] = mapped_column(nullable=False)
     model: Mapped[str] = mapped_column(nullable=False)
     temperature: Mapped[float] = mapped_column(nullable=False)
 

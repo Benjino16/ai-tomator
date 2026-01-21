@@ -61,6 +61,7 @@ def test_start_creates_batch_and_starts_batch(service, mock_db, mock_batch_manag
     mock_db.batches.add.return_value = {"id": 1, "name": "batch_test"}
     result = service.start(
         prompt="analyze",
+        prompt_name="test_prompt",
         files=["file1.txt"],
         endpoint_name="test_endpoint",
         file_reader="pdf",
@@ -81,6 +82,7 @@ def test_start_raises_for_invalid_file(service, mock_file_service):
     with pytest.raises(ValueError) as exc:
         service.start(
             prompt="test",
+            prompt_name="test_prompt",
             files=["missing.txt"],
             endpoint_name="test_endpoint",
             file_reader="txt",

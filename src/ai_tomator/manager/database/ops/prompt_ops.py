@@ -24,6 +24,13 @@ class PromptOps:
         with self.SessionLocal() as session:
             return [p.to_dict() for p in session.query(Prompt).all()]
 
+    def get(self, prompt_id: int) -> dict:
+        with self.SessionLocal() as session:
+            pr = session.query(Prompt).filter_by(id=prompt_id).first()
+            if not pr:
+                raise ValueError(f"Prompt with ID {prompt_id} not found.")
+            return pr.to_dict()
+
     def delete(self, prompt_id: int) -> dict:
         with self.SessionLocal() as session:
             pr = session.query(Prompt).filter_by(id=prompt_id).first()

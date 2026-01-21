@@ -24,6 +24,7 @@ class BatchOps:
         endpoint: str,
         file_reader: str,
         prompt: str,
+        prompt_name: str,
         model: str,
         temperature: float,
     ):
@@ -34,6 +35,7 @@ class BatchOps:
                 engine=engine,
                 endpoint=endpoint,
                 prompt=prompt,
+                prompt_name=prompt_name,
                 file_reader=file_reader,
                 model=model,
                 temperature=temperature,

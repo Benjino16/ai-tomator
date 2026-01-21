@@ -22,7 +22,7 @@ def build_router(
 ):
     router = APIRouter()
     router.include_router(build_file_router(file_service))
-    router.include_router(build_batch_router(batch_service))
+    router.include_router(build_batch_router(batch_service, prompt_service))
     router.include_router(build_endpoint_router(endpoint_service))
     router.include_router(build_pipeline_router(batch_service))
     router.include_router(build_export_router(export_service))
