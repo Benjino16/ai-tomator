@@ -110,7 +110,6 @@ export const RunsUI = {
             option.textContent = prompt.name;
             this.promptSelect.appendChild(option);
         }
-        console.log(runs);
         this.table.innerHTML = "";
         runs.forEach(r => this.addRow(r));
     },

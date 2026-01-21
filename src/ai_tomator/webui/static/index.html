@@ -35,6 +35,7 @@
         <nav>
             <a href="#batch-run">Batch Run</a>
             <a href="#batch-export">Export Batches</a>
+            <a href="#price-calculator">Price Calculator</a>
             <a href="#files">Files</a>
             <a href="#prompts">Prompts</a>
             <a href="#endpoints">Endpoints</a>
@@ -92,6 +93,38 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
+        </section>
+
+        <section id="price-calculator">
+            <h2>Price Calculator</h2>
+            <div class="card">
+                <form id="priceForm" class="form-grid">
+                    <label for="price-provider-select">Provider</label>
+                    <select id="price-provider-select" required>
+                        <option value="OPENAI">OPENAI</option>
+                        <option value="GOOGLE">GOOGLE</option>
+                        <option value="DEEPSEEK">DEEPSEEK</option>
+                    </select>
+
+                    <label for="price-model-input">Model</label>
+                    <input id="price-model-input" required type="text" placeholder="Example: gpt-4o">
+
+                    <label for="price-file-tag-select">File-Tag</label>
+                    <select id="price-file-tag-select" required></select>
+
+                    <label for="price-file-reader-select">File Reader</label>
+                    <select id="price-file-reader-select" required></select>
+
+                    <label for="price-prompt-select">Prompt</label>
+                    <select id="price-prompt-select" required></select>
+
+                    <label for="price-example-output">Output</label>
+                    <input id="price-example-output" required type="text" placeholder="Optional: example model output">
+
+                    <button class="button button--blue" type="submit">Calculate</button>
+                </form>
+                <h2 id="price-result-header">Calculated Price: -</h2>
             </div>
         </section>
 

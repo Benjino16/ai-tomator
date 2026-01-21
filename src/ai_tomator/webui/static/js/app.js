@@ -3,6 +3,7 @@ import { EndpointsUI } from "./ui/endpoints_ui.js";
 import { RunsUI } from "./ui/batches_ui.js";
 import { ExportUI } from "./ui/export_ui.js";
 import { PromptsUI as PromptUI } from "./ui/prompts_ui.js";
+import { PriceUI } from "./ui/price_ui.js";
 import { setupLogin } from "./login.js";  // Login importieren
 import { setupNavigation, showSection } from "./navigation.js";
 
@@ -12,6 +13,7 @@ function init() {
     EndpointsUI.init();
     RunsUI.init();
     ExportUI.init();
+    PriceUI.init();
     PromptUI.init();
 
     showSection("batch-run")
