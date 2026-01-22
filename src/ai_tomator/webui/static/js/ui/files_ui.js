@@ -85,6 +85,7 @@ export const FilesUI = {
         }
 
         this.detailOverlay.classList.add("hidden");
+        await Service.Files.refresh()
         await this.refresh();
     },
 
@@ -118,8 +119,11 @@ export const FilesUI = {
         tr.querySelector("[data-delete]").addEventListener("click", async () => {
             tr.remove();
             try {
-                await API.Files.delete(storage_name);
-            } catch {
+                await Service.Files.delete(storage_name);
+            } catch (e) {
+                console.error(e);
+                alert(e)
+                await Service.Files.refresh()
                 await this.refresh();
             }
         });

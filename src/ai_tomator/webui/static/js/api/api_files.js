@@ -5,7 +5,7 @@ export function createFilesAPI(base) {
             formData.append("file", file);
             formData.append("tags", tags);
 
-            return fetch(`${base}/files/upload/`, {
+            return fetch(`${base}/files/upload`, {
                 method: "POST",
                 body: formData
             }).then(r => r.json());
@@ -16,9 +16,9 @@ export function createFilesAPI(base) {
         },
 
         delete(name) {
-            return fetch(`${base}/files/delete/${name}/`, {
+            return fetch(`${base}/files/delete/${name}`, {
                 method: "DELETE"
-            }).then(r => r.json());
+            });
         }
     };
 }
