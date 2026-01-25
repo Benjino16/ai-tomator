@@ -239,6 +239,15 @@ footer {
     color: #a3a3a3;
 }
 
+
+
+#promptForm, #promptDisplayForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Abstand zwischen Textboxen und Button */
+}
+
+
 /* Form Grid */
 
 .form-grid {

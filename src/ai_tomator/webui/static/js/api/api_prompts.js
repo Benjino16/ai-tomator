@@ -10,7 +10,7 @@ export function createPromptsAPI(base) {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
-            }).then(r => r.json());
+            });
         },
 
         get_content_by_id(id) {
@@ -19,7 +19,7 @@ export function createPromptsAPI(base) {
         },
 
         delete(id) {
-            return fetch(`${base}/prompts/delete/${id}/`, {
+            return fetch(`${base}/prompts/delete/${id}`, {
                 method: "DELETE"
             }).then(r => r.json());
         }

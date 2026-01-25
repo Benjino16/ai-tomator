@@ -165,14 +165,6 @@
         <section id="prompts">
             <h2>Prompts</h2>
             <div class="card">
-                <form id="promptsForm">
-                    <input id="promptName" placeholder="Name" required type="text" minlength="3">
-                    <input id="promptInput" placeholder="Prompt" type="text" minlength="3">
-                    <button type="submit">Add</button>
-                    <input type="file" id="promptTXTFileInput" accept="text/plain">
-                </form>
-
-
                 <table id="promptsTable">
                     <thead>
                     <tr>
@@ -184,8 +176,8 @@
                     </thead>
                     <tbody></tbody>
                 </table>
-
             </div>
+            <button class="button button--blue" id="open-prompt-overlay-btn">New Prompt</button>
         </section>
 
         <section id="endpoints">
@@ -249,6 +241,43 @@
             <button class="button button--blue" type="submit">Run</button>
         </form>
 
+    </div>
+</div>
+<div id="promptAddOverlay" class="overlay hidden">
+    <div class="overlay-content">
+        <h3>Add Prompt</h3>
+        <div>
+            Upload .txt file
+            <input type="file" id="promptTXTFileInput" accept="text/plain">
+        </div>
+        <p>-- or --</p>
+        <form id="promptForm">
+            <input id="promptName" placeholder="Name" required type="text" minlength="3">
+
+            <textarea
+                    id="promptInput"
+                    placeholder="Write your prompt here..."
+                    minlength="3"
+                    rows="6"
+            ></textarea>
+            <button type="submit">Add</button>
+        </form>
+    </div>
+</div>
+<div id="promptDisplayOverlay" class="overlay hidden">
+    <div class="overlay-content">
+        <h3>Prompt Overview</h3>
+        <form id="promptDisplayForm">
+            <input id="promptDisplayName" placeholder="Name" required type="text" minlength="3" readonly>
+
+            <textarea
+                    id="promptDisplayInput"
+                    placeholder="Write your prompt here..."
+                    minlength="3"
+                    rows="6"
+                    readonly
+            ></textarea>
+        </form>
     </div>
 </div>
 <div id="uploadOverlay" class="overlay hidden">
