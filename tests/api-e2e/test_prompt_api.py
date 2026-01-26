@@ -6,8 +6,8 @@ def test_prompt_api(client):
     assert isinstance(data, list)
 
     payload = {
-        "name": "test_prompt",
-        "prompt": "Process dataset",
+        "name": "test_prompt_1",
+        "content": "Process dataset",
     }
 
     # test adding a prompt
@@ -16,16 +16,16 @@ def test_prompt_api(client):
     data = response.json()
     assert "id" in data
     prompt_id_1 = data["id"]
-    assert data["name"] == "test_prompt"
-    assert data["prompt"] == "Process dataset"
+    assert data["name"] == "test_prompt_1"
+    assert data["content"] == "Process dataset"
 
     # add prompt with the same name / should not be possible
     response = client.post("/api/prompts/add", json=payload)
     assert response.status_code == 409
 
     payload = {
-        "name": "test_prompt2",
-        "prompt": "Process dataset",
+        "name": "test_prompt_2",
+        "content": "Process dataset",
     }
 
     # add another prompt

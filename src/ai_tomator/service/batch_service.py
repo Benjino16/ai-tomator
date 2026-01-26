@@ -20,7 +20,7 @@ class BatchService:
 
     def start(
         self,
-        prompt_id: str,
+        prompt_id: int,
         files: list[str],
         endpoint_name: str,
         file_reader: str,
