@@ -56,7 +56,7 @@ export const PromptsUI = {
     async add() {
         const data = {
             name: this.nameInput.value,
-            prompt: this.promptInput.value,
+            content: this.promptInput.value,
         }
         try {
             const response = await Service.Prompts.add(data);
@@ -98,9 +98,9 @@ export const PromptsUI = {
         const tr = document.createElement("tr");
 
         const shorten_prompt =
-            pr.prompt.length > 50
-                ? pr.prompt.slice(0, 50) + "..."
-                : pr.prompt;
+            pr.content.length > 50
+                ? pr.content.slice(0, 50) + "..."
+                : pr.content;
 
         tr.innerHTML = `
             <td>${pr.id}</td>
@@ -136,7 +136,7 @@ export const PromptsUI = {
 
         promptShowBtn.addEventListener("click", () => {
             this.nameDisplay.value = pr.name;
-            this.promptDisplay.value = pr.prompt;
+            this.promptDisplay.value = pr.content;
             this.promptsDisplayOverlay.classList.remove("hidden");
         });
 

@@ -12,7 +12,7 @@ def build_prompt_router(prompt_service: PromptService):
     @router.post("/add")
     def add_prompt(prompt: PromptRequest):
         try:
-            return prompt_service.add(name=prompt.name, prompt=prompt.prompt)
+            return prompt_service.add(name=prompt.name, content=prompt.content)
         except NameAlreadyExistsError as e:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
