@@ -6,7 +6,7 @@ from typing import List
 
 # -----      requests      -----
 class BatchRunRequest(BaseModel):
-    prompt: str
+    prompt_id: int
     files: List[str]
     endpoint: str
     file_reader: str

@@ -20,7 +20,7 @@ class BatchService:
 
     def start(
         self,
-        prompt: str,
+        prompt_id: int,
         files: list[str],
         endpoint_name: str,
         file_reader: str,
@@ -30,6 +30,12 @@ class BatchService:
     ) -> dict:
         batch_name = f"batch_{hash(model + endpoint_name)}"
         endpoint = self.endpoint_service.get(endpoint_name, True)
+
+        prompt = self.db.prompts.get(prompt_id)
+        if not prompt:
+            raise RuntimeError(f"Prompt {prompt_id} not found")
+
+        prompt_content = prompt["content"]
         engine = endpoint["engine"]
 
         file_infos = []
@@ -46,7 +52,7 @@ class BatchService:
             engine=engine,
             endpoint=endpoint_name,
             file_reader=file_reader,
-            prompt=prompt,
+            prompt=prompt_content,
             model=model,
             temperature=temperature,
         )
@@ -57,7 +63,7 @@ class BatchService:
             endpoint,
             file_reader,
             model,
-            prompt,
+            prompt_content,
             delay,
             temperature,
         )

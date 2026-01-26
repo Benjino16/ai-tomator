@@ -10,7 +10,7 @@ def build_batch_router(batch_service: BatchService):
     @router.post("/start", response_model=BatchData)
     def start_run(request: BatchRunRequest):
         result = batch_service.start(
-            prompt=request.prompt,
+            prompt_id=request.prompt_id,
             files=request.files,
             endpoint_name=request.endpoint,
             file_reader=request.file_reader,

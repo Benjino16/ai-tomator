@@ -10,7 +10,7 @@ class Prompt(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
-    prompt: Mapped[str] = mapped_column(nullable=False)
+    content: Mapped[str] = mapped_column(nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 

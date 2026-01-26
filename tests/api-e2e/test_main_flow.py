@@ -21,6 +21,18 @@ def create_endpoint(client):
 
 
 @pytest.fixture(scope="session")
+def create_prompt(client):
+    prompt_name = "test_prompt"
+    payload = {
+        "name": prompt_name,
+        "content": "Process dataset",
+    }
+    response = client.post("/api/prompts/add", json=payload)
+    assert response.status_code in (200, 201)
+    return response.json()["id"]
+
+
+@pytest.fixture(scope="session")
 def upload_file(client):
     with open(SAMPLE_PDF_PATH_1, "rb") as f:
         resp = client.post(
@@ -31,7 +43,7 @@ def upload_file(client):
     return resp.json()["storage_name"]
 
 
-def test_main_run(client, create_endpoint, upload_file):
+def test_main_run(client, create_endpoint, upload_file, create_prompt):
     """
     Testing the api endpoints on a typical main run.
     \n1. Creating an endpoint
@@ -43,7 +55,7 @@ def test_main_run(client, create_endpoint, upload_file):
     """
 
     payload = {
-        "prompt": "Process dataset",
+        "prompt_id": create_prompt,
         "files": [upload_file],
         "endpoint": create_endpoint,
         "file_reader": "pypdf2",
@@ -64,9 +76,9 @@ def test_main_run(client, create_endpoint, upload_file):
     assert batch_response["status"] == "STARTING"
 
 
-def test_stop_batch(client, create_endpoint, upload_file):
+def test_stop_batch(client, create_endpoint, upload_file, create_prompt):
     payload = {
-        "prompt": "Process dataset",
+        "prompt_id": create_prompt,
         "files": [upload_file, upload_file, upload_file],
         "endpoint": create_endpoint,
         "file_reader": "pypdf2",

@@ -106,7 +106,7 @@ export const RunsUI = {
         this.promptSelect.innerHTML = "<option value=\"\">Prompt auswählen</option>";
         for (const prompt of prompts) {
             const option = document.createElement("option");
-            option.value = prompt.prompt;
+            option.value = prompt.id;
             option.textContent = prompt.name;
             this.promptSelect.appendChild(option);
         }
@@ -238,7 +238,7 @@ export const RunsUI = {
 
     async start() {
         const data = {
-            prompt: this.promptSelect.value,
+            prompt_id: this.promptSelect.value,
             endpoint: this.endpointSelect.value,
             model: this.modelSelect.value,
             file_reader: this.fileReaderSelect.value,
