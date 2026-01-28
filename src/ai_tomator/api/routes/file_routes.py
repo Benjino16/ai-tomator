@@ -49,4 +49,21 @@ def build_file_router(file_service: FileService):
     def list_files():
         return file_service.list_files()
 
+    @router.get("/tags", response_model=list[str])
+    def get_file_tags():
+        files = file_service.list_files()
+
+        tags = set()
+        for f in files:
+            if f.get("tags"):
+                tags.update(f["tags"])
+
+        return sorted(tags)
+
+    @router.get("/by-tag/{tag}", response_model=list[FileData])
+    def get_files_by_tag(tag: str):
+        files = file_service.list_files()
+
+        return [FileData(**f) for f in files if f.get("tags") and tag in f["tags"]]
+
     return router

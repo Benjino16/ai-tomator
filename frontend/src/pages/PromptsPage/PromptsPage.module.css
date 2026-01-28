@@ -1,0 +1,12 @@
+.promptPreview {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+
+    overflow: hidden;
+
+    line-height: 1.4;
+    max-height: calc(1.4em * 3);
+
+    word-break: break-word;
+}

@@ -40,7 +40,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-"ai_tomator" = ["webui/**/*"]
+"ai_tomator" = ["static/**/*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

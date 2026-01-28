@@ -1,0 +1,15 @@
+.batchStartForm {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.batchStartForm label {
+    font-weight: 500;
+}
+
+.batchStartForm input,
+.batchStartForm select,
+.batchStartForm button {
+    padding: 0.5rem;
+}

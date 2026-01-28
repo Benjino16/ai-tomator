@@ -1,3 +1,14 @@
+# Stage 0: Frontend Build
+FROM node:20-alpine AS frontend-build
+WORKDIR /app/frontend
+
+COPY frontend/package*.json ./
+RUN npm ci
+
+COPY frontend/ ./
+RUN npm run build  # Output: frontend/dist
+
+# Stage 1: Backend Wheel Build
 FROM python:3.11-slim AS builder
 
 WORKDIR /app
@@ -11,6 +22,8 @@ COPY pyproject.toml ./
 COPY README.md ./
 COPY LICENSE ./
 COPY src ./src
+
+COPY --from=frontend-build /app/frontend/dist ./src/ai_tomator/static
 
 RUN pip install --upgrade pip setuptools wheel
 RUN pip wheel --no-deps -w /app/wheels .
