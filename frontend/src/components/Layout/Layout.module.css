@@ -1,0 +1,11 @@
+.layout {
+    display: flex;
+    height: 100vh;
+}
+
+.layout main {
+    flex: 1;          /* füllt den restlichen Platz */
+    overflow-y: auto; /* nur der Content scrollt */
+    min-height: 0;    /* wichtig für Flexbox */
+    padding: 1rem;
+}

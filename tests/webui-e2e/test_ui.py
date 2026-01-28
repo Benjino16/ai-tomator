@@ -11,7 +11,9 @@ def page():
         browser.close()
 
 
-def test_homepage_elements(page):
-    page.goto("http://localhost:8000/ui")
+def test_login_header_present(page):
+    page.goto("http://localhost:8000/")
 
-    assert "AI-Tomator" in page.query_selector("aside").inner_html()
+    login_header = page.query_selector("h2:text('Login')")
+    assert login_header is not None
+    assert login_header.is_visible()

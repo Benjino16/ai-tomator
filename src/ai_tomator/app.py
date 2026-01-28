@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from pathlib import Path
+import logging
 import os
 
 from ai_tomator.api.routes import build_router
@@ -22,7 +23,7 @@ from ai_tomator.logger_config import setup_logging
 from ai_tomator.service.user_service import UserService
 
 BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "webui" / "static"
+STATIC_DIR = BASE_DIR / "static"
 
 DB_PATH = os.getenv("DB_PATH", "data/db/database.db")
 # ensure db path exists
@@ -41,17 +42,13 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # One Day
 
 def create_app(db_path, storage_dir) -> FastAPI:
     setup_logging()
+    logger = logging.getLogger(__name__)
+
     app = FastAPI(title="AI-Tomator")
 
     @app.get("/health")
     async def health():
         return {"status": "ok"}
-
-    app.mount(
-        "/ui",
-        StaticFiles(directory=STATIC_DIR, html=True),
-        name="webui",
-    )
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -89,6 +86,15 @@ def create_app(db_path, storage_dir) -> FastAPI:
             price_service,
         )
         app.include_router(router, prefix="/api")
+
+        if STATIC_DIR.exists():
+            app.mount(
+                "/",
+                StaticFiles(directory=STATIC_DIR, html=True),
+                name="frontend",
+            )
+        else:
+            logger.warning("Static directory not found, running in dev mode")
 
         yield
 
