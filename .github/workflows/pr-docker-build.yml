@@ -25,7 +25,7 @@ jobs:
 
       - name: Run container
         run: |
-          docker run -d --name pr-test -p 8000:8000 pr-test:latest
+          docker run -d --name pr-test --network="host" -p 8000:8000 pr-test:latest
           sleep 3
 
       - name: Check /health endpoint

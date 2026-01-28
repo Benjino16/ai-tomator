@@ -14,6 +14,6 @@ def page():
 def test_login_header_present(page):
     page.goto("http://localhost:8000/")
 
-    login_header = page.query_selector("h2:text('Login')")
+    login_header = page.wait_for_selector("h2:text('Login')", timeout=10000)
     assert login_header is not None
     assert login_header.is_visible()
