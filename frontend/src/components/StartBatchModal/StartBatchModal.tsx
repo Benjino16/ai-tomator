@@ -40,6 +40,29 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
     const [temperature, setTemperature] = useState<number>(1);
     const [delay, setDelay] = useState<number>(10);
 
+    useEffect(() => {
+        if (!endpoint) {
+            setModels([]);
+            setModel("");
+            return;
+        }
+
+        const loadModels = async () => {
+            setLoadingModels(true);
+            try {
+                const mdls = await EndpointsAPI.getModels(endpoint);
+                setModels(mdls);
+            } catch (err) {
+                console.error(err);
+                alert("Error loading models: " + err);
+            } finally {
+                setLoadingModels(false);
+            }
+        };
+
+        loadModels();
+    }, [endpoint]);
+
 
     useEffect(() => {
         if (!isOpen) return;
@@ -48,26 +71,24 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
             setLoadingEndpoints(true);
             setLoadingFileTags(true);
             setLoadingFileReaders(true);
-            setLoadingModels(true);
             setLoadingPrompts(true);
 
             try {
-                const [eps, fTags, fReaders, mdls, prms] = await Promise.all([
+                const [eps, fTags, fReaders, prms] = await Promise.all([
                     EndpointsAPI.getAll(),
                     FilesAPI.getFileTags(),
                     PipelineAPI.getFileReaders(),
-                    EndpointsAPI.getModels("test"),
+
                     PromptsAPI.getAll(),
                 ]);
 
                 setEndpoints(eps.map(ep => ep.name));
                 setFileTags(fTags);
                 setFileReaders(fReaders);
-                setModels(mdls);
                 setPrompts(prms);
             } catch (err) {
                 console.error(err);
-                alert("Daten konnten nicht geladen werden");
+                alert("Error while fetching data: " + err);
             } finally {
                 setLoadingEndpoints(false);
                 setLoadingFileTags(false);
@@ -90,7 +111,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
             let files = r.map(f => f.storage_name)
 
             if (promptId === null) {
-                alert("Bitte Prompt auswählen");
+                alert("Please select a prompt");
                 return;
             }
 
@@ -131,7 +152,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     disabled={loadingEndpoints}
                 >
                     <option value="" disabled>
-                        {loadingEndpoints ? "Lade..." : "Bitte auswählen"}
+                        {loadingEndpoints ? "Loading..." : "Please select"}
                     </option>
 
                     {endpoints.map((ep) => (
@@ -148,7 +169,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     onChange={(e) => setFileTag(e.target.value)}
                 >
                     <option value="" disabled>
-                        {loadingFileTags ? "Lade..." : "Bitte auswählen"}
+                        {loadingFileTags ? "Loading..." : "Please select"}
                     </option>
 
                     {fileTags.map((ft) => (
@@ -166,7 +187,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
 
                 >
                     <option value="" disabled>
-                        {loadingFileReaders ? "Lade..." : "Bitte auswählen"}
+                        {loadingFileReaders ? "Loading..." : "Please select"}
                     </option>
 
                     {fileReaders.map((fr) => (
@@ -181,9 +202,14 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     required
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
+                    disabled={!endpoint || loadingModels}
                 >
                     <option value="" disabled>
-                        {loadingModels ? "Lade..." : "Bitte auswählen"}
+                        {!endpoint
+                            ? "Select endpoint first"
+                            : loadingModels
+                                ? "Loading..."
+                                : "Please select"}
                     </option>
 
                     {models.map((md) => (
@@ -200,7 +226,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     onChange={(e) => setPromptId(parseInt(e.target.value))}
                 >
                     <option value="" disabled>
-                        {loadingPrompts ? "Lade..." : "Bitte auswählen"}
+                        {loadingPrompts ? "Loading..." : "Please select"}
                     </option>
 
                     {prompts.map((pr) => (

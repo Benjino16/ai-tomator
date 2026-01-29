@@ -9,9 +9,14 @@ export default function FilesPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalKey, setModalKey] = useState(0);
 
-    useEffect(() => {
+    function loadFiles() {
         FilesAPI.getAll().then(setFiles);
+    }
+
+    useEffect(() => {
+        loadFiles();
     }, []);
+
 
     function handleDeleteFile(filename: string): void {
         FilesAPI.delete(filename).then(() => {
@@ -58,7 +63,12 @@ export default function FilesPage() {
                 key={modalKey}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onUploaded={(success) => console.log(success)}
+                onUploaded={
+                (success) => {
+                    console.log(success)
+                    loadFiles();
+                }
+            }
             />
         </section>
     );
