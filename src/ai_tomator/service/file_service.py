@@ -9,8 +9,10 @@ class FileService:
         self.db = db
         self.file_manager = file_manager
 
-    def upload_file(self, file: UploadFile, tags: Optional[List[str]]) -> dict:
-        return self.file_manager.save(file, tags)
+    def upload_file(
+        self, file: UploadFile, tags: Optional[List[str]], user_id: int
+    ) -> dict:
+        return self.file_manager.save(file, tags, user_id)
 
     def list_files(self) -> list[dict]:
         return self.db.files.list()

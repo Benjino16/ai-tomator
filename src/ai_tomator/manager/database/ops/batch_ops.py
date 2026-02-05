@@ -1,4 +1,5 @@
 from sqlalchemy.orm import sessionmaker
+from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
     Batch,
     BatchFile,
@@ -26,8 +27,11 @@ class BatchOps:
         prompt: str,
         model: str,
         temperature: float,
+        user_id: int,
     ):
         with self.SessionLocal() as session:
+            subq = get_group_id_subquery(session, user_id)
+
             batch = Batch(
                 name=name,
                 status=status,
@@ -37,6 +41,8 @@ class BatchOps:
                 file_reader=file_reader,
                 model=model,
                 temperature=temperature,
+                user_id=user_id,
+                group_id=subq,
             )
 
             db_files = session.query(File).filter(File.storage_name.in_(files)).all()

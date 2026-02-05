@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import FileResponse, Response
 
 from ai_tomator.service.file_service import FileService
@@ -7,15 +7,19 @@ from fastapi import UploadFile, File, Form
 from typing import Optional, List
 import os
 
+from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 
-def build_file_router(file_service: FileService):
+
+def build_file_router(file_service: FileService, jwt_authenticator: JWTAuthenticator):
     router = APIRouter(prefix="/files", tags=["Files"])
 
     @router.post("/upload", response_model=FileData)
     def upload_file(
-        file: UploadFile = File(...), tags: Optional[List[str]] = Form(None)
+        file: UploadFile = File(...),
+        tags: Optional[List[str]] = Form(None),
+        user=Depends(jwt_authenticator),
     ):
-        return FileData(**file_service.upload_file(file, tags))
+        return FileData(**file_service.upload_file(file, tags, user["id"]))
 
     @router.get("/download/{filename}")
     def download_file(filename: str):

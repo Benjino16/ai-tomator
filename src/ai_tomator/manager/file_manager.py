@@ -15,13 +15,13 @@ class FileManager:
         base, ext = os.path.splitext(original_name)
         return f"{uuid.uuid4().hex[:8]}{ext}"
 
-    def save(self, file: UploadFile, tags: list[str]):
+    def save(self, file: UploadFile, tags: list[str], user_id: int):
         unique_name = self._unique_name(file.filename)
         dest_path = os.path.join(self.storage_dir, unique_name)
         with open(dest_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         file = self.db.files.add(
-            unique_name, file.filename, tags, file.content_type, file.size
+            unique_name, file.filename, tags, file.content_type, file.size, user_id
         )  # todo: contenttype und size possible null reference
         return file
 
@@ -58,6 +58,7 @@ class FileManager:
                     tags=None,
                     mime_type="test",
                     size=0,
+                    user_id=0,
                 )
 
         # check files in db; if not in storage: delete

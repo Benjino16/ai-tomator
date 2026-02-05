@@ -2,15 +2,18 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from ai_tomator.core.exceptions import NameAlreadyExistsError
 from ai_tomator.manager.database.models.prompt import Prompt
+from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 
 
 class PromptOps:
     def __init__(self, session_local: sessionmaker):
         self.SessionLocal = session_local
 
-    def add(self, name: str, content: str) -> dict:
+    def add(self, name: str, content: str, user_id: int) -> dict:
         with self.SessionLocal() as session:
-            pr = Prompt(name=name, content=content)
+            subq = get_group_id_subquery(session, user_id)
+
+            pr = Prompt(name=name, content=content, user_id=user_id, group_id=subq)
             session.add(pr)
             try:
                 session.commit()

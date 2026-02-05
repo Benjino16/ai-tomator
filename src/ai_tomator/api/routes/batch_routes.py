@@ -1,14 +1,18 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 
 from ai_tomator.api.models.batch_models import BatchData, BatchRunRequest
+from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 from ai_tomator.service.batch_service import BatchService
 
 
-def build_batch_router(batch_service: BatchService):
+def build_batch_router(
+    batch_service: BatchService, jwt_authenticator: JWTAuthenticator
+):
     router = APIRouter(prefix="/batches", tags=["Batches"])
 
     @router.post("/start", response_model=BatchData)
-    def start_run(request: BatchRunRequest):
+    def start_run(request: BatchRunRequest, user=Depends(jwt_authenticator)):
+
         result = batch_service.start(
             prompt_id=request.prompt_id,
             files=request.files,
@@ -17,6 +21,7 @@ def build_batch_router(batch_service: BatchService):
             model=request.model,
             delay=request.delay,
             temperature=request.temperature,
+            user_id=user["id"],
         )
         return BatchData(**result)
 

@@ -2,15 +2,24 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from ai_tomator.core.exceptions import NameAlreadyExistsError
 from ai_tomator.manager.database.models.endpoint import Endpoint
+from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 
 
 class EndpointOps:
     def __init__(self, session_local: sessionmaker):
         self.SessionLocal = session_local
 
-    def add(self, name: str, engine: str, url=None, token=None):
+    def add(self, name: str, engine: str, user_id: int, url=None, token=None):
         with self.SessionLocal() as session:
-            ep = Endpoint(name=name, engine=engine, url=url, token=token)
+            subq = get_group_id_subquery(session, user_id)
+            ep = Endpoint(
+                name=name,
+                engine=engine,
+                url=url,
+                token=token,
+                user_id=user_id,
+                group_id=subq,
+            )
             session.add(ep)
             try:
                 session.commit()

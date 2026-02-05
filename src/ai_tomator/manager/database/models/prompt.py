@@ -14,7 +14,7 @@ class Prompt(Base):
 
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 
-    owner_id: Mapped[int] = mapped_column(nullable=True)
+    user_id: Mapped[int] = mapped_column(nullable=True)
     group_id: Mapped[int] = mapped_column(nullable=True)
 
     def to_dict(self):

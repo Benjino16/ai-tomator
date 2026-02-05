@@ -27,6 +27,7 @@ class BatchService:
         model: str,
         delay: float,
         temperature: float,
+        user_id: int,
     ) -> dict:
         batch_name = f"batch_{hash(model + endpoint_name)}"
         endpoint = self.endpoint_service.get(endpoint_name, True)
@@ -55,6 +56,7 @@ class BatchService:
             prompt=prompt_content,
             model=model,
             temperature=temperature,
+            user_id=user_id,
         )
         batch_id = db_batch["id"]
         self.batch_manager.start_batch(

@@ -3,9 +3,12 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
 from ai_tomator.service.export_service import ExportService
+from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 
 
-def build_export_router(export_service: ExportService):
+def build_export_router(
+    export_service: ExportService, jwt_authenticator: JWTAuthenticator
+):
     router = APIRouter(prefix="/export", tags=["Export"])
 
     @router.get("/batches")

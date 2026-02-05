@@ -1,5 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from ai_tomator.manager.database.models.file import File
+from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 
 
 class FileOps:
@@ -13,14 +14,20 @@ class FileOps:
         tags: list[str],
         mime_type: str,
         size: int,
+        user_id: int,
     ):
         with self.SessionLocal() as session:
+
+            subq = get_group_id_subquery(session, user_id)
+
             file = File(
                 storage_name=storage_name,
                 display_name=display_name,
                 tags=tags,
                 mime_type=mime_type,
                 size=size,
+                user_id=user_id,
+                group_id=subq,
             )
             session.add(file)
             session.commit()

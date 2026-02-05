@@ -8,9 +8,14 @@ class EndpointService:
         self.endpoint_manager = endpoint_manager
 
     def add(
-        self, name: str, engine: str, url: str | None = None, token: str | None = None
+        self,
+        name: str,
+        engine: str,
+        user_id: int,
+        url: str | None = None,
+        token: str | None = None,
     ) -> dict:
-        self.db.endpoints.add(name, engine, url, token)
+        self.db.endpoints.add(name, engine, user_id, url, token)
         return {"name": name, "engine": engine, "status": "added"}
 
     def get(self, name: str, show_api=False) -> dict:
