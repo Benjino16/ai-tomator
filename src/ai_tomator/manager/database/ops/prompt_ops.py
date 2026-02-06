@@ -23,22 +23,26 @@ class PromptOps:
                 session.rollback()
                 raise NameAlreadyExistsError(name)
 
-    def list(self) -> list[dict]:
+    def list(self, user_id: int) -> list[dict]:
         with self.SessionLocal() as session:
-            return [p.to_dict() for p in session.query(Prompt).all()]
+            query = session.query(Prompt)
+            prompts = Prompt.accessible_by(query, user_id).all()
+            return [p.to_dict() for p in prompts]
 
-    def get(self, prompt_id: int) -> dict | None:
+    def get(self, prompt_id: int, user_id: int) -> dict | None:
         with self.SessionLocal() as session:
-            prompt = session.query(Prompt).filter_by(id=prompt_id).first()
+            query = session.query(Prompt).filter_by(id=prompt_id)
+            prompt = Prompt.accessible_by(query, user_id).first()
             if prompt:
                 return prompt.to_dict()
             return None
 
-    def delete(self, prompt_id: int) -> dict:
+    def delete(self, prompt_id: int, user_id: int) -> dict:
         with self.SessionLocal() as session:
-            pr = session.query(Prompt).filter_by(id=prompt_id).first()
-            if not pr:
+            query = session.query(Prompt).filter_by(id=prompt_id)
+            prompt = Prompt.accessible_by(query, user_id).first()
+            if not prompt:
                 raise ValueError(f"Prompt with ID {prompt_id} not found.")
-            session.delete(pr)
+            session.delete(prompt)
             session.commit()
-            return pr.to_dict()
+            return prompt.to_dict()

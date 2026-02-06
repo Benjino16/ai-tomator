@@ -20,19 +20,19 @@ def build_endpoint_router(
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
     @router.get("/", response_model=list[EndpointData])
-    def list_endpoints():
-        return endpoint_service.list()
+    def list_endpoints(user=Depends(jwt_authenticator)):
+        return endpoint_service.list(user["id"])
 
     @router.get("/health/{name}", response_model=bool)
-    def get_endpoint_health(name: str):
-        return endpoint_service.health(name)
+    def get_endpoint_health(name: str, user=Depends(jwt_authenticator)):
+        return endpoint_service.health(name, user["id"])
 
     @router.get("/models/{name}", response_model=list[str])
-    def get_endpoint_models(name: str):
-        return endpoint_service.models(name)
+    def get_endpoint_models(name: str, user=Depends(jwt_authenticator)):
+        return endpoint_service.models(name, user["id"])
 
     @router.delete("/delete/{name}", response_model=EndpointData)
-    def delete_endpoint(name: str):
-        return endpoint_service.delete(name)
+    def delete_endpoint(name: str, user=Depends(jwt_authenticator)):
+        return endpoint_service.delete(name, user["id"])
 
     return router

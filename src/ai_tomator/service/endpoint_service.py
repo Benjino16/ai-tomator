@@ -18,22 +18,22 @@ class EndpointService:
         self.db.endpoints.add(name, engine, user_id, url, token)
         return {"name": name, "engine": engine, "status": "added"}
 
-    def get(self, name: str, show_api=False) -> dict:
-        endpoint = self.db.endpoints.get(name, show_api)
+    def get(self, name: str, user_id: int) -> dict:
+        endpoint = self.db.endpoints.get(name, user_id)
         return endpoint
 
-    def health(self, name) -> bool:
-        endpoint = self.db.endpoints.get(name, True)
+    def health(self, name, user_id: int) -> bool:
+        endpoint = self.db.endpoints.get(name, user_id, show_api=True)
         health = self.endpoint_manager.get_health(endpoint)
         return health.healthy
 
-    def models(self, name) -> list[str]:
-        endpoint = self.db.endpoints.get(name, True)
+    def models(self, name, user_id: int) -> list[str]:
+        endpoint = self.db.endpoints.get(name, user_id, show_api=True)
         return self.endpoint_manager.get_models(endpoint)
 
-    def list(self) -> list[dict]:
-        return self.db.endpoints.list()
+    def list(self, user_id: int) -> list[dict]:
+        return self.db.endpoints.list(user_id)
 
-    def delete(self, name: str) -> dict:
-        self.db.endpoints.delete(name)
+    def delete(self, name: str, user_id: int) -> dict:
+        self.db.endpoints.delete(name, user_id)
         return {"name": name, "status": "deleted"}

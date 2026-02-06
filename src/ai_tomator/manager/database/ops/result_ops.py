@@ -1,6 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 
 from ai_tomator.core.engine.models.response_model import EngineResponse
+from ai_tomator.manager.database.models.prompt import Prompt
 from ai_tomator.manager.database.models.result import Result, Batch, File
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 
@@ -49,7 +50,8 @@ class ResultOps:
             )
             session.commit()
 
-    def list_by_batch(self, batch_id):
+    def list_by_batch(self, batch_id, user_id: int):
         with self.SessionLocal() as session:
-            rows = session.query(Result).filter_by(batch_id=batch_id).all()
-            return [r.to_dict() for r in rows]
+            query = session.query(Result).filter_by(batch_id=batch_id)
+            results = Result.accessible_by(query, user_id).all()
+            return [r.to_dict() for r in results]

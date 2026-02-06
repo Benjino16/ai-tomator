@@ -27,9 +27,10 @@ class EndpointOps:
                 session.rollback()
                 raise NameAlreadyExistsError(name)
 
-    def get(self, name: str, show_api=False):
+    def get(self, name: str, user_id: int, show_api=False):
         with self.SessionLocal() as session:
-            ep = session.query(Endpoint).filter_by(name=name).first()
+            query = session.query(Endpoint).filter_by(name=name)
+            ep = Endpoint.accessible_by(query, user_id).all()
             if not ep:
                 raise ValueError(f"Endpoint '{name}' not found.")
             if show_api:
@@ -37,13 +38,16 @@ class EndpointOps:
             else:
                 return ep.to_dict_public()
 
-    def list(self):
+    def list(self, user_id: int):
         with self.SessionLocal() as session:
-            return [e.to_dict_public() for e in session.query(Endpoint).all()]
+            endpoints = Endpoint.accessible_by(session.query(Endpoint), user_id).all()
+            return [e.to_dict_public() for e in endpoints]
 
-    def delete(self, name: str):
+    def delete(self, name: str, user_id: int):
         with self.SessionLocal() as session:
-            ep = session.query(Endpoint).filter_by(name=name).first()
+            query = session.query(Endpoint).filter_by(name=name)
+            ep = Endpoint.accessible_by(query, user_id).first()
+
             if not ep:
                 raise ValueError(f"Endpoint '{name}' not found.")
             session.delete(ep)
