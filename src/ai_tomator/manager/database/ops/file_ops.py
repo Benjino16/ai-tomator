@@ -33,22 +33,41 @@ class FileOps:
             session.commit()
             return file.to_dict()
 
-    def get(self, storage_name: str):
+    def get(self, storage_name: str, user_id: int):
         with self.SessionLocal() as session:
-            file = session.query(File).filter_by(storage_name=storage_name).first()
+            query = session.query(File).filter_by(storage_name=storage_name)
+            file = File.accessible_by(query, user_id).first()
             if not file:
                 raise ValueError(f"File '{storage_name}' not found.")
             return file.to_dict()
 
-    def list(self):
+    def list(self, user_id: int):
         with self.SessionLocal() as session:
-            return [f.to_dict() for f in session.query(File).all()]
+            query = session.query(File)
+            files = File.accessible_by(query, user_id).all()
+            return [f.to_dict() for f in files]
 
-    def delete(self, storage_name: str):
+    def system_list(self):
         with self.SessionLocal() as session:
-            file = session.query(File).filter_by(storage_name=storage_name).first()
+            files = session.query(File).all()
+            return [f.to_dict() for f in files]
+
+    def delete(self, storage_name: str, user_id: int):
+        with self.SessionLocal() as session:
+            query = session.query(File).filter_by(storage_name=storage_name)
+            file = File.accessible_by(query, user_id).first()
             if not file:
                 raise ValueError(f"File '{storage_name}' not found.")
             session.delete(file)
             session.commit()
+            return file.to_dict()
+
+    def set_storage(self, storage_name: str, in_storage: bool):
+        with self.SessionLocal() as session:
+            file = session.query(File).filter_by(storage_name=storage_name).first()
+            if not file:
+                raise ValueError(f"File '{storage_name}' not found.")
+            file.in_storage = in_storage
+            session.commit()
+            session.refresh(file)
             return file.to_dict()

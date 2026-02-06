@@ -14,6 +14,7 @@ class File(Base, UserGroupMixin):
     tags: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     mime_type: Mapped[str | None] = mapped_column(nullable=True)
     size: Mapped[int | None] = mapped_column(nullable=True)
+    in_storage: Mapped[bool] = mapped_column(nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 
     user_id: Mapped[int] = mapped_column(nullable=True)

@@ -25,11 +25,11 @@ class FileManager:
         )  # todo: contenttype und size possible null reference
         return file
 
-    def delete(self, filename: str) -> bool:
+    def delete(self, filename: str, user_id: int) -> bool:
         path = os.path.join(self.storage_dir, filename)
         if os.path.exists(path):
             os.remove(path)
-            self.db.files.delete(filename)
+            self.db.files.delete(filename, user_id)
             return True
         return False
 
@@ -44,7 +44,7 @@ class FileManager:
 
     def sync_storage_with_db(self):
         storage_files = self.list_files()
-        db_files = self.db.files.list()
+        db_files = self.db.files.system_list()
         db_storage_names = {f["storage_name"] for f in db_files}
 
         # check files in storage; if not in db: add
@@ -61,7 +61,6 @@ class FileManager:
                     user_id=0,
                 )
 
-        # check files in db; if not in storage: delete
         for db_file in db_storage_names:
             if db_file not in storage_files:
-                self.db.files.delete(storage_name=db_file)
+                self.db.files.set_storage(storage_name=db_file, in_storage=False)
