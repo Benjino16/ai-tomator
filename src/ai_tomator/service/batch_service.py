@@ -71,8 +71,8 @@ class BatchService:
         )
         return db_batch
 
-    def stop(self, batch_id: int) -> dict:
-        batch = self.db.batches.get(batch_id)
+    def stop(self, batch_id: int, user_id: int) -> dict:
+        batch = self.db.batches.get(batch_id, user_id)
         if batch is None:
             raise ValueError(f"Batch {batch_id} does not exist")
         if batch["status"] in (
@@ -84,17 +84,17 @@ class BatchService:
             raise RuntimeError(f"Batch {batch_id} already stopped")
         return self.batch_manager.stop_batch(batch_id)
 
-    def get_batch(self, batch_id: int) -> dict:
-        return self.db.batches.get(batch_id)
+    def get_batch(self, batch_id: int, user_id: int) -> dict:
+        return self.db.batches.get(batch_id, user_id)
 
-    def get_batch_files(self, batch_id: int) -> dict:
-        return self.db.batches.get_files(batch_id)
+    def get_batch_files(self, batch_id: int, user_id: int) -> dict:
+        return self.db.batches.get_files(batch_id, user_id)
 
-    def get_batch_log(self, batch_id: int) -> dict:
-        return self.db.batches.get_log(batch_id)
+    def get_batch_log(self, batch_id: int, user_id: int) -> dict:
+        return self.db.batches.get_log(batch_id, user_id)
 
-    def list_batches(self) -> dict:
-        result = self.db.batches.list()
+    def list_batches(self, user_id: int) -> dict:
+        result = self.db.batches.list(user_id)
         return result
 
     def list_engines(self) -> dict:

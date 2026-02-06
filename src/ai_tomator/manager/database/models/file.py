@@ -2,9 +2,10 @@ from sqlalchemy import JSON, func
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
+from .user_group_mixin import UserGroupMixin
 
 
-class File(Base):
+class File(Base, UserGroupMixin):
     __tablename__ = "files"
 
     id: Mapped[int] = mapped_column(primary_key=True)

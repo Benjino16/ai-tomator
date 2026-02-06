@@ -3,9 +3,10 @@ from sqlalchemy import func
 from datetime import datetime
 
 from ai_tomator.manager.database.base import Base
+from .user_group_mixin import UserGroupMixin
 
 
-class Endpoint(Base):
+class Endpoint(Base, UserGroupMixin):
     __tablename__ = "endpoints"
 
     id: Mapped[int] = mapped_column(primary_key=True)

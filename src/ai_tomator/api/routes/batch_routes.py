@@ -26,30 +26,30 @@ def build_batch_router(
         return BatchData(**result)
 
     @router.post("/stop")
-    def stop_run(batch_id: int):
+    def stop_run(batch_id: int, user=Depends(jwt_authenticator)):
         try:
-            result = batch_service.stop(batch_id)
+            result = batch_service.stop(batch_id, user["id"])
             return BatchData(**result)
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     @router.get("/{batch_id}")
-    def get_batch(batch_id: int):
-        result = batch_service.get_batch(batch_id)
+    def get_batch(batch_id: int, user=Depends(jwt_authenticator)):
+        result = batch_service.get_batch(batch_id, user["id"])
         return BatchData(**result)
 
     @router.get("/files/{batch_id}")
-    def get_batch_files(batch_id: int):
-        result = batch_service.get_batch_files(batch_id)
+    def get_batch_files(batch_id: int, user=Depends(jwt_authenticator)):
+        result = batch_service.get_batch_files(batch_id, user["id"])
         return result
 
     @router.get("/log/{batch_id}")
-    def get_batch_log(batch_id: int):
-        result = batch_service.get_batch_log(batch_id)
+    def get_batch_log(batch_id: int, user=Depends(jwt_authenticator)):
+        result = batch_service.get_batch_log(batch_id, user["id"])
         return result
 
     @router.get("/", response_model=list[BatchData])
-    def list_runs():
-        return batch_service.list_batches()
+    def list_runs(user=Depends(jwt_authenticator)):
+        return batch_service.list_batches(user["id"])
 
     return router

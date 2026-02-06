@@ -2,10 +2,11 @@ from sqlalchemy import Text, ForeignKey, func, Float, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
+from .user_group_mixin import UserGroupMixin
 from .batch import Batch, File
 
 
-class Result(Base):
+class Result(Base, UserGroupMixin):
     __tablename__ = "results"
 
     id: Mapped[int] = mapped_column(primary_key=True)
