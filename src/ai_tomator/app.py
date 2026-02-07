@@ -36,12 +36,12 @@ STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "data/storage")).resolve())
 DATABASE_URL = f"sqlite:///{Path(DB_PATH).resolve()}"
 
 # configuration for jwt_authenticator
-SECRET_KEY = "change_this"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # One Day
-
-# setup settings
-SECURE_COOKIES = False
+JWT_ENCRYPTION_KEY = os.getenv("JWT_ENCRYPTION_KEY")
+if not JWT_ENCRYPTION_KEY:
+    raise ValueError("JWT_ENCRYPTION_KEY is not set")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
+SECURE_COOKIES = os.getenv("SECURE_COOKIES", "true").lower() != "false"
 
 
 def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
@@ -63,10 +63,10 @@ def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
         endpoint_manager = EndpointManager(engine_manager)
 
         jwt_authenticator = JWTAuthenticator(
-            SECRET_KEY, ALGORITHM, db, required_user_auth
+            JWT_ENCRYPTION_KEY, ALGORITHM, db, required_user_auth
         )
         login_service = LoginService(
-            db, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+            db, JWT_ENCRYPTION_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
         )
         user_service = UserService(db)
 
