@@ -1,11 +1,11 @@
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class PriceCalculationRequest(BaseModel):
-    provider: str
-    model: str
+    provider: str = Field(..., min_length=3, max_length=70)
+    model: str = Field(..., min_length=3, max_length=70)
     file_reader: str
     file_ids: List[str]
-    prompt: Optional[str] = None
-    output: Optional[str] = None
+    prompt: Optional[str] = Field(None, max_length=5000)
+    output: Optional[str] = Field(None, max_length=5000)

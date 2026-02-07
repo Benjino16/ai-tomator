@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 
 
@@ -11,8 +11,8 @@ class BatchRunRequest(BaseModel):
     endpoint: str
     file_reader: str
     model: str
-    delay: float
-    temperature: float
+    delay: float = Field(..., ge=0, le=10000)
+    temperature: float = Field(..., ge=0.0, le=3.0)
 
 
 # -----      data      -----

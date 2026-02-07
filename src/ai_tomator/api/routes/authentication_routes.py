@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response, HTTPException, Depends
 from ai_tomator.service.login_service import LoginService
-from ..models.login_models import LoginRequest
+from ..models.login_models import LoginRequest, RegisterRequest
 from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 
 
@@ -24,7 +24,7 @@ def build_authentication_router(
         return {"success": True}
 
     @router.post("/register", response_model=dict)
-    def register(request: LoginRequest):
+    def register(request: RegisterRequest):
         try:
             success = login_service.register_user(request.username, request.password)
             return {"success": success}
