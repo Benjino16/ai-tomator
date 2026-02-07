@@ -5,10 +5,12 @@ import styles from "./Layout.module.css";
 export default function Layout() {
     return (
         <div className={styles.layout}>
-            <Sidebar />
-            <main>
+            <div className={styles.sidebar}>
+                <Sidebar />
+            </div>
+            <div className={styles.main}>
                 <Outlet />
-            </main>
+            </div>
         </div>
     );
 }

@@ -3,9 +3,17 @@
     height: 100vh;
 }
 
-.layout main {
-    flex: 1;          /* füllt den restlichen Platz */
-    overflow-y: auto; /* nur der Content scrollt */
-    min-height: 0;    /* wichtig für Flexbox */
-    padding: 1rem;
+.sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: #eee;
+}
+
+.main {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 1rem;  
 }
