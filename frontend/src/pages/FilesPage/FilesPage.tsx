@@ -51,7 +51,7 @@ export default function FilesPage() {
             </table>
             <div style={{textAlign: "center", marginTop: "1rem"}}>
                 <Button
-                    text="Start Batch"
+                    text="Upload Files"
                     onClick={() =>
                     {
                         setModalKey(prev => prev + 1)

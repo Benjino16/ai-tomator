@@ -37,7 +37,7 @@ export default function LoginPage() {
                     minLength={6}
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <button type="submit">Add</button>
+                <button type="submit">Login</button>
             </form>
         </section>
     );
