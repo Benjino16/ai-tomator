@@ -18,8 +18,8 @@ class EndpointService:
         self.db.endpoints.add(name, engine, user_id, url, token)
         return {"name": name, "engine": engine, "status": "added"}
 
-    def get(self, name: str, user_id: int) -> dict:
-        endpoint = self.db.endpoints.get(name, user_id)
+    def get(self, name: str, user_id: int, show_api=False) -> dict:
+        endpoint = self.db.endpoints.get(name, user_id, show_api)
         return endpoint
 
     def health(self, name, user_id: int) -> bool:

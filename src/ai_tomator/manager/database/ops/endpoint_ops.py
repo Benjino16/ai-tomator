@@ -30,7 +30,7 @@ class EndpointOps:
     def get(self, name: str, user_id: int, show_api=False):
         with self.SessionLocal() as session:
             query = session.query(Endpoint).filter_by(name=name)
-            ep = Endpoint.accessible_by(query, user_id).all()
+            ep = Endpoint.accessible_by(query, user_id).first()
             if not ep:
                 raise ValueError(f"Endpoint '{name}' not found.")
             if show_api:

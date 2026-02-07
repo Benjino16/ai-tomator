@@ -30,9 +30,9 @@ class BatchService:
         user_id: int,
     ) -> dict:
         batch_name = f"batch_{hash(model + endpoint_name)}"
-        endpoint = self.endpoint_service.get(endpoint_name, True)
+        endpoint = self.endpoint_service.get(endpoint_name, user_id, True)
 
-        prompt = self.db.prompts.get(prompt_id)
+        prompt = self.db.prompts.get(prompt_id, user_id)
         if not prompt:
             raise RuntimeError(f"Prompt {prompt_id} not found")
 
