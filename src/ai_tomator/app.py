@@ -21,6 +21,7 @@ from ai_tomator.service.price_service import PriceService
 from ai_tomator.service.prompt_service import PromptService
 from ai_tomator.logger_config import setup_logging
 from ai_tomator.service.user_service import UserService
+from ai_tomator.web.static_router import create_frontend_router
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
@@ -94,11 +95,9 @@ def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
         app.include_router(router, prefix="/api")
 
         if STATIC_DIR.exists():
-            app.mount(
-                "/",
-                StaticFiles(directory=STATIC_DIR, html=True),
-                name="frontend",
-            )
+            frontend_router = create_frontend_router(STATIC_DIR)
+            app.include_router(frontend_router)
+            app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
         else:
             logger.warning("Static directory not found, running in dev mode")
 

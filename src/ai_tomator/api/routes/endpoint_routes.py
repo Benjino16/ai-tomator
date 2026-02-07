@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from ai_tomator.api.models.endpoint_models import EndpointRequest
+from ai_tomator.api.models.endpoint_models import EndpointRequest, EndpointResponse
 from ai_tomator.core.exceptions import NameAlreadyExistsError
 from ai_tomator.service.endpoint_service import EndpointService
 from ai_tomator.service.jwt_authenticator import JWTAuthenticator
@@ -10,7 +10,7 @@ def build_endpoint_router(
 ):
     router = APIRouter(prefix="/endpoints", tags=["Endpoints"])
 
-    @router.post("/add", response_model=EndpointRequest)
+    @router.post("/add", response_model=EndpointResponse)
     def add_endpoint(ep: EndpointRequest, user=Depends(jwt_authenticator)):
         try:
             return endpoint_service.add(
@@ -19,7 +19,7 @@ def build_endpoint_router(
         except NameAlreadyExistsError as e:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
-    @router.get("/", response_model=list[EndpointRequest])
+    @router.get("/", response_model=list[EndpointResponse])
     def list_endpoints(user=Depends(jwt_authenticator)):
         return endpoint_service.list(user["id"])
 
@@ -31,7 +31,7 @@ def build_endpoint_router(
     def get_endpoint_models(name: str, user=Depends(jwt_authenticator)):
         return endpoint_service.models(name, user["id"])
 
-    @router.delete("/delete/{name}", response_model=EndpointRequest)
+    @router.delete("/delete/{name}", response_model=EndpointResponse)
     def delete_endpoint(name: str, user=Depends(jwt_authenticator)):
         return endpoint_service.delete(name, user["id"])
 

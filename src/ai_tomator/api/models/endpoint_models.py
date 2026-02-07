@@ -7,3 +7,10 @@ class EndpointRequest(BaseModel):
     engine: str
     url: Optional[str] = Field(None, min_length=3, max_length=300)
     token: Optional[str] = Field(None, min_length=3, max_length=300)
+
+
+class EndpointResponse(BaseModel):
+    name: str
+    engine: str
+    url: Optional[str]
+    token: Optional[str]
