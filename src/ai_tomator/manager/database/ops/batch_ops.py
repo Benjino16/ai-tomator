@@ -1,4 +1,5 @@
 from sqlalchemy.orm import sessionmaker
+from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
     Batch,
     BatchFile,
@@ -26,8 +27,11 @@ class BatchOps:
         prompt: str,
         model: str,
         temperature: float,
+        user_id: int,
     ):
         with self.SessionLocal() as session:
+            subq = get_group_id_subquery(session, user_id)
+
             batch = Batch(
                 name=name,
                 status=status,
@@ -37,6 +41,8 @@ class BatchOps:
                 file_reader=file_reader,
                 model=model,
                 temperature=temperature,
+                user_id=user_id,
+                group_id=subq,
             )
 
             db_files = session.query(File).filter(File.storage_name.in_(files)).all()
@@ -130,30 +136,37 @@ class BatchOps:
             session.refresh(batch_log)
             return batch_log.to_dict()
 
-    def get(self, batch_id: int) -> dict:
+    def get(self, batch_id: int, user_id: int) -> dict:
         with self.SessionLocal() as session:
-            batch = session.query(Batch).filter_by(id=batch_id).first()
+            query = session.query(Batch).filter_by(id=batch_id)
+            batch = Batch.accessible_by(query, user_id).first()
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             return batch.to_dict()
 
-    def get_files(self, batch_id: int) -> dict:
+    def get_files(self, batch_id: int, user_id: int) -> dict:
         with self.SessionLocal() as session:
-            batch = session.query(Batch).filter_by(id=batch_id).first()
+            query = session.query(Batch).filter_by(id=batch_id)
+            batch = Batch.accessible_by(query, user_id).first()
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             return [bl.to_dict() for bl in batch.batch_files]
 
-    def get_log(self, batch_id: int) -> dict:
+    def get_log(self, batch_id: int, user_id: int) -> dict:
         with self.SessionLocal() as session:
-            batch = session.query(Batch).filter_by(id=batch_id).first()
+            query = session.query(Batch).filter_by(id=batch_id)
+            batch = Batch.accessible_by(query, user_id).first()
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             return [bl.to_dict() for bl in batch.batch_logs]
 
-    def list(self, status: BatchStatus = None):
+    def list(self, user_id: int):
         with self.SessionLocal() as session:
-            query = session.query(Batch)
-            if status:
-                query = query.filter(Batch.status == status)
-            return [b.to_dict() for b in query.all()]
+            batches = Batch.accessible_by(session.query(Batch), user_id).all()
+            return [b.to_dict() for b in batches]
+
+    def get_active_batches(self):
+        with self.SessionLocal() as session:
+            query = session.query(Batch).filter_by(status=BatchStatus.FAILED)
+            batches = query.filter(Batch.status.in_(Batch.ACTIVE_STATUSES))
+            return [b.to_dict() for b in batches]

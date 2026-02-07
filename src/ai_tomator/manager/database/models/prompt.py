@@ -3,9 +3,10 @@ from sqlalchemy import func
 from datetime import datetime
 
 from ai_tomator.manager.database.base import Base
+from .user_group_mixin import UserGroupMixin
 
 
-class Prompt(Base):
+class Prompt(Base, UserGroupMixin):
     __tablename__ = "prompts"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -14,7 +15,7 @@ class Prompt(Base):
 
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 
-    owner_id: Mapped[int] = mapped_column(nullable=True)
+    user_id: Mapped[int] = mapped_column(nullable=True)
     group_id: Mapped[int] = mapped_column(nullable=True)
 
     def to_dict(self):

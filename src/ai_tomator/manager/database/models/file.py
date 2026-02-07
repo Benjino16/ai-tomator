@@ -2,9 +2,10 @@ from sqlalchemy import JSON, func
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
+from .user_group_mixin import UserGroupMixin
 
 
-class File(Base):
+class File(Base, UserGroupMixin):
     __tablename__ = "files"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -13,9 +14,10 @@ class File(Base):
     tags: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     mime_type: Mapped[str | None] = mapped_column(nullable=True)
     size: Mapped[int | None] = mapped_column(nullable=True)
+    in_storage: Mapped[bool] = mapped_column(nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 
-    owner_id: Mapped[int] = mapped_column(nullable=True)
+    user_id: Mapped[int] = mapped_column(nullable=True)
     group_id: Mapped[int] = mapped_column(nullable=True)
 
     def to_dict(self):

@@ -4,7 +4,7 @@ from sqlalchemy import ForeignKey, func, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
-from .base_mixins import RunDataMixin
+from .user_group_mixin import UserGroupMixin
 from .file import File
 
 
@@ -19,7 +19,7 @@ class BatchStatus(enum.Enum):
     QUEUED = "QUEUED"
 
 
-class Batch(Base, RunDataMixin):
+class Batch(Base, UserGroupMixin):
     __tablename__ = "batches"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -27,6 +27,14 @@ class Batch(Base, RunDataMixin):
     status: Mapped["BatchStatus"] = mapped_column(
         Enum(BatchStatus, name="batch_status_enum"), nullable=False
     )
+
+    engine: Mapped[str] = mapped_column(nullable=False)
+    endpoint: Mapped[str] = mapped_column(nullable=False)
+    file_reader: Mapped[str] = mapped_column(nullable=False)
+    prompt: Mapped[str] = mapped_column(nullable=False)
+    model: Mapped[str] = mapped_column(nullable=False)
+    temperature: Mapped[float] = mapped_column(nullable=False)
+
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         nullable=False, default=func.now(), onupdate=func.now()
@@ -40,11 +48,16 @@ class Batch(Base, RunDataMixin):
         back_populates="batch", cascade="all, delete-orphan"
     )
 
-    owner_id: Mapped[int] = mapped_column(nullable=True)
-    group_id: Mapped[int] = mapped_column(nullable=True)
-
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
+
+    ACTIVE_STATUSES = [
+        BatchStatus.STARTING,
+        BatchStatus.RUNNING,
+        BatchStatus.STOPPING,
+        BatchStatus.SCHEDULED,
+        BatchStatus.QUEUED,
+    ]
 
 
 class BatchFileStatus(enum.Enum):

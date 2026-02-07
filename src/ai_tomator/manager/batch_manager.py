@@ -145,9 +145,8 @@ class BatchManager:
             raise ValueError(f"Batch {batch_id} not found or not running.")
 
     def recover_batches(self):
-        for status in (BatchStatus.RUNNING, BatchStatus.STARTING, BatchStatus.STOPPING):
-            for batch in self.db.batches.list(status=status):
-                self.db.batches.update_status(batch["id"], BatchStatus.FAILED)
+        for batch in self.db.batches.get_active_batches():
+            self.db.batches.update_status(batch["id"], BatchStatus.FAILED)
 
     def get_engines(self):
         return self.engine.get_engines()

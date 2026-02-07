@@ -1,7 +1,9 @@
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-from ai_tomator.core.exceptions import NameAlreadyExistsError
 from ai_tomator.manager.database.models.user import User
+
+
+def get_group_id_subquery(session, user_id: int):
+    return session.query(User.group_id).filter(User.id == user_id).scalar_subquery()
 
 
 class UserOps:
@@ -12,11 +14,7 @@ class UserOps:
         with self.SessionLocal() as session:
             user = User(username=username, password_hash=password_hash)
             session.add(user)
-            try:
-                session.commit()
-            except IntegrityError:
-                session.rollback()
-                raise NameAlreadyExistsError(username)
+            session.commit()
 
     def get_for_verification(self, username: str):
         with self.SessionLocal() as session:

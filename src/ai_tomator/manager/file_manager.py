@@ -15,21 +15,21 @@ class FileManager:
         base, ext = os.path.splitext(original_name)
         return f"{uuid.uuid4().hex[:8]}{ext}"
 
-    def save(self, file: UploadFile, tags: list[str]):
+    def save(self, file: UploadFile, tags: list[str], user_id: int):
         unique_name = self._unique_name(file.filename)
         dest_path = os.path.join(self.storage_dir, unique_name)
         with open(dest_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         file = self.db.files.add(
-            unique_name, file.filename, tags, file.content_type, file.size
+            unique_name, file.filename, tags, file.content_type, file.size, user_id
         )  # todo: contenttype und size possible null reference
         return file
 
-    def delete(self, filename: str) -> bool:
+    def delete(self, filename: str, user_id: int) -> bool:
         path = os.path.join(self.storage_dir, filename)
         if os.path.exists(path):
             os.remove(path)
-            self.db.files.delete(filename)
+            self.db.files.delete(filename, user_id)
             return True
         return False
 
@@ -44,7 +44,7 @@ class FileManager:
 
     def sync_storage_with_db(self):
         storage_files = self.list_files()
-        db_files = self.db.files.list()
+        db_files = self.db.files.system_list()
         db_storage_names = {f["storage_name"] for f in db_files}
 
         # check files in storage; if not in db: add
@@ -58,9 +58,9 @@ class FileManager:
                     tags=None,
                     mime_type="test",
                     size=0,
+                    user_id=0,
                 )
 
-        # check files in db; if not in storage: delete
         for db_file in db_storage_names:
             if db_file not in storage_files:
-                self.db.files.delete(storage_name=db_file)
+                self.db.files.set_storage(storage_name=db_file, in_storage=False)

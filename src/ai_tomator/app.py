@@ -35,12 +35,16 @@ STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "data/storage")).resolve())
 # create absolut db path (robust for docker / local / pyinstaller)
 DATABASE_URL = f"sqlite:///{Path(DB_PATH).resolve()}"
 
+# configuration for jwt_authenticator
 SECRET_KEY = "change_this"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # One Day
 
+# setup settings
+SECURE_COOKIES = False
 
-def create_app(db_path, storage_dir) -> FastAPI:
+
+def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
     setup_logging()
     logger = logging.getLogger(__name__)
 
@@ -58,7 +62,9 @@ def create_app(db_path, storage_dir) -> FastAPI:
         batch_manager = BatchManager(db, engine_manager)
         endpoint_manager = EndpointManager(engine_manager)
 
-        jwt_authenticator = JWTAuthenticator(SECRET_KEY, ALGORITHM, db)
+        jwt_authenticator = JWTAuthenticator(
+            SECRET_KEY, ALGORITHM, db, required_user_auth
+        )
         login_service = LoginService(
             db, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
         )
@@ -95,6 +101,12 @@ def create_app(db_path, storage_dir) -> FastAPI:
             )
         else:
             logger.warning("Static directory not found, running in dev mode")
+
+        if not required_user_auth:
+            try:
+                login_service.register_user("localhost", "localhost")
+            except ValueError:
+                logger.warning("Failed to register user: localhost")
 
         yield
 

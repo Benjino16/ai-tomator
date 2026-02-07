@@ -1,33 +1,38 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from ai_tomator.api.models.endpoint_models import EndpointData
 from ai_tomator.core.exceptions import NameAlreadyExistsError
 from ai_tomator.service.endpoint_service import EndpointService
+from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 
 
-def build_endpoint_router(endpoint_service: EndpointService):
+def build_endpoint_router(
+    endpoint_service: EndpointService, jwt_authenticator: JWTAuthenticator
+):
     router = APIRouter(prefix="/endpoints", tags=["Endpoints"])
 
     @router.post("/add", response_model=EndpointData)
-    def add_endpoint(ep: EndpointData):
+    def add_endpoint(ep: EndpointData, user=Depends(jwt_authenticator)):
         try:
-            return endpoint_service.add(ep.name, ep.engine, ep.url, ep.token)
+            return endpoint_service.add(
+                ep.name, ep.engine, user["id"], ep.url, ep.token
+            )
         except NameAlreadyExistsError as e:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
     @router.get("/", response_model=list[EndpointData])
-    def list_endpoints():
-        return endpoint_service.list()
+    def list_endpoints(user=Depends(jwt_authenticator)):
+        return endpoint_service.list(user["id"])
 
     @router.get("/health/{name}", response_model=bool)
-    def get_endpoint_health(name: str):
-        return endpoint_service.health(name)
+    def get_endpoint_health(name: str, user=Depends(jwt_authenticator)):
+        return endpoint_service.health(name, user["id"])
 
     @router.get("/models/{name}", response_model=list[str])
-    def get_endpoint_models(name: str):
-        return endpoint_service.models(name)
+    def get_endpoint_models(name: str, user=Depends(jwt_authenticator)):
+        return endpoint_service.models(name, user["id"])
 
     @router.delete("/delete/{name}", response_model=EndpointData)
-    def delete_endpoint(name: str):
-        return endpoint_service.delete(name)
+    def delete_endpoint(name: str, user=Depends(jwt_authenticator)):
+        return endpoint_service.delete(name, user["id"])
 
     return router
