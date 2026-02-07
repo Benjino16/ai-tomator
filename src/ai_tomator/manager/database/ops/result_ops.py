@@ -1,7 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 
 from ai_tomator.core.engine.models.response_model import EngineResponse
-from ai_tomator.manager.database.models.prompt import Prompt
 from ai_tomator.manager.database.models.result import Result, Batch, File
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 
