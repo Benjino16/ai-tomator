@@ -36,9 +36,11 @@ class Batch(Base, UserGroupMixin):
     temperature: Mapped[float] = mapped_column(nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
+    started_at: Mapped[datetime] = mapped_column(nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         nullable=False, default=func.now(), onupdate=func.now()
     )
+    stopped_at: Mapped[datetime] = mapped_column(nullable=True)
 
     batch_files: Mapped[list["BatchFile"]] = relationship(
         back_populates="batch", cascade="all, delete-orphan"
@@ -57,6 +59,18 @@ class Batch(Base, UserGroupMixin):
         BatchStatus.STOPPING,
         BatchStatus.SCHEDULED,
         BatchStatus.QUEUED,
+    ]
+
+    RUNNING_STATUSES = [
+        BatchStatus.STARTING,
+        BatchStatus.RUNNING,
+        BatchStatus.STOPPING,
+    ]
+
+    STOPPED_STATUSES = [
+        BatchStatus.STOPPED,
+        BatchStatus.COMPLETED,
+        BatchStatus.FAILED,
     ]
 
 

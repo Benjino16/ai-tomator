@@ -3,6 +3,8 @@ import { BatchesAPI } from "../../api/batches.ts";
 import { type Batch } from "../../types/Batch.ts"
 import {Button} from "../../components/Button/Button.tsx";
 import {StartBatchModal} from "../../components/StartBatchModal/StartBatchModal.tsx";
+import {BatchStatusSymbol} from "../../components/BatchStatusSymbol/BatchStatusSymbol.tsx";
+import {BatchTimer} from "../../components/BatchTimer/BatchTimer.tsx";
 
 
 export default function BatchesPage() {
@@ -21,6 +23,7 @@ export default function BatchesPage() {
                 <tr>
                     <th>ID</th>
                     <th>Status</th>
+                    <th>Time</th>
                     <th>Model</th>
                     <th>Temperature</th>
                     <th>Endpoint</th>
@@ -31,7 +34,14 @@ export default function BatchesPage() {
                 {batches.map((batch) => (
                     <tr key={batch.id}>
                         <td>{batch.id}</td>
-                        <td>{batch.status}</td>
+                        <td><BatchStatusSymbol status={batch.status}/></td>
+                        <td>
+                            {batch.started_at ? (
+                                <BatchTimer startTime={batch.started_at} stopTime={batch.stopped_at} />
+                            ) : (
+                                <span>-</span>
+                            )}
+                        </td>
                         <td>{batch.model}</td>
                         <td>{batch.temperature}</td>
                         <td>{batch.endpoint}</td>

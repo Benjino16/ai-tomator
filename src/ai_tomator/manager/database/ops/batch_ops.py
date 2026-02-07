@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
@@ -72,6 +73,13 @@ class BatchOps:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
+
+            if status in Batch.RUNNING_STATUSES and not batch.started_at:
+                batch.started_at = func.now()
+
+            if status in Batch.STOPPED_STATUSES and not batch.stopped_at:
+                batch.stopped_at = func.now()
+
             batch.status = status
             session.commit()
             session.refresh(batch)

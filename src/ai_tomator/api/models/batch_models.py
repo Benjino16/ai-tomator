@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 
 
 # -----      requests      -----
@@ -29,3 +29,5 @@ class BatchData(BaseModel):
     temperature: float
     created_at: datetime
     updated_at: datetime
+    started_at: Optional[datetime]
+    stopped_at: Optional[datetime]

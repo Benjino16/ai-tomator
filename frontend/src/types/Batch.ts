@@ -12,4 +12,6 @@ export interface Batch {
     delay: number;
     created_at: string;
     updated_at: string;
+    started_at?: string;
+    stopped_at?: string;
 }
