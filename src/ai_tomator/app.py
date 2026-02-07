@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 import logging
 import os
+import secrets
+import string
 
 from ai_tomator.api.routes import build_router
 from ai_tomator.manager.database import Database
@@ -21,6 +23,7 @@ from ai_tomator.service.price_service import PriceService
 from ai_tomator.service.prompt_service import PromptService
 from ai_tomator.logger_config import setup_logging
 from ai_tomator.service.user_service import UserService
+from ai_tomator.web.static_router import create_frontend_router
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
@@ -35,13 +38,19 @@ STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "data/storage")).resolve())
 # create absolut db path (robust for docker / local / pyinstaller)
 DATABASE_URL = f"sqlite:///{Path(DB_PATH).resolve()}"
 
-# configuration for jwt_authenticator
-SECRET_KEY = "change_this"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # One Day
 
-# setup settings
-SECURE_COOKIES = False
+def generate_jwt_key(length=32):
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
+# configuration for jwt_authenticator
+ALGORITHM = "HS256"
+JWT_ENCRYPTION_KEY = os.getenv("JWT_ENCRYPTION_KEY")
+if not JWT_ENCRYPTION_KEY:
+    JWT_ENCRYPTION_KEY = generate_jwt_key()
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
+SECURE_COOKIES = os.getenv("SECURE_COOKIES", "true").lower() != "false"
 
 
 def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
@@ -63,10 +72,10 @@ def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
         endpoint_manager = EndpointManager(engine_manager)
 
         jwt_authenticator = JWTAuthenticator(
-            SECRET_KEY, ALGORITHM, db, required_user_auth
+            JWT_ENCRYPTION_KEY, ALGORITHM, db, required_user_auth
         )
         login_service = LoginService(
-            db, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+            db, JWT_ENCRYPTION_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
         )
         user_service = UserService(db)
 
@@ -94,11 +103,9 @@ def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
         app.include_router(router, prefix="/api")
 
         if STATIC_DIR.exists():
-            app.mount(
-                "/",
-                StaticFiles(directory=STATIC_DIR, html=True),
-                name="frontend",
-            )
+            frontend_router = create_frontend_router(STATIC_DIR)
+            app.include_router(frontend_router)
+            app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
         else:
             logger.warning("Static directory not found, running in dev mode")
 

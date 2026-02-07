@@ -6,6 +6,11 @@ services:
     environment:
       DB_PATH: /data/db/database.db
       STORAGE_DIR: /data/storage
+      #JWT Authentication Config
+      SECURE_COOKIES: true #Set to false to allow JWT authentication over HTTP (not secure!)
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440 # Time in minutes until the client has to log in again
+      JWT_ENCRYPTION_KEY: "CHANGE-THIS-TO-A-SECURE-KEY"
+
     volumes:
       - db-data:/data/db
       - storage-data:/data/storage

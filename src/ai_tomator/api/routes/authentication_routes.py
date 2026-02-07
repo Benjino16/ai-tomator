@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Response, HTTPException, Depends
 from ai_tomator.service.login_service import LoginService
-from ..models.login_models import LoginRequest
+from ..models.login_models import LoginRequest, RegisterRequest
 from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 
 
 def build_authentication_router(
-    login_service: LoginService, jwt_authenticator: JWTAuthenticator
+    login_service: LoginService,
+    jwt_authenticator: JWTAuthenticator,
 ):
     router = APIRouter(prefix="/authentication", tags=["Authentication"])
 
@@ -18,13 +19,17 @@ def build_authentication_router(
         token = login_service.create_access_token(request.username)
 
         response.set_cookie(
-            key="access_token", value=token, httponly=True, samesite="lax", secure=False
+            key="access_token",
+            value=token,
+            httponly=True,
+            samesite="lax",
+            secure=jwt_authenticator.secure_cookies,
         )
 
         return {"success": True}
 
     @router.post("/register", response_model=dict)
-    def register(request: LoginRequest):
+    def register(request: RegisterRequest):
         try:
             success = login_service.register_user(request.username, request.password)
             return {"success": success}

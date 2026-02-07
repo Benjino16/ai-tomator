@@ -21,19 +21,21 @@ export function AddEndpointModal({ isOpen, onClose, onCreated }: Props) {
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        EndpointsAPI.create({
+        const payload: Record<string, string> = {
             name: name,
             engine: client,
-            url: baseUrl,
-            token: token,
-        }).then((data) => {
-            onCreated(data);
-            console.log(data);
-        }).catch((err) => {
-            console.log(err);
-            alert(err);
-        })
+        };
+        if (baseUrl) payload.url = baseUrl;
+        if (token) payload.token = token;
 
+        EndpointsAPI.create(payload)
+            .then((data) => {
+                onCreated(data);
+                console.log(data);
+            }).catch((err) => {
+                console.log(err);
+                alert(err);
+            });
         onClose();
     }
 

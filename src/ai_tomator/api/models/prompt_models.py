@@ -1,9 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class PromptRequest(BaseModel):
-    name: str
-    content: str
+    name: str = Field(..., min_length=3, max_length=30)
+    content: str = Field(..., min_length=3, max_length=5000)
 
 
 class PromptData(BaseModel):
