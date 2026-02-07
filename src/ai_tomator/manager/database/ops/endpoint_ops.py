@@ -26,6 +26,7 @@ class EndpointOps:
             except IntegrityError:
                 session.rollback()
                 raise NameAlreadyExistsError(name)
+            return ep.to_dict_public()
 
     def get(self, name: str, user_id: int, show_api=False):
         with self.SessionLocal() as session:

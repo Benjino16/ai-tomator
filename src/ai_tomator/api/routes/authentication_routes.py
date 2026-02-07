@@ -5,7 +5,8 @@ from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 
 
 def build_authentication_router(
-    login_service: LoginService, jwt_authenticator: JWTAuthenticator
+    login_service: LoginService,
+    jwt_authenticator: JWTAuthenticator,
 ):
     router = APIRouter(prefix="/authentication", tags=["Authentication"])
 
@@ -18,7 +19,11 @@ def build_authentication_router(
         token = login_service.create_access_token(request.username)
 
         response.set_cookie(
-            key="access_token", value=token, httponly=True, samesite="lax", secure=False
+            key="access_token",
+            value=token,
+            httponly=True,
+            samesite="lax",
+            secure=jwt_authenticator.secure_cookies,
         )
 
         return {"success": True}

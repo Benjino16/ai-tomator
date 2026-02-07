@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 import logging
 import os
+import secrets
+import string
 
 from ai_tomator.api.routes import build_router
 from ai_tomator.manager.database import Database
@@ -36,11 +38,17 @@ STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "data/storage")).resolve())
 # create absolut db path (robust for docker / local / pyinstaller)
 DATABASE_URL = f"sqlite:///{Path(DB_PATH).resolve()}"
 
+
+def generate_jwt_key(length=32):
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
 # configuration for jwt_authenticator
 ALGORITHM = "HS256"
 JWT_ENCRYPTION_KEY = os.getenv("JWT_ENCRYPTION_KEY")
 if not JWT_ENCRYPTION_KEY:
-    raise ValueError("JWT_ENCRYPTION_KEY is not set")
+    JWT_ENCRYPTION_KEY = generate_jwt_key()
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 SECURE_COOKIES = os.getenv("SECURE_COOKIES", "true").lower() != "false"
 

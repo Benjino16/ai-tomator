@@ -15,8 +15,8 @@ class EndpointService:
         url: str | None = None,
         token: str | None = None,
     ) -> dict:
-        self.db.endpoints.add(name, engine, user_id, url, token)
-        return {"name": name, "engine": engine, "status": "added"}
+        ep = self.db.endpoints.add(name, engine, user_id, url, token)
+        return ep
 
     def get(self, name: str, user_id: int, show_api=False) -> dict:
         endpoint = self.db.endpoints.get(name, user_id, show_api)
