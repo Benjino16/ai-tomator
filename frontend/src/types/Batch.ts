@@ -2,6 +2,7 @@ export interface Batch {
     id: number;
     name: string;
     status: "RUNNING" | "FAILED" | "COMPLETED";
+    progress?: string;
     prompt: string;
     prompt_id: number;
     endpoint: string;

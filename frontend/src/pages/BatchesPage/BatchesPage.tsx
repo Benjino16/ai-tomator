@@ -23,6 +23,7 @@ export default function BatchesPage() {
                 <tr>
                     <th>ID</th>
                     <th>Status</th>
+                    <th>Progress</th>
                     <th>Time</th>
                     <th>Model</th>
                     <th>Temperature</th>
@@ -35,6 +36,7 @@ export default function BatchesPage() {
                     <tr key={batch.id}>
                         <td>{batch.id}</td>
                         <td><BatchStatusSymbol status={batch.status}/></td>
+                        <td>{batch.progress}</td>
                         <td>
                             {batch.started_at ? (
                                 <BatchTimer startTime={batch.started_at} stopTime={batch.stopped_at} />
