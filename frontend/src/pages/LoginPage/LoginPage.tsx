@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import { LoginAPI } from "../../api/login.ts";
+import styles from "../LoginPage/LoginPage.module.css"
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
@@ -20,25 +21,28 @@ export default function LoginPage() {
     }
 
     return (
-        <section>
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
-                <label>Username</label>
+        <section className={styles.section}>
+            <h2 className={styles.h2}>AI-Tomator</h2>
+            <form className={styles.form} onSubmit={handleSubmit}>
                 <input
+                    className={styles.input}
                     type="text"
+                    placeholder="Username"
                     value={username}
                     minLength={3}
                     onChange={(e) => setUsername(e.target.value)}
                 />
-                <label>Password</label>
                 <input
+                    className={styles.input}
                     type="password"
+                    placeholder="Password"
                     value={password}
                     minLength={6}
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <button type="submit">Login</button>
+                <button className={styles.button} type="submit">Login</button>
             </form>
         </section>
+
     );
 }

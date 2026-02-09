@@ -21,7 +21,7 @@ class BatchData(BaseModel):
     name: str
     status: str
     prompt: str
-    # todo: files
+    progress: Optional[str] = None
     endpoint: str
     file_reader: str
     model: str

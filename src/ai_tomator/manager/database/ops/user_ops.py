@@ -33,3 +33,13 @@ class UserOps:
     def list(self):
         with self.SessionLocal() as session:
             return [e.to_dict_public() for e in session.query(User).all()]
+
+    def set_group(self, username: str, group_id: int):
+        with self.SessionLocal() as session:
+            user = session.query(User).filter_by(username=username).first()
+            if not user:
+                raise ValueError(f"User '{username}' not found.")
+            user.group_id = group_id
+            session.commit()
+            session.refresh(user)
+            return user.to_dict_public()
