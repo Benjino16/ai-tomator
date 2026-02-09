@@ -91,30 +91,21 @@ select, button, input {
     margin: 3px;
 }
 
-.button {
-    cursor: pointer;
+button {
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
     border: none;
-    color: var(--color-button-text);
-    border-radius: var(--radius-sm);
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
-
-.button--blue {
-    background: var(--color-selectable);
+button:hover {
+    background-color: #2980b9;
 }
-.button--blue:hover {
-    background: var(--color-click);
-}
-.button--red {
-    background: #a33131;
-}
-.button--red:hover {
-    background: #882929;
-}
-.button--grey {
-    background: #707070;
-}
-.button--grey:hover {
-    background: #6a6a6a;
+button:active {
+    transform: scale(0.98);
 }
 
 /* Tables */
@@ -182,11 +173,16 @@ footer {
 }
 
 
-
-#promptForm, #promptDisplayForm {
+form {
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Abstand zwischen Textboxen und Button */
+    gap: 15px;
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
 }
 
 
