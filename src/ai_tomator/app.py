@@ -72,7 +72,7 @@ def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
         endpoint_manager = EndpointManager(engine_manager)
 
         jwt_authenticator = JWTAuthenticator(
-            JWT_ENCRYPTION_KEY, ALGORITHM, db, required_user_auth
+            JWT_ENCRYPTION_KEY, ALGORITHM, db, required_user_auth, SECURE_COOKIES
         )
         login_service = LoginService(
             db, JWT_ENCRYPTION_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
