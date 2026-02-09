@@ -13,7 +13,10 @@ class Group(Base):
     __tablename__ = "groups"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(Text, nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 
     users: Mapped[list["User"]] = relationship(back_populates="group")
+
+    def to_dict(self):
+        return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
