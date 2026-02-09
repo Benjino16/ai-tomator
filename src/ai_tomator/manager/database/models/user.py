@@ -13,7 +13,7 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(Text, nullable=False)
+    username: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"), nullable=True)
@@ -30,4 +30,6 @@ class User(Base):
     def to_dict_public(self):
         data = self.to_dict_internal()
         data.pop("password_hash", None)
+        data.pop("hashed_password_reset_token", None)
+        data.pop("password_reset_timestamp", None)
         return data

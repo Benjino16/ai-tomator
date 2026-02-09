@@ -171,7 +171,19 @@ class BatchOps:
     def list(self, user_id: int):
         with self.SessionLocal() as session:
             batches = Batch.accessible_by(session.query(Batch), user_id).all()
-            return [b.to_dict() for b in batches]
+            result = []
+            for batch in batches:
+                batch_dict = batch.to_dict()
+
+                total_files = len(batch.batch_files)
+
+                processed_files = sum(
+                    1 for bf in batch.batch_files if bf.status != BatchFileStatus.QUEUED
+                )
+
+                batch_dict["progress"] = f"{processed_files}/{total_files}"
+                result.append(batch_dict)
+            return result
 
     def get_active_batches(self):
         with self.SessionLocal() as session:

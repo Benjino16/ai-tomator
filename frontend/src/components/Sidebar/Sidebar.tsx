@@ -41,7 +41,6 @@ export default function Sidebar() {
             </div>
 
             <div className={styles.sidebarFooter}>
-                <p>AI-Tomator • Ben Kathöfer • v0.5.0</p>
                 <button className={styles.logoutButton} onClick={handleLogout}>Logout</button>
             </div>
         </aside>

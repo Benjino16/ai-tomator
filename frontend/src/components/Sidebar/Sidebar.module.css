@@ -1,9 +1,8 @@
 .sidebar {
-    width: 200px;
-    height: 100vh;
-    display: flex;
+    height: 100%;
     flex-direction: column;
     flex-shrink: 0;
+    display: flex;
     justify-content: space-between; /* Top-Bereich + Footer */
     padding: 1rem;
     background-color: #1e1e2f;
@@ -13,7 +12,8 @@
 .sidebarTop h2 {
     font-size: 1.5rem;
     margin-bottom: 2rem;
-    text-align: center;
+    text-align: left;
+    padding: 0 1rem;
 }
 
 .sidebarTop nav {
