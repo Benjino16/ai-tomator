@@ -17,7 +17,9 @@ export default function BatchesPage() {
     }, []);
 
     function handleStop(batch_id: number) {
-        BatchesAPI.stop(batch_id)
+        BatchesAPI.stop(batch_id).then( (result) => {
+
+        })
     }
 
     return (
@@ -53,7 +55,14 @@ export default function BatchesPage() {
                         <td>{batch.model}</td>
                         <td>{batch.temperature}</td>
                         <td>{batch.endpoint}</td>
-                        <td><button className={styles.logoutButton} onClick={ () => handleStop(batch.id)}>Stop</button></td>
+                        <td>{batch.file_reader}</td>
+                        <td>
+                            {batch.status == "RUNNING" ? (
+                                <button className={styles.logoutButton} onClick={ () => handleStop(batch.id)}>Stop</button>
+                            ) : (
+                                <span>-</span>
+                            )}
+                        </td>
                     </tr>
                 ))}
                 </tbody>
