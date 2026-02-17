@@ -7,6 +7,7 @@ import RequireAuth from "./components/RequireAuth";
 import FilesPage from "./pages/FilesPage/FilesPage.tsx";
 import EndpointsPage from "./pages/EndpointsPage/EndpointsPage.tsx";
 import ExportPage from "./pages/ExportPage/ExportPage.tsx";
+import RegisterPage from "./pages/RegisterPage/RegisterPage.tsx";
 
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
                 <Route element={<RequireAuth />}>
                     <Route element={<Layout />}>

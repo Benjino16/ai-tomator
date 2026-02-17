@@ -10,10 +10,10 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
     if (!isOpen) return null;
 
     return (
-        <div className={styles.backdrop} onClick={onClose}>
+        <div className={styles.backdrop} onMouseDown={onClose}>
             <div
                 className={styles.modal}
-                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
             >
                 {children}
             </div>

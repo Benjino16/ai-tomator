@@ -12,9 +12,16 @@ class UserOps:
 
     def add(self, username: str, password_hash: str):
         with self.SessionLocal() as session:
-            user = User(username=username, password_hash=password_hash)
+            user_exists = session.query(User).first()
+            admin = not bool(user_exists)
+            user = User(username=username, password_hash=password_hash, is_admin=admin)
             session.add(user)
             session.commit()
+
+    def does_any_user_exist(self) -> bool:
+        with self.SessionLocal() as session:
+            user_exists = session.query(User).first()
+            return bool(user_exists)
 
     def get_for_verification(self, username: str):
         with self.SessionLocal() as session:

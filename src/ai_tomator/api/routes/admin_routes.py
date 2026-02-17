@@ -31,6 +31,11 @@ def build_admin_router(
             return user_service.get_groups()
         raise HTTPException(status_code=403, detail="Not authorized")
 
+
+    @router.get("/first", response_model=bool)
+    def test_for_admin_user():
+        return not user_service.does_any_user_exist()
+
     @router.post("/add_group", response_model=dict)
     def add_group(group_name: str, user=Depends(jwt_authenticator)):
         if user["is_admin"]:
