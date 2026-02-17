@@ -25,7 +25,7 @@ def build_batch_router(
         )
         return BatchData(**result)
 
-    @router.post("/stop")
+    @router.post("/stop/{batch_id}")
     def stop_run(batch_id: int, user=Depends(jwt_authenticator)):
         try:
             result = batch_service.stop(batch_id, user["id"])

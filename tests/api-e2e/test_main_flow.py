@@ -95,7 +95,7 @@ def test_stop_batch(client, create_endpoint, upload_file, create_prompt):
     assert batch_response["status"] == "STARTING"
 
     batch_id = batch_response["id"]
-    response = client.post("/api/batches/stop", params={"batch_id": batch_id})
+    response = client.post(f"/api/batches/stop/{batch_id}")
     assert response.status_code == 200
     result = response.json()
     assert result["id"] == batch_id
