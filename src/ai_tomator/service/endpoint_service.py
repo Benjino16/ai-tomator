@@ -11,11 +11,12 @@ class EndpointService:
         self,
         name: str,
         engine: str,
+        provider: str,
         user_id: int,
         url: str | None = None,
         token: str | None = None,
     ) -> dict:
-        ep = self.db.endpoints.add(name, engine, user_id, url, token)
+        ep = self.db.endpoints.add(name, engine, provider, user_id, url, token)
         return ep
 
     def get(self, name: str, user_id: int, show_api=False) -> dict:

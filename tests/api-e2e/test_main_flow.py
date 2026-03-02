@@ -13,6 +13,7 @@ def create_endpoint(client):
     payload = {
         "name": endpoint_name,
         "engine": "test",
+        "provider": "self_hosted",
         "url": "endpoint_name",
         "token": "test",
     }

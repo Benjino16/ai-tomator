@@ -41,6 +41,8 @@ class Batch(Base, UserGroupMixin):
     max_output_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
     context_window: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    costs_in_usd: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
     started_at: Mapped[datetime] = mapped_column(nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
@@ -106,6 +108,8 @@ class BatchFile(Base):
     input_token_count: Mapped[int] = mapped_column(Integer, nullable=True)
     output_token_count: Mapped[int] = mapped_column(Integer, nullable=True)
     seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    costs_in_usd: Mapped[float] = mapped_column(Float, nullable=True)
 
     batch: Mapped["Batch"] = relationship(back_populates="batch_files")
     file: Mapped["File"] = relationship()

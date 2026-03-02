@@ -27,6 +27,15 @@ def estimate_batch_costs_in_usd(
     )
 
 
+def calculate_price(
+    input_tokens: int, output_tokens: int, provider: str, model: str
+) -> float:
+    input_cost_per_1m, output_cost_per_1m = get_price_per_token(provider, model)
+    return (input_cost_per_1m / 1_000_000) * input_tokens + (
+        output_cost_per_1m / 1_000_000
+    ) * output_tokens
+
+
 def get_price_per_token(provider: str, model: str) -> tuple[float, float]:
     params = {"provider": provider, "model": model}
     r = requests.get("https://www.helicone.ai/api/llm-costs", params=params)

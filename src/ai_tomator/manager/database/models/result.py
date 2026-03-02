@@ -45,6 +45,7 @@ class Result(Base, UserGroupMixin):
                 "top_k": self.batch.top_k,
                 "max_output_tokens": self.batch.max_output_tokens,
                 "context_window": self.batch.context_window,
+                "costs_in_USD": self.batch_file.costs_in_usd,
             }
         )
         return result_dict

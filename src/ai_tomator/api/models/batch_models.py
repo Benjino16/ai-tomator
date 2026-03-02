@@ -28,6 +28,7 @@ class BatchData(BaseModel):
     model: str
     # todo: delay
     temperature: float
+    costs_in_usd: float
     created_at: datetime
     updated_at: datetime
     started_at: Optional[datetime]

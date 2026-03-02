@@ -104,6 +104,7 @@ class BatchOps:
         storage_name: str,
         status: BatchFileStatus,
         engine_response: EngineResponse = None,
+        costs_in_usd: float = None,
     ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
@@ -125,6 +126,10 @@ class BatchOps:
                 batch_file.input_token_count = engine_response.input_tokens
                 batch_file.output_token_count = engine_response.output_tokens
                 batch_file.seed = engine_response.seed
+
+            if costs_in_usd and batch_file.costs_in_usd is None:
+                batch_file.costs_in_usd = costs_in_usd
+                batch.costs_in_usd += costs_in_usd
 
             session.commit()
             session.refresh(batch)

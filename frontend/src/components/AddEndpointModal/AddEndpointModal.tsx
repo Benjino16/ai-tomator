@@ -13,6 +13,7 @@ type Props = {
 export function AddEndpointModal({ isOpen, onClose, onCreated }: Props) {
     const [name, setName] = useState("");
     const [client, setClient] = useState("test");
+    const [provider, setProvider] = useState("self_hosted");
     const [baseUrl, setBaseUrl] = useState("");
     const [token, setToken] = useState("");
 
@@ -24,6 +25,7 @@ export function AddEndpointModal({ isOpen, onClose, onCreated }: Props) {
         const payload: Record<string, string> = {
             name: name,
             engine: client,
+            provider: provider,
         };
         if (baseUrl) payload.url = baseUrl;
         if (token) payload.token = token;
@@ -62,6 +64,15 @@ export function AddEndpointModal({ isOpen, onClose, onCreated }: Props) {
                     <option value="gemini">Gemini</option>
                     <option value="ollama">Ollama</option>
                     <option value="test">Test-Client</option>
+                </select>
+                <select
+                    required
+                    value={provider}
+                    onChange={(e) => setProvider(e.target.value)}
+                >
+                    <option value="self_hosted">Self Hosted</option>
+                    <option value="OpenAI">OpenAI</option>
+                    <option value="GOOGLE">GOOGLE</option>
                 </select>
                 <input
                     type="url"
