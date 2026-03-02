@@ -6,7 +6,7 @@ import { type Batch } from "../../types/Batch.ts";
 export default function ExportPage() {
     const [batches, setBatches] = useState<Batch[]>([]);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
-    const [exportMode, setExportMode] = useState<string>("full");
+    const [exportMode, setExportMode] = useState<string>("raw_csv");
 
     // Beispiel-Modi, später vom Server laden
     const exportModes = ["raw_csv", "raw_excel", "long_format_csv", "long_format_excel"];
