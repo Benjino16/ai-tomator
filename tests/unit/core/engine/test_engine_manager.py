@@ -53,7 +53,7 @@ def test_process_with_file_content(mock_read, engine_manager):
         file_path="path/to/file.txt",
         model="gpt-test",
         temperature=0.5,
-        json_format=False
+        json_format=False,
     )
 
     mock_read.assert_called_once_with("text", "path/to/file.txt")
@@ -90,7 +90,9 @@ def test_invalid_engine_raises(engine_manager):
         "url": "x",
     }
     with pytest.raises(ValueError) as e:
-        engine_manager.process(endpoint, "text", "prompt", "file.txt", "model", 0.2, False)
+        engine_manager.process(
+            endpoint, "text", "prompt", "file.txt", "model", 0.2, False
+        )
     assert "not supported" in str(e.value)
 
 

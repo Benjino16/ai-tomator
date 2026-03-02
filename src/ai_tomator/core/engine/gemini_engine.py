@@ -79,7 +79,9 @@ class GeminiEngine(BaseEngine):
             contents=contents,
             config={
                 "temperature": model_settings.temperature,
-                "response_mime_type": "application/json" if model_settings.json_format else "text/plain"
+                "response_mime_type": (
+                    "application/json" if model_settings.json_format else "text/plain"
+                ),
             },
         )
         return EngineResponse(

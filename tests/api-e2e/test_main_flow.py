@@ -55,6 +55,7 @@ def wait_for_batch_status(client, batch_id, target_status, timeout=10, interval=
         time.sleep(interval)
     assert False, f"Timeout: Batch status is {status}, expected {target_status}"
 
+
 def test_main_run(client, create_endpoint, upload_file, create_prompt):
     """
     Testing the api endpoints on a typical main run.

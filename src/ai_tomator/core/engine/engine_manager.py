@@ -54,7 +54,9 @@ class EngineManager:
             prompt=prompt,
             content=content,
             file_path=include_file_path,
-            model_settings=ModelSettings(temperature=temperature, json_format=json_format),
+            model_settings=ModelSettings(
+                temperature=temperature, json_format=json_format
+            ),
         )
         return response
 
