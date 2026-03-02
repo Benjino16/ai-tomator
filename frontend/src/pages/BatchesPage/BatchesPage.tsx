@@ -17,7 +17,7 @@ export default function BatchesPage() {
     }, []);
 
     function handleStop(batch_id: number) {
-        BatchesAPI.stop(batch_id).then( (result) => {
+        BatchesAPI.stop(batch_id).then( () => {
 
         }).catch((err) => {
             alert(err);

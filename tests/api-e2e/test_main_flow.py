@@ -1,4 +1,5 @@
 import pytest
+import time
 import os
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -43,6 +44,17 @@ def upload_file(client):
     return resp.json()["storage_name"]
 
 
+def wait_for_batch_status(client, batch_id, target_status, timeout=10, interval=0.5):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        response = client.get(f"/api/batches/{batch_id}")
+        assert response.status_code == 200
+        status = response.json()["status"]
+        if status == target_status:
+            return
+        time.sleep(interval)
+    assert False, f"Timeout: Batch status is {status}, expected {target_status}"
+
 def test_main_run(client, create_endpoint, upload_file, create_prompt):
     """
     Testing the api endpoints on a typical main run.
@@ -58,7 +70,7 @@ def test_main_run(client, create_endpoint, upload_file, create_prompt):
         "prompt_id": create_prompt,
         "files": [upload_file],
         "endpoint": create_endpoint,
-        "file_reader": "pypdf2",
+        "file_reader": "pypdf2_default",
         "model": "test_model_fast",
         "delay": 0,
         "temperature": 0.2,
@@ -81,7 +93,7 @@ def test_stop_batch(client, create_endpoint, upload_file, create_prompt):
         "prompt_id": create_prompt,
         "files": [upload_file, upload_file, upload_file],
         "endpoint": create_endpoint,
-        "file_reader": "pypdf2",
+        "file_reader": "pypdf2_default",
         "model": "test_model_fast",
         "delay": 0.01,
         "temperature": 0.2,
@@ -90,16 +102,17 @@ def test_stop_batch(client, create_endpoint, upload_file, create_prompt):
     response = client.post("/api/batches/start", json=payload)
     assert response.status_code in (200, 201)
     batch_response = response.json()
-    assert "id" in batch_response
+    batch_id = batch_response["id"]
     assert batch_response["prompt"] == "Process dataset"
     assert batch_response["status"] == "STARTING"
 
-    batch_id = batch_response["id"]
     response = client.post(f"/api/batches/stop/{batch_id}")
     assert response.status_code == 200
     result = response.json()
     assert result["id"] == batch_id
     assert result["status"] in ("STOPPED", "STOPPING")
+
+    wait_for_batch_status(client, batch_id, "STOPPED")
 
     # todo: currently test TestClient is preventing the worker thread to finish
     # the worker thread therefore never reaches the status "stopped"
