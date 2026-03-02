@@ -13,6 +13,7 @@ class BatchRunRequest(BaseModel):
     model: str
     delay: float = Field(..., ge=0, le=10000)
     temperature: float = Field(..., ge=0.0, le=3.0)
+    json_format: Optional[bool] = False
 
 
 # -----      data      -----

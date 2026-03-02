@@ -84,6 +84,7 @@ class OpenAIEngine(BaseEngine):
             engine=self.__class__.__name__,
             model=model,
             temperature=model_settings.temperature,
+            json_format=model_settings.json_format,
             top_p=model_settings.top_p,
             top_k=None,
             max_output_tokens=None,

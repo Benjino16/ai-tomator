@@ -10,6 +10,7 @@ export interface Batch {
     file_reader: string;
     model: string;
     temperature: number;
+    json_format: boolean;
     delay: number;
     created_at: string;
     updated_at: string;

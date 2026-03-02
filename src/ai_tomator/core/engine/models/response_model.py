@@ -12,6 +12,7 @@ class EngineResponse:
     input_tokens: int
     output_tokens: int
     temperature: Optional[float]
+    json_format: Optional[bool]
     top_p: Optional[float]
     top_k: Optional[int]
     max_output_tokens: Optional[int]

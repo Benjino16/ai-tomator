@@ -27,6 +27,7 @@ class BatchManager:
         prompt,
         delay,
         temperature,
+        json_format,
     ):
         self.db.batches.add_batch_log(
             batch_id, "Starting new batch with id: {}".format(batch_id)
@@ -46,6 +47,7 @@ class BatchManager:
                     prompt,
                     delay,
                     temperature,
+                    json_format,
                     stop_flag,
                 ),
             )
@@ -65,6 +67,7 @@ class BatchManager:
         prompt,
         delay,
         temperature,
+        json_format,
         stop_flag,
     ):
         self.db.batches.add_batch_log(
@@ -88,6 +91,7 @@ class BatchManager:
                     model=model,
                     prompt=prompt,
                     temperature=temperature,
+                    json_format=json_format,
                 )
                 batch_file = self.db.batches.update_batch_file_status(
                     batch_id=batch_id,

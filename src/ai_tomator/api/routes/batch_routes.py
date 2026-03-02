@@ -22,6 +22,7 @@ def build_batch_router(
             delay=request.delay,
             temperature=request.temperature,
             user_id=user["id"],
+            json_format=request.json_format,
         )
         return BatchData(**result)
 

@@ -77,12 +77,16 @@ class GeminiEngine(BaseEngine):
         response = self.client.models.generate_content(
             model=model,
             contents=contents,
-            config={"temperature": model_settings.temperature},
+            config={
+                "temperature": model_settings.temperature,
+                "response_mime_type": "application/json" if model_settings.json_format else "text/plain"
+            },
         )
         return EngineResponse(
             engine=self.__class__.__name__,
             model=model,
             temperature=model_settings.temperature,
+            json_format=model_settings.json_format,
             top_p=model_settings.top_p,
             top_k=model_settings.top_k,
             max_output_tokens=model_settings.max_output_tokens,

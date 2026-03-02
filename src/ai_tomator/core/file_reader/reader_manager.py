@@ -17,7 +17,9 @@ class FileReaderManager:
 
     @classmethod
     def get_supported(cls):
-        return list(cls._readers.keys())
+        reader_list = list(cls._readers.keys())
+        reader_list.append("upload")
+        return reader_list
 
     @classmethod
     def read(cls, reader_name: str, file_path: str) -> str:

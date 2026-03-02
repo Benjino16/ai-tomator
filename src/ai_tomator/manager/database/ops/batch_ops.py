@@ -28,6 +28,7 @@ class BatchOps:
         prompt: str,
         model: str,
         temperature: float,
+        json_format: bool,
         user_id: int,
     ):
         with self.SessionLocal() as session:
@@ -42,6 +43,7 @@ class BatchOps:
                 file_reader=file_reader,
                 model=model,
                 temperature=temperature,
+                json_format=json_format,
                 user_id=user_id,
                 group_id=subq,
             )

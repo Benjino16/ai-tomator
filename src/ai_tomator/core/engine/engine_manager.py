@@ -38,7 +38,7 @@ class EngineManager:
         return self._instances[name]
 
     def process(
-        self, endpoint, file_reader, prompt, file_path, model, temperature
+        self, endpoint, file_reader, prompt, file_path, model, temperature, json_format
     ) -> EngineResponse:
         engine = self._get_engine_instance(endpoint)
 
@@ -54,7 +54,7 @@ class EngineManager:
             prompt=prompt,
             content=content,
             file_path=include_file_path,
-            model_settings=ModelSettings(temperature=temperature),
+            model_settings=ModelSettings(temperature=temperature, json_format=json_format),
         )
         return response
 
