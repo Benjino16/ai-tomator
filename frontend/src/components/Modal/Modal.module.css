@@ -12,4 +12,7 @@
     padding: 1.5rem;
     border-radius: 8px;
     min-width: 300px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
 }
