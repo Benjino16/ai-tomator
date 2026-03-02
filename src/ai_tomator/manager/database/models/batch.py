@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import ForeignKey, func, Enum
+from sqlalchemy import ForeignKey, func, Enum, Integer, Text, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
@@ -35,6 +35,11 @@ class Batch(Base, UserGroupMixin):
     model: Mapped[str] = mapped_column(nullable=False)
     temperature: Mapped[float] = mapped_column(nullable=False)
     json_format: Mapped[bool] = mapped_column(nullable=False)
+
+    top_p: Mapped[float | None] = mapped_column(Float, nullable=True)
+    top_k: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    max_output_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    context_window: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
     started_at: Mapped[datetime] = mapped_column(nullable=True)
@@ -95,6 +100,12 @@ class BatchFile(Base):
         nullable=False,
         default=BatchFileStatus.QUEUED,
     )
+
+    input: Mapped[str] = mapped_column(Text, nullable=True)
+    output: Mapped[str] = mapped_column(Text, nullable=True)
+    input_token_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    output_token_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     batch: Mapped["Batch"] = relationship(back_populates="batch_files")
     file: Mapped["File"] = relationship()

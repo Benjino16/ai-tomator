@@ -114,14 +114,3 @@ def test_stop_batch(client, create_endpoint, upload_file, create_prompt):
     assert result["status"] in ("STOPPED", "STOPPING")
 
     wait_for_batch_status(client, batch_id, "STOPPED")
-
-    # todo: currently test TestClient is preventing the worker thread to finish
-    # the worker thread therefore never reaches the status "stopped"
-
-    # time.sleep(1)
-
-    # r = client.get(f"/api/batches/{batch_id}")
-    # assert r.status_code == 200
-    # batch = r.json()
-    # status = batch["status"]
-    # assert status == "stopped"

@@ -1,5 +1,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker
+
+from ai_tomator.core.engine.models.response_model import EngineResponse
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
     Batch,
@@ -70,7 +72,9 @@ class BatchOps:
             session.refresh(batch)
             return batch.to_dict()
 
-    def update_status(self, batch_id: int, status: BatchStatus):
+    def update_status(
+        self, batch_id: int, status: BatchStatus, engine_response: EngineResponse = None
+    ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:
@@ -83,12 +87,23 @@ class BatchOps:
                 batch.stopped_at = func.now()
 
             batch.status = status
+
+            if engine_response:
+                batch.top_p = engine_response.top_p
+                batch.top_k = engine_response.top_k
+                batch.max_output_tokens = engine_response.max_output_tokens
+                batch.context_window = engine_response.context_window
+
             session.commit()
             session.refresh(batch)
             return batch.to_dict()
 
     def update_batch_file_status(
-        self, batch_id: int, storage_name: str, status: BatchFileStatus
+        self,
+        batch_id: int,
+        storage_name: str,
+        status: BatchFileStatus,
+        engine_response: EngineResponse = None,
     ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
@@ -101,7 +116,16 @@ class BatchOps:
             )
             if not batch_file:
                 raise ValueError(f"BatchFile '{storage_name}' not found.")
+
             batch_file.status = status
+
+            if engine_response:
+                batch_file.input = engine_response.input
+                batch_file.output = engine_response.output
+                batch_file.input_token_count = engine_response.input_tokens
+                batch_file.output_token_count = engine_response.output_tokens
+                batch_file.seed = engine_response.seed
+
             session.commit()
             session.refresh(batch)
             session.refresh(batch_file)

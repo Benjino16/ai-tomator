@@ -1,9 +1,9 @@
-from sqlalchemy import Text, ForeignKey, func, Float, Integer
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
 from .user_group_mixin import UserGroupMixin
-from .batch import Batch, File
+from .batch import Batch, BatchFile
 
 
 class Result(Base, UserGroupMixin):
@@ -11,34 +11,40 @@ class Result(Base, UserGroupMixin):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     batch_id: Mapped[int] = mapped_column(ForeignKey("batches.id"), nullable=False)
-    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
-    display_file_name: Mapped[str] = mapped_column(Text, nullable=False)
-    storage_file_name: Mapped[str] = mapped_column(Text, nullable=False)
-    input: Mapped[str] = mapped_column(Text, nullable=False)
-    output: Mapped[str] = mapped_column(Text, nullable=False)
+    batch_file_id: Mapped[int] = mapped_column(
+        ForeignKey("batch_files.id"), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
-
-    engine: Mapped[str] = mapped_column(nullable=False)
-    endpoint: Mapped[str] = mapped_column(nullable=False)
-    file_reader: Mapped[str] = mapped_column(nullable=False)
-    prompt: Mapped[str] = mapped_column(nullable=False)
-    model: Mapped[str] = mapped_column(nullable=False)
-    temperature: Mapped[float] = mapped_column(nullable=False)
-    json_format: Mapped[bool] = mapped_column(nullable=False)
-
-    input_token_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    output_token_count: Mapped[int] = mapped_column(Integer, nullable=False)
-    top_p: Mapped[float | None] = mapped_column(Float, nullable=True)
-    top_k: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    max_output_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    context_window: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     user_id: Mapped[int] = mapped_column(nullable=True)
     group_id: Mapped[int] = mapped_column(nullable=True)
 
-    batch: Mapped["Batch"] = relationship()
-    file: Mapped["File"] = relationship()
+    batch: Mapped["Batch"] = relationship(lazy="joined")
+    batch_file: Mapped["BatchFile"] = relationship(lazy="joined")
 
     def to_dict(self):
-        return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
+        result_dict = {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
+
+        result_dict.update(
+            {
+                "display_file_name": self.batch_file.display_name,
+                "storage_file_name": self.batch_file.storage_name,
+                "input_token_count": self.batch_file.input_token_count,
+                "output_token_count": self.batch_file.output_token_count,
+                "input": self.batch_file.input,
+                "output": self.batch_file.output,
+                "seed": self.batch_file.seed,
+                "engine": self.batch.engine,
+                "endpoint": self.batch.endpoint,
+                "file_reader": self.batch.file_reader,
+                "prompt": self.batch.prompt,
+                "model": self.batch.model,
+                "temperature": self.batch.temperature,
+                "json_format": self.batch.json_format,
+                "top_p": self.batch.top_p,
+                "top_k": self.batch.top_k,
+                "max_output_tokens": self.batch.max_output_tokens,
+                "context_window": self.batch.context_window,
+            }
+        )
+        return result_dict

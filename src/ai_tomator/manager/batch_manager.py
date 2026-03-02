@@ -93,10 +93,16 @@ class BatchManager:
                     temperature=temperature,
                     json_format=json_format,
                 )
+                self.db.batches.update_status(
+                    batch_id=batch_id,
+                    status=BatchStatus.RUNNING,
+                    engine_response=result,
+                )
                 batch_file = self.db.batches.update_batch_file_status(
                     batch_id=batch_id,
                     storage_name=file["storage_name"],
                     status=BatchFileStatus.COMPLETED,
+                    engine_response=result,
                 )
                 self.db.batches.add_batch_log(
                     batch_id,
@@ -108,9 +114,7 @@ class BatchManager:
                 self.db.batches.add_batch_log(
                     batch_id, "Response: {}".format(result.output), batch_file.id
                 )
-                self.db.results.save(
-                    batch_id, file["storage_name"], engine_response=result
-                )
+                self.db.results.save(batch_id, file["storage_name"])
             except Exception as e:
                 batch_file = self.db.batches.update_batch_file_status(
                     batch_id=batch_id,
