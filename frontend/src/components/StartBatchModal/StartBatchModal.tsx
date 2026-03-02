@@ -29,6 +29,8 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
     const [fileReaders, setFileReaders] = useState<string[]>([]);
     const [loadingFileReaders, setLoadingFileReaders] = useState(false);
 
+    const [jsonFormat, setJSONFormat] = useState("False");
+
     const [model, setModel] = useState("");
     const [models, setModels] = useState<string[]>([]);
     const [loadingModels, setLoadingModels] = useState(false);
@@ -124,6 +126,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                 model: model,
                 delay: delay,
                 temperature: temperature,
+                json_format: jsonFormat === "True"
 
             }).then((data) => {
                 onCreated(data)
@@ -162,6 +165,29 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     ))}
                 </select>
 
+                <label>Model</label>
+                <select
+                    required
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    disabled={!endpoint || loadingModels}
+                >
+                    <option value="" disabled>
+                        {!endpoint
+                            ? "Select endpoint first"
+                            : loadingModels
+                                ? "Loading..."
+                                : "Please select"}
+                    </option>
+
+                    {models.map((md) => (
+                        <option key={md} value={md}>
+                            {md.replace("models/", "")}
+                        </option>
+                    ))
+                    }
+                </select>
+
                 <label>File-Tag</label>
                 <select
                     required
@@ -197,28 +223,6 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     ))}
                 </select>
 
-                <label>Model</label>
-                <select
-                    required
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    disabled={!endpoint || loadingModels}
-                >
-                    <option value="" disabled>
-                        {!endpoint
-                            ? "Select endpoint first"
-                            : loadingModels
-                                ? "Loading..."
-                                : "Please select"}
-                    </option>
-
-                    {models.map((md) => (
-                        <option key={md} value={md}>
-                            {md}
-                        </option>
-                    ))}
-                </select>
-
                 <label>Prompt</label>
                 <select
                     required
@@ -246,6 +250,22 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     step="0.1"
                     onChange={(e) => setTemperature(parseFloat(e.target.value))}
                 />
+
+                <label>Answer Format</label>
+                <select
+                    required
+                    value={jsonFormat}
+                    onChange={(e) => setJSONFormat(e.target.value)}
+
+                >
+                    <option value="True">
+                        JSON
+                    </option>
+                    <option value="False">
+                        Text
+                    </option>
+
+                </select>
 
                 <label>API Request Delay</label>
                 <input

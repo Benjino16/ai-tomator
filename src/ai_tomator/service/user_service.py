@@ -16,3 +16,6 @@ class UserService:
 
     def set_user_group(self, username: str, group_id: int) -> list[dict]:
         return self.db.users.set_group(username, group_id)
+
+    def does_any_user_exist(self) -> bool:
+        return self.db.users.does_any_user_exist()

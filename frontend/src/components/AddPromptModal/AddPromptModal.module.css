@@ -9,6 +9,7 @@
     width: 100%;
     padding: 0.5rem;
     font-size: 0.95rem;
+    resize: vertical;
 }
 
 .promptForm button {

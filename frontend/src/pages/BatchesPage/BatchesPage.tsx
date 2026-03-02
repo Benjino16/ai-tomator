@@ -5,6 +5,7 @@ import {Button} from "../../components/Button/Button.tsx";
 import {StartBatchModal} from "../../components/StartBatchModal/StartBatchModal.tsx";
 import {BatchStatusSymbol} from "../../components/BatchStatusSymbol/BatchStatusSymbol.tsx";
 import {BatchTimer} from "../../components/BatchTimer/BatchTimer.tsx";
+import styles from "../../components/Sidebar/Sidebar.module.css";
 
 
 export default function BatchesPage() {
@@ -14,6 +15,15 @@ export default function BatchesPage() {
     useEffect(() => {
         BatchesAPI.getAll().then(setBatches);
     }, []);
+
+    function handleStop(batch_id: number) {
+        BatchesAPI.stop(batch_id).then( () => {
+
+        }).catch((err) => {
+            alert(err);
+            console.error(err);
+        })
+    }
 
     return (
         <section>
@@ -29,6 +39,7 @@ export default function BatchesPage() {
                     <th>Temperature</th>
                     <th>Endpoint</th>
                     <th>File Reader</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -48,6 +59,13 @@ export default function BatchesPage() {
                         <td>{batch.temperature}</td>
                         <td>{batch.endpoint}</td>
                         <td>{batch.file_reader}</td>
+                        <td>
+                            {batch.status == "RUNNING" ? (
+                                <button className={styles.logoutButton} onClick={ () => handleStop(batch.id)}>Stop</button>
+                            ) : (
+                                <span>-</span>
+                            )}
+                        </td>
                     </tr>
                 ))}
                 </tbody>

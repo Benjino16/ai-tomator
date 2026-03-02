@@ -36,6 +36,7 @@ class ResultOps:
                     prompt=batch.prompt,
                     model=batch.model,
                     temperature=batch.temperature,
+                    json_format=engine_response.json_format,
                     top_p=engine_response.top_p,
                     top_k=engine_response.top_k,
                     max_output_tokens=engine_response.max_output_tokens,

@@ -24,6 +24,7 @@ class MockEngine:
             max_output_tokens=None,
             seed=None,
             context_window=None,
+            json_format=False,
         )
 
 
@@ -52,6 +53,7 @@ def test_process_with_file_content(mock_read, engine_manager):
         file_path="path/to/file.txt",
         model="gpt-test",
         temperature=0.5,
+        json_format=False,
     )
 
     mock_read.assert_called_once_with("text", "path/to/file.txt")
@@ -73,6 +75,7 @@ def test_process_with_upload(engine_manager):
         file_path="path/to/upload.txt",
         model="gpt-test",
         temperature=1.0,
+        json_format=False,
     )
 
     assert result.input == "[Uploaded File: path/to/upload.txt]"
@@ -87,7 +90,9 @@ def test_invalid_engine_raises(engine_manager):
         "url": "x",
     }
     with pytest.raises(ValueError) as e:
-        engine_manager.process(endpoint, "text", "prompt", "file.txt", "model", 0.2)
+        engine_manager.process(
+            endpoint, "text", "prompt", "file.txt", "model", 0.2, False
+        )
     assert "not supported" in str(e.value)
 
 

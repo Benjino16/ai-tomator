@@ -24,6 +24,7 @@ class Result(Base, UserGroupMixin):
     prompt: Mapped[str] = mapped_column(nullable=False)
     model: Mapped[str] = mapped_column(nullable=False)
     temperature: Mapped[float] = mapped_column(nullable=False)
+    json_format: Mapped[bool] = mapped_column(nullable=False)
 
     input_token_count: Mapped[int] = mapped_column(Integer, nullable=False)
     output_token_count: Mapped[int] = mapped_column(Integer, nullable=False)

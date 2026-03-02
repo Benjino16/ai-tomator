@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, Link} from "react-router-dom";
 import { LoginAPI } from "../../api/login.ts";
 import styles from "../LoginPage/LoginPage.module.css"
 
@@ -41,6 +41,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <button className={styles.button} type="submit">Login</button>
+                <p>Don’t have an account? <Link to="/register">Register here</Link></p>
             </form>
         </section>
 

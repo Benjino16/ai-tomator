@@ -22,10 +22,11 @@ def build_batch_router(
             delay=request.delay,
             temperature=request.temperature,
             user_id=user["id"],
+            json_format=request.json_format,
         )
         return BatchData(**result)
 
-    @router.post("/stop")
+    @router.post("/stop/{batch_id}")
     def stop_run(batch_id: int, user=Depends(jwt_authenticator)):
         try:
             result = batch_service.stop(batch_id, user["id"])

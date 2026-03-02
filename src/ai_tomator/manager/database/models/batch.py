@@ -34,6 +34,7 @@ class Batch(Base, UserGroupMixin):
     prompt: Mapped[str] = mapped_column(nullable=False)
     model: Mapped[str] = mapped_column(nullable=False)
     temperature: Mapped[float] = mapped_column(nullable=False)
+    json_format: Mapped[bool] = mapped_column(nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
     started_at: Mapped[datetime] = mapped_column(nullable=True)

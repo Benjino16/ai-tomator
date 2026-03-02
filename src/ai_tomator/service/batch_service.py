@@ -27,6 +27,7 @@ class BatchService:
         model: str,
         delay: float,
         temperature: float,
+        json_format: bool,
         user_id: int,
     ) -> dict:
         batch_name = f"batch_{hash(model + endpoint_name)}"
@@ -56,6 +57,7 @@ class BatchService:
             prompt=prompt_content,
             model=model,
             temperature=temperature,
+            json_format=json_format,
             user_id=user_id,
         )
         batch_id = db_batch["id"]
@@ -68,6 +70,7 @@ class BatchService:
             prompt_content,
             delay,
             temperature,
+            json_format,
         )
         return db_batch
 
