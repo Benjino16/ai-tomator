@@ -12,6 +12,7 @@ class Endpoint(Base, UserGroupMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
     engine: Mapped[str] = mapped_column(nullable=False)
+    provider: Mapped[str] = mapped_column(nullable=False)
     url: Mapped[str | None] = mapped_column(nullable=True)
     token: Mapped[str | None] = mapped_column(nullable=True)
 

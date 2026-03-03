@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 
-from ai_tomator.api.models.batch_models import BatchData, BatchRunRequest
+from ai_tomator.api.models.batch_models import BatchData, BatchRunRequest, BatchFileData
 from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 from ai_tomator.service.batch_service import BatchService
 
@@ -34,20 +34,18 @@ def build_batch_router(
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-    @router.get("/{batch_id}")
+    @router.get("/{batch_id}", response_model=BatchData)
     def get_batch(batch_id: int, user=Depends(jwt_authenticator)):
         result = batch_service.get_batch(batch_id, user["id"])
         return BatchData(**result)
 
-    @router.get("/files/{batch_id}")
+    @router.get("/files/{batch_id}", response_model=list[BatchFileData])
     def get_batch_files(batch_id: int, user=Depends(jwt_authenticator)):
-        result = batch_service.get_batch_files(batch_id, user["id"])
-        return result
+        return batch_service.get_batch_files(batch_id, user["id"])
 
     @router.get("/log/{batch_id}")
     def get_batch_log(batch_id: int, user=Depends(jwt_authenticator)):
-        result = batch_service.get_batch_log(batch_id, user["id"])
-        return result
+        return batch_service.get_batch_log(batch_id, user["id"])
 
     @router.get("/", response_model=list[BatchData])
     def list_runs(user=Depends(jwt_authenticator)):

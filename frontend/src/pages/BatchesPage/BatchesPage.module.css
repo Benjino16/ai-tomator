@@ -1,0 +1,53 @@
+.batchContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Gemeinsames Grid für Header und Rows */
+.batchGrid {
+    display: grid;
+    grid-template-columns:
+        30px   /* Arrow */
+        80px   /* ID */
+        100px  /* Status */
+        100px  /* Progress */
+        140px  /* Time */
+        100px  /* Costs */
+        150px  /* Model */
+        100px  /* Temp */
+        150px  /* Endpoint */
+        130px  /* File Reader */
+        100px; /* Action */
+    gap: 1rem;
+    align-items: center;
+}
+
+.batchTableHeader {
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid #ccc;
+}
+
+.batchTableHeader .batchGrid {
+    color: #555;
+}
+
+/* Wrapper pro Batch */
+.batchRowWrapper {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Eine Tabellen-Zeile */
+.batchRow {
+    composes: batchGrid;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+}
+
+.batchRow:hover {
+    background-color: #f9f9f9;
+}
+
+.batchArrow {
+    font-size: 0.9rem;
+}

@@ -12,6 +12,7 @@ export interface Batch {
     temperature: number;
     json_format: boolean;
     delay: number;
+    costs_in_usd?: number;
     created_at: string;
     updated_at: string;
     started_at?: string;

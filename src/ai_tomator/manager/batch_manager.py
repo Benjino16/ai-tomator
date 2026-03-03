@@ -1,5 +1,6 @@
 from ai_tomator.core.engine.engine_manager import EngineManager
 from ai_tomator.core.file_reader.reader_manager import FileReaderManager
+from ai_tomator.core.price_calculator.calculator import calculate_price
 from .database import Database
 from .database.models.batch import BatchStatus, BatchFileStatus
 import threading
@@ -93,10 +94,31 @@ class BatchManager:
                     temperature=temperature,
                     json_format=json_format,
                 )
+                # try calculating costs
+                price = None
+                if endpoint["provider"].lower() != "self_hosted":
+                    try:
+                        model = result.model.replace("models/", "")
+                        price = calculate_price(
+                            result.input_tokens,
+                            result.output_tokens,
+                            endpoint["provider"],
+                            model,
+                        )
+                    except Exception as e:
+                        logger.error(e)
+
+                self.db.batches.update_status(
+                    batch_id=batch_id,
+                    status=BatchStatus.RUNNING,
+                    engine_response=result,
+                )
                 batch_file = self.db.batches.update_batch_file_status(
                     batch_id=batch_id,
                     storage_name=file["storage_name"],
                     status=BatchFileStatus.COMPLETED,
+                    engine_response=result,
+                    costs_in_usd=price,
                 )
                 self.db.batches.add_batch_log(
                     batch_id,
@@ -108,9 +130,7 @@ class BatchManager:
                 self.db.batches.add_batch_log(
                     batch_id, "Response: {}".format(result.output), batch_file.id
                 )
-                self.db.results.save(
-                    batch_id, file["storage_name"], engine_response=result
-                )
+                self.db.results.save(batch_id, file["storage_name"])
             except Exception as e:
                 batch_file = self.db.batches.update_batch_file_status(
                     batch_id=batch_id,

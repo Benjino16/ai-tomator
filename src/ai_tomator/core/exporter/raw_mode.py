@@ -16,9 +16,9 @@ class RawExportMode(BaseExportMode):
         self, results: List[Dict[str, Any]], mode
     ) -> Tuple[Union[StringIO, BytesIO], str, str]:
         df = pd.DataFrame(results)
-        df = df.replace({r"[\r\n]+": r"\\n"}, regex=True)
         if mode == self.default_mode:
             buffer = StringIO()
+            df = df.replace({r"[\r\n]+": r"\\n"}, regex=True)
             df.to_csv(buffer, index=False, quoting=csv.QUOTE_ALL)
             buffer.seek(0)
             return (
@@ -28,6 +28,8 @@ class RawExportMode(BaseExportMode):
             )
         else:
             excel_buffer = BytesIO()
+            df = df.replace({r"[\r\n]+": " "}, regex=True)
+            df = df.replace(r"[\x00-\x1F\x7F-\x9F]", " ", regex=True)
             df.to_excel(excel_buffer, index=False)
             excel_buffer.seek(0)
             return (

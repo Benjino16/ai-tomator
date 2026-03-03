@@ -68,9 +68,9 @@ class ExpandedExportMode(BaseExportMode):
                 expanded_rows.append(new_row)
 
         df = pd.DataFrame(expanded_rows)
-        df = df.replace({r"[\r\n]+": r"\\n"}, regex=True)
         if mode == self.default_mode:
             buffer = StringIO()
+            df = df.replace({r"[\r\n]+": r"\\n"}, regex=True)
             df.to_csv(buffer, index=False, quoting=csv.QUOTE_ALL)
             buffer.seek(0)
             return (
@@ -80,6 +80,8 @@ class ExpandedExportMode(BaseExportMode):
             )
         else:
             excel_buffer = BytesIO()
+            df = df.replace({r"[\r\n]+": " "}, regex=True)
+            df = df.replace(r"[\x00-\x1F\x7F-\x9F]", " ", regex=True)
             df.to_excel(excel_buffer, index=False)
             excel_buffer.seek(0)
             return (
