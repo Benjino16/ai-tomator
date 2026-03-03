@@ -27,6 +27,7 @@ export default function EndpointsPage() {
                 <tr>
                     <th>Name</th>
                     <th>Client</th>
+                    <th>Provider</th>
                     <th>Base-URL</th>
                     <th>API-Token</th>
                     <th>Action</th>
@@ -37,6 +38,7 @@ export default function EndpointsPage() {
                     <tr key={ep.name}>
                         <td>{ep.name}</td>
                         <td>{ep.engine}</td>
+                        <td>{ep.provider}</td>
                         <td>{ep.url}</td>
                         <td>{ep.token}</td>
                         <td>
