@@ -5,6 +5,7 @@ export interface BatchFile {
     storage_name: string;
     display_name: string;
     status: "QUEUED" | "RUNNING" | "FAILED" | "COMPLETED";
+    output: string;
     input_token_count: number;
     output_token_count: number;
     seed?: string;

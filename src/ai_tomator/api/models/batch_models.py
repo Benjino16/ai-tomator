@@ -33,3 +33,17 @@ class BatchData(BaseModel):
     updated_at: datetime
     started_at: Optional[datetime]
     stopped_at: Optional[datetime]
+
+
+class BatchFileData(BaseModel):
+    id: int
+    batch_id: int
+    file_id: int
+    storage_name: str
+    display_name: str
+    status: str
+    output: Optional[str]
+    input_token_count: Optional[int]
+    output_token_count: Optional[int]
+    seed: Optional[str]
+    costs_in_usd: Optional[float]
