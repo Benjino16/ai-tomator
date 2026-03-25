@@ -41,14 +41,13 @@ jobs:
 
       - name: Run tests
         run: |
-          docker run --network host -p 8000:8000 \
+          docker run --name backend-test --network host \
             -e DATABASE_URL=postgresql://user:pass@localhost:5432/ai_tomator \
             -e STORAGE_DIR=/data/storage \
             -e SECURE_COOKIES=false \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=1440 \
             -e JWT_ENCRYPTION_KEY="CHANGE-THIS-TO-A-SECURE-KEY" \
-            pr-test:${{ github.event.pull_request.number }} \
-            sh -c "your-test-command"
+            pr-test:${{ github.event.pull_request.number }}
 
       - name: Check /health endpoint
         run: |
@@ -59,5 +58,5 @@ jobs:
             sleep 2
           done
           echo "Health check failed"
-          docker logs pr-test
+          docker logs backend-test
           exit 1
