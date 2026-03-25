@@ -1,6 +1,6 @@
 services:
   backend:
-    build: .
+    image: ghcr.io/benjino16/ai-tomator/backend:latest
     ports:
       - "8000:8000"
     environment:
@@ -25,7 +25,7 @@ services:
       - db
 
   frontend:
-    build: ./frontend
+    image: ghcr.io/benjino16/ai-tomator/frontend:latest
     ports:
       - "80:80"
       - "443:443"
