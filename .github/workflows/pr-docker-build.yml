@@ -1,12 +1,26 @@
-name: PR Docker Build + Playwright UI
+name: PR Backend Docker Build and Test
 
 on:
   pull_request:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test-backend:
     runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:18
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: pass
+          POSTGRES_DB: ai_tomator
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
@@ -15,18 +29,26 @@ jobs:
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image (no push)
+      - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: false
-          tags: pr-test:latest
+          tags: pr-test:${{ github.event.pull_request.number }}
           load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Run container
+      - name: Run tests
         run: |
-          docker run -d --name pr-test --network="host" -p 8000:8000 pr-test:latest
-          sleep 3
+          docker run --network host -p 8000:8000 \
+            -e DATABASE_URL=postgresql://user:pass@localhost:5432/ai_tomator \
+            -e STORAGE_DIR=/data/storage \
+            -e SECURE_COOKIES=false \
+            -e ACCESS_TOKEN_EXPIRE_MINUTES=1440 \
+            -e JWT_ENCRYPTION_KEY="CHANGE-THIS-TO-A-SECURE-KEY" \
+            pr-test:${{ github.event.pull_request.number }} \
+            sh -c "your-test-command"
 
       - name: Check /health endpoint
         run: |
