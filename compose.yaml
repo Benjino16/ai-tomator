@@ -1,10 +1,10 @@
 services:
-  web:
-    image: ghcr.io/benjino16/ai-tomator:latest
+  backend:
+    image: ghcr.io/benjino16/ai-tomator/backend:latest
     ports:
       - "8000:8000"
     environment:
-      DB_PATH: /data/db/database.db
+      DATABASE_URL: postgresql://user:pass@db:5432/ai_tomator
       STORAGE_DIR: /data/storage
       #JWT Authentication Config
       SECURE_COOKIES: true #Set to false to allow JWT authentication over HTTP (not secure!)
@@ -12,7 +12,6 @@ services:
       JWT_ENCRYPTION_KEY: "CHANGE-THIS-TO-A-SECURE-KEY"
 
     volumes:
-      - db-data:/data/db
       - storage-data:/data/storage
 
     healthcheck:
@@ -22,6 +21,26 @@ services:
       retries: 3
       start_period: 5s
 
+    depends_on:
+      - db
+
+  frontend:
+    image: ghcr.io/benjino16/ai-tomator/frontend:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:18
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=ai_tomator
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
 volumes:
-  db-data:
+  postgres_data:
   storage-data:

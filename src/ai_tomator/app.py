@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from pathlib import Path
 import logging
@@ -23,20 +22,11 @@ from ai_tomator.service.price_service import PriceService
 from ai_tomator.service.prompt_service import PromptService
 from ai_tomator.logger_config import setup_logging
 from ai_tomator.service.user_service import UserService
-from ai_tomator.web.static_router import create_frontend_router
 
 BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
 
-DB_PATH = os.getenv("DB_PATH", "data/db/database.db")
-# ensure db path exists
-db_file = Path(DB_PATH).resolve()
-db_file.parent.mkdir(parents=True, exist_ok=True)
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "data/storage")).resolve())
-
-# create absolut db path (robust for docker / local / pyinstaller)
-DATABASE_URL = f"sqlite:///{Path(DB_PATH).resolve()}"
 
 
 def generate_jwt_key(length=32):
@@ -54,6 +44,11 @@ SECURE_COOKIES = os.getenv("SECURE_COOKIES", "true").lower() != "false"
 
 
 def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
+    if db_path is None:
+        raise Exception("db_path cannot be None")
+    if storage_dir is None:
+        raise Exception("storage_dir cannot be None")
+
     setup_logging()
     logger = logging.getLogger(__name__)
 
@@ -101,13 +96,6 @@ def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
             price_service,
         )
         app.include_router(router, prefix="/api")
-
-        if STATIC_DIR.exists():
-            frontend_router = create_frontend_router(STATIC_DIR)
-            app.include_router(frontend_router)
-            app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
-        else:
-            logger.warning("Static directory not found, running in dev mode")
 
         if not required_user_auth:
             try:

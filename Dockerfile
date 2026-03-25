@@ -1,13 +1,3 @@
-# Stage 0: Frontend Build
-FROM node:20-alpine AS frontend-build
-WORKDIR /app/frontend
-
-COPY frontend/package*.json ./
-RUN npm ci
-
-COPY frontend/ ./
-RUN npm run build  # Output: frontend/dist
-
 # Stage 1: Backend Wheel Build
 FROM python:3.11-slim AS builder
 
@@ -15,33 +5,36 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
-    libsqlite3-dev \
+    python3-dev \
+    libpq-dev \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml ./
 COPY README.md ./
 COPY LICENSE ./
-COPY src ./src
 
-COPY --from=frontend-build /app/frontend/dist ./src/ai_tomator/static
 
 RUN pip install --upgrade pip setuptools wheel
-RUN pip wheel --no-deps -w /app/wheels .
+
+COPY src ./src
+RUN pip wheel --prefer-binary -w /app/wheels .
 
 
+
+
+# Stage 2: Serve
 FROM python:3.11-slim
 
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libsqlite3-0 \
+    libpq5 \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/wheels /wheels
 RUN pip install --no-cache-dir /wheels/*
-
-COPY src ./src
 
 EXPOSE 8000
 

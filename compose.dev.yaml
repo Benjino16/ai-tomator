@@ -1,0 +1,8 @@
+services:
+  backend:
+    build: .
+    environment:
+      SECURE_COOKIES: false
+
+  frontend:
+    build: ./frontend
