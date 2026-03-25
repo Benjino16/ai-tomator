@@ -26,9 +26,6 @@ from ai_tomator.service.user_service import UserService
 BASE_DIR = Path(__file__).resolve().parent
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable not set")
-
 STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "data/storage")).resolve())
 
 
@@ -47,6 +44,11 @@ SECURE_COOKIES = os.getenv("SECURE_COOKIES", "true").lower() != "false"
 
 
 def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
+    if db_path is None:
+        raise Exception("db_path cannot be None")
+    if storage_dir is None:
+        raise Exception("storage_dir cannot be None")
+
     setup_logging()
     logger = logging.getLogger(__name__)
 
