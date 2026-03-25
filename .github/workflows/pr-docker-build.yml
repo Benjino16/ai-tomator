@@ -39,18 +39,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run tests
+      - name: Start backend and check health
         run: |
-          docker run --name backend-test --network host \
+          docker run --name backend-test --network host -d \
             -e DATABASE_URL=postgresql://user:pass@localhost:5432/ai_tomator \
             -e STORAGE_DIR=/data/storage \
             -e SECURE_COOKIES=false \
             -e ACCESS_TOKEN_EXPIRE_MINUTES=1440 \
             -e JWT_ENCRYPTION_KEY="CHANGE-THIS-TO-A-SECURE-KEY" \
             pr-test:${{ github.event.pull_request.number }}
-
-      - name: Check /health endpoint
-        run: |
+          
           for i in {1..10}; do
             if curl -fs http://localhost:8000/health; then
               exit 0
