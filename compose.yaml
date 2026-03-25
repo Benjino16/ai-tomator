@@ -1,6 +1,6 @@
 services:
-  web:
-    image: ghcr.io/benjino16/ai-tomator:latest
+  backend:
+    build: .
     ports:
       - "8000:8000"
     environment:
@@ -21,6 +21,14 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
 
 volumes:
   db-data:
