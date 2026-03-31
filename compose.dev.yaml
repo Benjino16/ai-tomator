@@ -2,7 +2,10 @@ services:
   backend:
     build: .
     environment:
-      SECURE_COOKIES: false
+      - SECURE_COOKIES=false
+
+  worker:
+    build: .
 
   frontend:
     build: ./frontend

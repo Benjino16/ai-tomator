@@ -21,7 +21,7 @@ class BatchService:
     def start(
         self,
         prompt_id: int,
-        files: list[str],
+        files: list[int],
         endpoint_name: str,
         file_reader: str,
         model: str,
@@ -38,11 +38,11 @@ class BatchService:
             raise RuntimeError(f"Prompt {prompt_id} not found")
 
         prompt_content = prompt["content"]
-        engine = endpoint["engine"]
+        engine = endpoint["llm_client"]
 
         file_infos = []
         for name in files:
-            path = self.file_service.get_file_path(name)
+            path = self.file_service.get_file_path(name, user_id)
             if path is None:
                 raise ValueError(f"Invalid file: {name}")
             file_infos.append({"storage_name": name, "path": path})

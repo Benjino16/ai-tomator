@@ -1,4 +1,4 @@
-from typing import Protocol, Iterable
+from typing import Protocol, Iterable, BinaryIO
 
 
 class BaseFileReader(Protocol):
@@ -8,4 +8,4 @@ class BaseFileReader(Protocol):
     modes: Iterable[str]
     default_mode: str
 
-    def read(self, file_path: str, mode: str) -> str: ...
+    def read(self, file: BinaryIO, mode: str) -> str: ...

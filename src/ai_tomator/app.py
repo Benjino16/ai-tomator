@@ -11,7 +11,8 @@ from ai_tomator.manager.database import Database
 from ai_tomator.manager.endpoint_manager import EndpointManager
 from ai_tomator.manager.file_manager import FileManager
 from ai_tomator.manager.batch_manager import BatchManager
-from ai_tomator.core.engine.engine_manager import EngineManager
+from ai_tomator.manager.file_storage import MinIOStorage
+from ai_tomator.manager.llm_client import ClientManager
 from ai_tomator.service.endpoint_service import EndpointService
 from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService
@@ -25,9 +26,22 @@ from ai_tomator.service.user_service import UserService
 
 BASE_DIR = Path(__file__).resolve().parent
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-STORAGE_DIR = str(Path(os.getenv("STORAGE_DIR", "data/storage")).resolve())
+setup_logging()
+logger = logging.getLogger(__name__)
 
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable not set")
+
+MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
+MINIO_PORT = os.getenv("MINIO_PORT")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
+MINIO_BUCKET = os.getenv("MINIO_BUCKET")
+
+AUTH_REQUIRED = os.getenv("AUTH_REQUIRED", "true").lower() != "false"
+if not AUTH_REQUIRED:
+    AUTH_REQUIRED = False
 
 def generate_jwt_key(length=32):
     alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
@@ -41,16 +55,13 @@ if not JWT_ENCRYPTION_KEY:
     JWT_ENCRYPTION_KEY = generate_jwt_key()
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 SECURE_COOKIES = os.getenv("SECURE_COOKIES", "true").lower() != "false"
+if not SECURE_COOKIES:
+    logger.warning("SECURE_COOKIES: {}".format(SECURE_COOKIES))
+    logger.warning("This should only be in a save test environment.")
 
 
-def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
-    if db_path is None:
-        raise Exception("db_path cannot be None")
-    if storage_dir is None:
-        raise Exception("storage_dir cannot be None")
 
-    setup_logging()
-    logger = logging.getLogger(__name__)
+def create_app(required_user_auth=True) -> FastAPI:
 
     app = FastAPI(title="AI-Tomator")
 
@@ -60,11 +71,14 @@ def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        db = Database(db_path)
-        engine_manager = EngineManager()
-        file_manager = FileManager(storage_dir, db)
-        batch_manager = BatchManager(db, engine_manager)
-        endpoint_manager = EndpointManager(engine_manager)
+        db = Database(DATABASE_URL)
+
+        file_storage = MinIOStorage(MINIO_ENDPOINT + ":" + MINIO_PORT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_BUCKET)
+
+        file_manager = FileManager(file_storage, db)
+        client_manager = ClientManager(file_manager)
+        batch_manager = BatchManager(db)
+        endpoint_manager = EndpointManager(client_manager)
 
         jwt_authenticator = JWTAuthenticator(
             JWT_ENCRYPTION_KEY, ALGORITHM, db, required_user_auth, SECURE_COOKIES
@@ -109,4 +123,4 @@ def create_app(db_path, storage_dir, required_user_auth=True) -> FastAPI:
     return app
 
 
-app = create_app(DATABASE_URL, STORAGE_DIR)
+app = create_app(AUTH_REQUIRED)

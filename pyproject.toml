@@ -31,7 +31,10 @@ dependencies = [
     "tiktoken",
     "ollama",
     "python-jose[cryptography]",
-    "argon2-cffi"
+    "argon2-cffi",
+    "celery",
+    "redis",
+    "minio"
 ]
 
 [project.optional-dependencies]

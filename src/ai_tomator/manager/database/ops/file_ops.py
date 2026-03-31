@@ -9,8 +9,8 @@ class FileOps:
 
     def add(
         self,
-        storage_name: str,
-        display_name: str,
+        path: str,
+        name: str,
         tags: list[str],
         mime_type: str,
         size: int,
@@ -21,8 +21,8 @@ class FileOps:
             subq = get_group_id_subquery(session, user_id)
 
             file = File(
-                storage_name=storage_name,
-                display_name=display_name,
+                path=path,
+                name=name,
                 tags=tags,
                 mime_type=mime_type,
                 size=size,
@@ -33,13 +33,13 @@ class FileOps:
             session.commit()
             return file.to_dict()
 
-    def get(self, storage_name: str, user_id: int):
+    def get(self, file_id: int, user_id: int) -> File:
         with self.SessionLocal() as session:
-            query = session.query(File).filter_by(storage_name=storage_name)
+            query = session.query(File).filter_by(id=file_id)
             file = File.accessible_by(query, user_id).first()
             if not file:
-                raise ValueError(f"File '{storage_name}' not found.")
-            return file.to_dict()
+                raise ValueError(f"File with ID '{file_id}' not found.")
+            return file
 
     def list(self, user_id: int):
         with self.SessionLocal() as session:
@@ -52,21 +52,21 @@ class FileOps:
             files = session.query(File).all()
             return [f.to_dict() for f in files]
 
-    def delete(self, storage_name: str, user_id: int):
+    def delete(self, file_id: int, user_id: int) -> File:
         with self.SessionLocal() as session:
-            query = session.query(File).filter_by(storage_name=storage_name)
+            query = session.query(File).filter_by(id=file_id)
             file = File.accessible_by(query, user_id).first()
             if not file:
-                raise ValueError(f"File '{storage_name}' not found.")
+                raise ValueError(f"File with ID '{file_id}' not found.")
             session.delete(file)
             session.commit()
-            return file.to_dict()
+            return file
 
-    def set_storage(self, storage_name: str, in_storage: bool):
+    def set_storage_status(self, path: str, in_storage: bool):
         with self.SessionLocal() as session:
-            file = session.query(File).filter_by(storage_name=storage_name).first()
+            file = session.query(File).filter_by(path=path).first()
             if not file:
-                raise ValueError(f"File '{storage_name}' not found.")
+                raise ValueError(f"File '{path}' not found.")
             file.in_storage = in_storage
             session.commit()
             session.refresh(file)

@@ -1,7 +1,7 @@
-from typing import Dict, Tuple, Type
-from ai_tomator.core.file_reader.base import BaseFileReader
-from ai_tomator.core.file_reader.pypdf2_reader import PyPDF2FileReader
-from ai_tomator.core.file_reader.pymupdf_reader import PyMuPDFFileReader
+from typing import Dict, Tuple, Type, BinaryIO
+from ai_tomator.manager.file_reader.base import BaseFileReader
+from ai_tomator.manager.file_reader.pypdf2_reader import PyPDF2FileReader
+from ai_tomator.manager.file_reader.pymupdf_reader import PyMuPDFFileReader
 
 
 class FileReaderManager:
@@ -22,14 +22,14 @@ class FileReaderManager:
         return reader_list
 
     @classmethod
-    def read(cls, reader_name: str, file_path: str) -> str:
+    def read(cls, reader_name: str, file: BinaryIO) -> str:
         reader_name = reader_name.lower()
 
         if reader_name not in cls._readers:
             raise ValueError(f"Unknown file reader: {reader_name}")
 
         reader_cls, mode = cls._readers[reader_name]
-        return reader_cls().read(file_path, mode)
+        return reader_cls().read(file, mode)
 
 
 # register default readers

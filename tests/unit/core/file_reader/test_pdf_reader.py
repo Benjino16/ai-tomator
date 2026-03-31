@@ -1,5 +1,5 @@
 from unittest.mock import patch, MagicMock
-from ai_tomator.core.file_reader.pypdf2_reader import PyPDF2FileReader
+from ai_tomator.manager.file_reader import PyPDF2FileReader
 
 
 @patch("ai_tomator.core.file_reader.pypdf2_reader.PdfReader")

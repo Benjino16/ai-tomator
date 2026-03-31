@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from ai_tomator.core.file_reader.reader_manager import FileReaderManager
+from ai_tomator.manager.file_reader import FileReaderManager
 
 
 @pytest.fixture

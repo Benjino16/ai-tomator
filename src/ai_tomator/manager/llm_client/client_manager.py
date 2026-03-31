@@ -1,29 +1,30 @@
-from ai_tomator.core.engine.gemini_engine import GeminiEngine
-from ai_tomator.core.engine.models.engine_health_model import EngineHealth
-from ai_tomator.core.engine.models.model_settings_model import ModelSettings
-from ai_tomator.core.engine.models.response_model import EngineResponse
-from ai_tomator.core.engine.openai_engine import OpenAIEngine
-from ai_tomator.core.engine.ollama_engine import OllamaEngine
-from ai_tomator.core.engine.test_engine import TestEngine
-from ai_tomator.core.file_reader.reader_manager import FileReaderManager
+from ai_tomator.manager.llm_client.clients.gemini_client import GeminiLLMClient
+from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
+from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
+from ai_tomator.manager.llm_client.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.clients.openai_client import OpenAILLMClient
+from ai_tomator.manager.llm_client.clients.ollama_client import OllamaLLMClient
+from ai_tomator.manager.llm_client.clients.test_client import TestLLMClient
+from ai_tomator.manager.file_reader.reader_manager import FileReaderManager
 
 
-class EngineManager:
-    def __init__(self):
+class ClientManager:
+    def __init__(self, file_manager):
         self.engine_map = {
-            "test": TestEngine,
-            "gemini": GeminiEngine,
-            "openai": OpenAIEngine,
-            "ollama": OllamaEngine,
+            "test": TestLLMClient,
+            "gemini": GeminiLLMClient,
+            "openai": OpenAILLMClient,
+            "ollama": OllamaLLMClient,
         }
         self._instances = {}
+        self.file_manager = file_manager
 
     def _get_engine_instance(self, endpoint):
         name = endpoint["name"]
 
-        # create the engine only once per endpoint
+        # create the llm_client only once per endpoint
         if name not in self._instances:
-            engine_type = endpoint["engine"]
+            engine_type = endpoint["llm_client"]
 
             if engine_type not in self.engine_map:
                 raise ValueError(f"Engine '{engine_type}' not supported.")
@@ -42,18 +43,20 @@ class EngineManager:
     ) -> EngineResponse:
         engine = self._get_engine_instance(endpoint)
 
+        file = self.file_manager.download_by_path(file_path)
+
         if file_reader == "upload":
-            include_file_path = file_path
+            include_file = file
             content = None
         else:
-            include_file_path = None
-            content = FileReaderManager.read(file_reader, file_path)
+            include_file = None
+            content = FileReaderManager.read(file_reader, file)
 
         response: EngineResponse = engine.run(
             model=model,
             prompt=prompt,
             content=content,
-            file_path=include_file_path,
+            file=include_file,
             model_settings=ModelSettings(
                 temperature=temperature, json_format=json_format
             ),

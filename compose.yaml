@@ -1,18 +1,26 @@
 services:
   backend:
     image: ghcr.io/benjino16/ai-tomator/backend:latest
+    command: uvicorn ai_tomator.app:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://user:pass@db:5432/ai_tomator
-      STORAGE_DIR: /data/storage
-      #JWT Authentication Config
-      SECURE_COOKIES: true #Set to false to allow JWT authentication over HTTP (not secure!)
-      ACCESS_TOKEN_EXPIRE_MINUTES: 1440 # Time in minutes until the client has to log in again
-      JWT_ENCRYPTION_KEY: "CHANGE-THIS-TO-A-SECURE-KEY"
+      - DATABASE_URL=postgresql://user:pass@db:5432/ai_tomator
 
-    volumes:
-      - storage-data:/data/storage
+      #Minio Config
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=llm-files
+      - MINIO_SECURE=false  # "true" if TLS is activated
+
+      #JWT Authentication Config
+      - AUTH_REQUIRED=true #Set to false to enable local mode (no account system)
+      - SECURE_COOKIES=true #Set to false to allow JWT authentication over HTTP (not secure!)
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440 # Time in minutes until the client has to log in again
+      - JWT_ENCRYPTION_KEY="CHANGE-THIS-TO-A-SECURE-KEY"
+
 
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
@@ -23,6 +31,24 @@ services:
 
     depends_on:
       - db
+      - redis
+
+  worker:
+    image: ghcr.io/benjino16/ai-tomator/backend:latest
+    command: celery -A ai_tomator.tasks worker --loglevel=info -E
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/ai_tomator
+
+      #Minio Config
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=llm-files
+      - MINIO_SECURE=false  # "true" if TLS is activated
+    depends_on:
+      - db
+      - redis
 
   frontend:
     image: ghcr.io/benjino16/ai-tomator/frontend:latest
@@ -41,6 +67,29 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+
+
 volumes:
   postgres_data:
-  storage-data:
+  redis_data:
+  minio_data:

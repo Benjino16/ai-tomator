@@ -12,16 +12,19 @@ class FileService:
     def upload_file(
         self, file: UploadFile, tags: Optional[List[str]], user_id: int
     ) -> dict:
-        return self.file_manager.save(file, tags, user_id)
+        return self.file_manager.upload(file, tags, user_id)
 
     def list_files(self, user_id: int) -> list[dict]:
         return self.db.files.list(user_id)
 
-    def delete_file(self, filename: str, user_id: int) -> dict:
-        deleted = self.file_manager.delete(filename, user_id)
+    def delete_file(self, file_id: int, user_id: int) -> dict:
+        deleted = self.file_manager.delete(file_id, user_id)
         if not deleted:
-            raise FileNotFoundError(f"File '{filename}' not found")
-        return {"filename": filename, "status": "deleted"}
+            raise FileNotFoundError(f"File '{file_id}' not found")
+        return {"filename": file_id, "status": "deleted"}
 
-    def get_file_path(self, filename: str) -> str:
-        return self.file_manager.get_path(filename)
+    def get_file_path(self, file_id: int, user_id: int) -> str:
+        file_record = self.db.files.get(file_id, user_id)
+        if not file_record:
+            raise FileNotFoundError(f"File '{file_id}' not found")
+        return file_record.path

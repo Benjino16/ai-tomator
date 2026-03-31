@@ -1,13 +1,13 @@
-from ai_tomator.core.engine.models.engine_health_model import EngineHealth
-from ai_tomator.core.engine.engine_manager import EngineManager
+from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
+from ai_tomator.manager.llm_client.client_manager import ClientManager
 
 
 class EndpointManager:
-    def __init__(self, engine_manager: EngineManager):
-        self.engine_manager = engine_manager
+    def __init__(self, client_manager: ClientManager):
+        self.client_manager = client_manager
 
     def get_models(self, endpoint) -> list[str]:
-        return self.engine_manager.endpoint_models(endpoint)
+        return self.client_manager.endpoint_models(endpoint)
 
     def get_health(self, endpoint) -> EngineHealth:
-        return self.engine_manager.endpoint_health(endpoint)
+        return self.client_manager.endpoint_health(endpoint)

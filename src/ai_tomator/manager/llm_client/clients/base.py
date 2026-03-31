@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Optional
-from .models.engine_health_model import EngineHealth
-from .models.response_model import EngineResponse
-from .models.model_settings_model import ModelSettings
+from typing import Optional, BinaryIO
+from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
+from ai_tomator.manager.llm_client.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
 
 
-class BaseEngine(ABC):
+class BaseLLMClient(ABC):
 
     def __init__(self, api_token: Optional[str] = None, base_url: Optional[str] = None):
         self.api_token = api_token
@@ -16,7 +16,7 @@ class BaseEngine(ABC):
         self,
         model: str,
         prompt: str,
-        file_path: Optional[str] = None,
+        file: Optional[BinaryIO] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
     ) -> EngineResponse:

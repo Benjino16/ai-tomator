@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
-from ai_tomator.core.engine.engine_manager import EngineManager
-from ai_tomator.core.engine.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client import EngineManager
+from ai_tomator.manager.llm_client.models.response_model import EngineResponse
 
 
 class MockEngine:
@@ -36,13 +36,13 @@ def engine_manager():
 
 
 @patch(
-    "ai_tomator.core.engine.engine_manager.FileReaderManager.read",
+    "ai_tomator.core.llm_client.engine_manager.FileReaderManager.read",
     return_value="file content",
 )
 def test_process_with_file_content(mock_read, engine_manager):
     endpoint = {
         "name": "test_endpoint",
-        "engine": "mock",
+        "llm_client": "mock",
         "token": "abc123",
         "url": "http://example.com",
     }
@@ -64,7 +64,7 @@ def test_process_with_file_content(mock_read, engine_manager):
 def test_process_with_upload(engine_manager):
     endpoint = {
         "name": "test_endpoint",
-        "engine": "mock",
+        "llm_client": "mock",
         "token": "abc123",
         "url": "http://example.com",
     }
@@ -85,7 +85,7 @@ def test_process_with_upload(engine_manager):
 def test_invalid_engine_raises(engine_manager):
     endpoint = {
         "name": "test_endpoint",
-        "engine": "invalid",
+        "llm_client": "invalid",
         "token": "123",
         "url": "x",
     }

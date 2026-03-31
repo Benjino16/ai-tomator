@@ -1,14 +1,14 @@
-from typing import Optional
+from typing import Optional, BinaryIO
 
-from ai_tomator.core.engine.base import BaseEngine
-from ai_tomator.core.engine.models.engine_health_model import EngineHealth
-from ai_tomator.core.engine.models.model_settings_model import ModelSettings
-from ai_tomator.core.engine.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
+from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
+from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
+from ai_tomator.manager.llm_client.models.response_model import EngineResponse
 
 MODELS = ["test_model_pro", "test_model_fast"]
 
 
-class TestEngine(BaseEngine):
+class TestLLMClient(BaseLLMClient):
     """
     TestEngine is a mock implementation of BaseEngine.
 
@@ -16,8 +16,8 @@ class TestEngine(BaseEngine):
     a real API endpoint. All calls are simulated locally and always use
     the predefined test domain (https://test.ai-tomator.local) and token.
 
-    This engine ensures that the system’s routing, configuration, and
-    engine management logic work correctly before connecting to real APIs.
+    This llm_client ensures that the system’s routing, configuration, and
+    llm_client management logic work correctly before connecting to real APIs.
     """
 
     def health(self) -> EngineHealth:
@@ -56,12 +56,12 @@ class TestEngine(BaseEngine):
         self,
         model: str,
         prompt: str,
-        file_path: Optional[str] = None,
+        file: Optional[BinaryIO] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
     ) -> EngineResponse:
 
-        if not file_path and not content:
+        if not file and not content:
             raise ValueError("Either file_path or content must be specified")
 
         if model not in MODELS:
@@ -71,9 +71,7 @@ class TestEngine(BaseEngine):
             f"[TEST ENGINE] Response"
             f"using model '{model}' at {self.base_url} "
             f"with token '{self.api_token}'."
-            f"File Path: {file_path}"
-            if file_path
-            else f"Content: {content}"
+            f"File Name: {file.name}" if file else f"Content: {content}"
         )
 
         return EngineResponse(

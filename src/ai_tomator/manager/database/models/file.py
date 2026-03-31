@@ -9,8 +9,8 @@ class File(Base, UserGroupMixin):
     __tablename__ = "files"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    display_name: Mapped[str] = mapped_column(nullable=False)
-    storage_name: Mapped[str] = mapped_column(nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(nullable=False)
+    path: Mapped[str] = mapped_column(nullable=False, unique=True)
     tags: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     mime_type: Mapped[str | None] = mapped_column(nullable=True)
     size: Mapped[int | None] = mapped_column(nullable=True)

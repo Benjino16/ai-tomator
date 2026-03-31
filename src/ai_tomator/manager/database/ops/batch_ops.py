@@ -1,7 +1,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker
 
-from ai_tomator.core.engine.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.response_model import EngineResponse
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
     Batch,

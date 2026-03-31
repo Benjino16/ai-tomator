@@ -1,6 +1,6 @@
 from .file_service import FileService
 from ..manager.database import Database
-from ai_tomator.core.price_calculator.calculator import estimate_batch_costs_in_usd
+from ai_tomator.manager.price_calculator import estimate_batch_costs_in_usd
 
 
 class PriceService:

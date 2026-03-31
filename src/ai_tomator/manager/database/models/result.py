@@ -34,7 +34,7 @@ class Result(Base, UserGroupMixin):
                 "input": self.batch_file.input,
                 "output": self.batch_file.output,
                 "seed": self.batch_file.seed,
-                "engine": self.batch.engine,
+                "llm_client": self.batch.engine,
                 "endpoint": self.batch.endpoint,
                 "file_reader": self.batch.file_reader,
                 "prompt": self.batch.prompt,

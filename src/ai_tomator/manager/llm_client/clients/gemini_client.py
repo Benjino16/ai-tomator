@@ -1,15 +1,15 @@
-from typing import Optional
+from typing import Optional, BinaryIO
 
-from ai_tomator.core.engine.base import BaseEngine
+from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
 import tiktoken
 from google import genai
 
-from ai_tomator.core.engine.models.engine_health_model import EngineHealth
-from ai_tomator.core.engine.models.model_settings_model import ModelSettings
-from ai_tomator.core.engine.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
+from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
+from ai_tomator.manager.llm_client.models.response_model import EngineResponse
 
 
-class GeminiEngine(BaseEngine):
+class GeminiLLMClient(BaseLLMClient):
 
     def __init__(self, api_token=None, base_url=None):
         super().__init__(api_token, base_url)
@@ -46,15 +46,15 @@ class GeminiEngine(BaseEngine):
         self,
         model: str,
         prompt: str,
-        file_path: Optional[str] = None,
+        file: Optional[BinaryIO] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
     ) -> EngineResponse:
-        if file_path is None and content is None:
+        if file is None and content is None:
             raise ValueError("Either file_path or content must be specified")
 
-        if file_path:
-            file = self.client.files.upload(file=file_path)
+        if file:
+            file = self.client.files.upload(file=file)
             contents = [
                 {
                     "role": "user",
