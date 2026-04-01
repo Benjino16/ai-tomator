@@ -52,7 +52,6 @@ class FileManager:
         bytes_data = self.storage.download(path)
         return io.BytesIO(bytes_data)
 
-
     def delete(self, file_id: int, user_id: int) -> bool:
         file_record = self.db.files.get(file_id, user_id)
         if not file_record:
@@ -71,11 +70,11 @@ class FileManager:
     def sync_storage_with_db(self):
         storage_files = self.list()
         db_files = self.db.files.system_list()
-        db_storage_names = {f["storage_name"] for f in db_files}
+        db_paths = {f["path"] for f in db_files}
 
         # check files in storage; if not in db: add
         for file in storage_files:
-            if file not in db_storage_names:
+            if file not in db_paths:
                 # todo: rename file?
                 # todo: contenttype und size possible null reference
                 self.db.files.add(
@@ -87,6 +86,6 @@ class FileManager:
                     user_id=0,
                 )
 
-        for db_file in db_storage_names:
+        for db_file in db_paths:
             if db_file not in storage_files:
                 self.db.files.set_storage_status(path=db_file, in_storage=False)

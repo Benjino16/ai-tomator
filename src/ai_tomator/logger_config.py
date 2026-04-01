@@ -4,7 +4,7 @@ import logging
 
 def setup_logging():
     formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(name)s | %(message)s", "%Y-%m-%d %H:%M:%S"
+        "%(levelname)s: %(name)s | %(message)s", "%Y-%m-%d %H:%M:%S"
     )
 
     console = logging.StreamHandler()

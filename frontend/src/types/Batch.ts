@@ -6,7 +6,7 @@ export interface Batch {
     prompt: string;
     prompt_id: number;
     endpoint: string;
-    files: string[];
+    files: number[];
     file_reader: string;
     model: string;
     temperature: number;

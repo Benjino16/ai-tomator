@@ -71,7 +71,9 @@ class TestLLMClient(BaseLLMClient):
             f"[TEST ENGINE] Response"
             f"using model '{model}' at {self.base_url} "
             f"with token '{self.api_token}'."
-            f"File Name: {file.name}" if file else f"Content: {content}"
+            f"File Name: {file.name}"
+            if file
+            else f"Content: {content}"
         )
 
         return EngineResponse(

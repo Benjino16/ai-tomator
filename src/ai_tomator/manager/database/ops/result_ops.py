@@ -9,7 +9,7 @@ class ResultOps:
     def __init__(self, session_local: sessionmaker):
         self.SessionLocal = session_local
 
-    def save(self, batch_id: int, storage_file_name: str):
+    def save(self, batch_id: int, file_id: int):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:
@@ -18,7 +18,7 @@ class ResultOps:
             subq = get_group_id_subquery(session, batch.user_id)
             batch_file = (
                 session.query(BatchFile)
-                .filter_by(batch_id=batch_id, storage_name=storage_file_name)
+                .filter_by(batch_id=batch_id, file_id=file_id)
                 .first()
             )
             batch_file_id = batch_file.id

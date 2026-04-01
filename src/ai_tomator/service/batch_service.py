@@ -1,6 +1,8 @@
 from .endpoint_service import EndpointService
 from .file_service import FileService
 from ..manager.batch_manager import BatchManager
+from ai_tomator.manager.file_reader.reader_manager import FileReaderManager
+from ai_tomator.manager.llm_client import ClientManager
 from ..manager.database import Database
 from ..manager.database.models.batch import BatchStatus
 
@@ -17,6 +19,8 @@ class BatchService:
         self.db = db
         self.endpoint_service = endpoint_service
         self.file_service = file_service
+        self.file_reader = FileReaderManager()
+        self.client_manager = ClientManager()
 
     def start(
         self,
@@ -38,14 +42,14 @@ class BatchService:
             raise RuntimeError(f"Prompt {prompt_id} not found")
 
         prompt_content = prompt["content"]
-        engine = endpoint["llm_client"]
+        engine = endpoint["client"]
 
         file_infos = []
-        for name in files:
-            path = self.file_service.get_file_path(name, user_id)
+        for file_id in files:
+            path = self.file_service.get_file_path(file_id, user_id)
             if path is None:
-                raise ValueError(f"Invalid file: {name}")
-            file_infos.append({"storage_name": name, "path": path})
+                raise ValueError(f"Invalid file: {file_id}")
+            file_infos.append({"id": file_id, "path": path})
 
         db_batch = self.db.batches.add(
             name=batch_name,
@@ -105,5 +109,5 @@ class BatchService:
         return result
 
     def list_file_readers(self) -> dict:
-        result = self.batch_manager.get_file_readers()
+        result = self.file_reader.get_supported()
         return result

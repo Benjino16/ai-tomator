@@ -1,3 +1,5 @@
+from typing import BinaryIO
+
 from ai_tomator.manager.llm_client.clients.gemini_client import GeminiLLMClient
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
@@ -9,7 +11,7 @@ from ai_tomator.manager.file_reader.reader_manager import FileReaderManager
 
 
 class ClientManager:
-    def __init__(self, file_manager):
+    def __init__(self):
         self.engine_map = {
             "test": TestLLMClient,
             "gemini": GeminiLLMClient,
@@ -17,20 +19,19 @@ class ClientManager:
             "ollama": OllamaLLMClient,
         }
         self._instances = {}
-        self.file_manager = file_manager
 
     def _get_engine_instance(self, endpoint):
         name = endpoint["name"]
 
         # create the llm_client only once per endpoint
         if name not in self._instances:
-            engine_type = endpoint["llm_client"]
+            client_type = endpoint["client"]
 
-            if engine_type not in self.engine_map:
-                raise ValueError(f"Engine '{engine_type}' not supported.")
+            if client_type not in self.engine_map:
+                raise ValueError(f"Engine '{client_type}' not supported.")
 
-            engine_cls = self.engine_map[engine_type]
-            self._instances[name] = engine_cls(
+            client_cls = self.engine_map[client_type]
+            self._instances[name] = client_cls(
                 api_token=endpoint["token"],
                 base_url=endpoint["url"],
             )
@@ -39,11 +40,16 @@ class ClientManager:
         return self._instances[name]
 
     def process(
-        self, endpoint, file_reader, prompt, file_path, model, temperature, json_format
+        self,
+        endpoint,
+        file_reader,
+        prompt,
+        file: BinaryIO,
+        model,
+        temperature,
+        json_format,
     ) -> EngineResponse:
         engine = self._get_engine_instance(endpoint)
-
-        file = self.file_manager.download_by_path(file_path)
 
         if file_reader == "upload":
             include_file = file

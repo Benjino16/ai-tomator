@@ -18,9 +18,9 @@ export default function FilesPage() {
     }, []);
 
 
-    function handleDeleteFile(filename: string): void {
-        FilesAPI.delete(filename).then(() => {
-            setFiles(prev => prev.filter(file => file.storage_name !== filename));
+    function handleDeleteFile(file_id: number): void {
+        FilesAPI.delete(file_id).then(() => {
+            setFiles(prev => prev.filter(file => file.id !== file_id));
         });
     }
 
@@ -38,12 +38,12 @@ export default function FilesPage() {
                 </thead>
                 <tbody>
                 {files.map((file) => (
-                    <tr key={file.storage_name}>
-                        <td>{file.storage_name}</td>
-                        <td>{file.display_name}</td>
+                    <tr key={file.id}>
+                        <td>{file.id}</td>
+                        <td>{file.name}</td>
                         <td>{file.tags}</td>
                         <td>
-                            <button onClick={() => handleDeleteFile(file.storage_name)}>Del</button>
+                            <button onClick={() => handleDeleteFile(file.id)}>Del</button>
                         </td>
                     </tr>
                 ))}

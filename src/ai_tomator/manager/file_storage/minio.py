@@ -4,17 +4,24 @@ from typing import List
 from minio import Minio
 from .base import FileStorage
 
+
 class MinIOStorage(FileStorage):
-    def __init__(self, endpoint: str, access_key: str, secret_key: str, bucket_name: str):
-        self.client = Minio(endpoint, access_key=access_key, secret_key=secret_key, secure=False)
+    def __init__(
+        self, endpoint: str, access_key: str, secret_key: str, bucket_name: str
+    ):
+        self.client = Minio(
+            endpoint, access_key=access_key, secret_key=secret_key, secure=False
+        )
         self.bucket_name = bucket_name
         if not self.client.bucket_exists(bucket_name):
             self.client.make_bucket(bucket_name)
 
     def upload(self, file_path: str, content: bytes) -> bool:
         try:
-            content = io.BytesIO(content)
-            self.client.put_object(self.bucket_name, file_path, content, length=len(content))
+            content_io = io.BytesIO(content)
+            self.client.put_object(
+                self.bucket_name, file_path, content_io, length=len(content)
+            )
             return True
         except Exception as e:
             print(f"Upload error: {e}")
@@ -45,7 +52,9 @@ class MinIOStorage(FileStorage):
 
     def list(self, prefix: str = "") -> List[str]:
         try:
-            objects = self.client.list_objects(self.bucket_name, prefix=prefix, recursive=True)
+            objects = self.client.list_objects(
+                self.bucket_name, prefix=prefix, recursive=True
+            )
             return [obj.object_name for obj in objects]
         except Exception as e:
             print(f"List error: {e}")

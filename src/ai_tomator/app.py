@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from pathlib import Path
 import logging
-import os
 import secrets
 import string
 
 from ai_tomator.api.routes import build_router
+from ai_tomator.config import ServiceSettings, AppSettings
 from ai_tomator.manager.database import Database
 from ai_tomator.manager.endpoint_manager import EndpointManager
 from ai_tomator.manager.file_manager import FileManager
@@ -24,24 +23,9 @@ from ai_tomator.service.prompt_service import PromptService
 from ai_tomator.logger_config import setup_logging
 from ai_tomator.service.user_service import UserService
 
-BASE_DIR = Path(__file__).resolve().parent
-
 setup_logging()
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable not set")
-
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT")
-MINIO_PORT = os.getenv("MINIO_PORT")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
-MINIO_BUCKET = os.getenv("MINIO_BUCKET")
-
-AUTH_REQUIRED = os.getenv("AUTH_REQUIRED", "true").lower() != "false"
-if not AUTH_REQUIRED:
-    AUTH_REQUIRED = False
 
 def generate_jwt_key(length=32):
     alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
@@ -50,15 +34,10 @@ def generate_jwt_key(length=32):
 
 # configuration for jwt_authenticator
 ALGORITHM = "HS256"
-JWT_ENCRYPTION_KEY = os.getenv("JWT_ENCRYPTION_KEY")
-if not JWT_ENCRYPTION_KEY:
-    JWT_ENCRYPTION_KEY = generate_jwt_key()
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
-SECURE_COOKIES = os.getenv("SECURE_COOKIES", "true").lower() != "false"
-if not SECURE_COOKIES:
-    logger.warning("SECURE_COOKIES: {}".format(SECURE_COOKIES))
-    logger.warning("This should only be in a save test environment.")
+JWT_ENCRYPTION_KEY = generate_jwt_key()
 
+service_settings = ServiceSettings()
+app_settings = AppSettings()
 
 
 def create_app(required_user_auth=True) -> FastAPI:
@@ -71,20 +50,29 @@ def create_app(required_user_auth=True) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        db = Database(DATABASE_URL)
+        db = Database(str(service_settings.postgres_dsn))
 
-        file_storage = MinIOStorage(MINIO_ENDPOINT + ":" + MINIO_PORT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_BUCKET)
+        file_storage = MinIOStorage(
+            service_settings.minio_endpoint,
+            service_settings.minio_access_key,
+            service_settings.minio_secret_key,
+            service_settings.minio_bucket,
+        )
 
         file_manager = FileManager(file_storage, db)
-        client_manager = ClientManager(file_manager)
+        client_manager = ClientManager()
         batch_manager = BatchManager(db)
         endpoint_manager = EndpointManager(client_manager)
 
         jwt_authenticator = JWTAuthenticator(
-            JWT_ENCRYPTION_KEY, ALGORITHM, db, required_user_auth, SECURE_COOKIES
+            JWT_ENCRYPTION_KEY,
+            ALGORITHM,
+            db,
+            required_user_auth,
+            app_settings.secure_cookies,
         )
         login_service = LoginService(
-            db, JWT_ENCRYPTION_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+            db, JWT_ENCRYPTION_KEY, ALGORITHM, app_settings.access_token_expire_minutes
         )
         user_service = UserService(db)
 
@@ -123,4 +111,4 @@ def create_app(required_user_auth=True) -> FastAPI:
     return app
 
 
-app = create_app(AUTH_REQUIRED)
+app = create_app(app_settings.auth_required)

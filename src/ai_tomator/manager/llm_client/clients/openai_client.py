@@ -57,9 +57,7 @@ class OpenAILLMClient(BaseLLMClient):
             raise ValueError("Either file_path or content must be specified")
 
         if file:
-            uploaded = self.client.files.create(
-                file=open(file, "rb"), purpose="input"
-            )
+            uploaded = self.client.files.create(file=open(file, "rb"), purpose="input")
             response = self.client.responses.create(
                 model=model,
                 input=[

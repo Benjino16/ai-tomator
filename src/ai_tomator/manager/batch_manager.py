@@ -43,8 +43,7 @@ class BatchManager:
 
         self.active_batches[batch_id] = task
 
-
-    def stop_batch(self, batch_id): #todo: update to celery
+    def stop_batch(self, batch_id):  # todo: update to celery
         if batch_id in self.active_batches:
             db_batch_entry = self.db.batches.update_status(
                 batch_id, BatchStatus.STOPPING

@@ -20,7 +20,7 @@ class Database:
     groups: GroupOps
 
     def __init__(self, db_path):
-        self.SessionLocal = get_session(db_path)
+        self.SessionLocal = get_session(str(db_path))
         self.batches = BatchOps(self.SessionLocal)
         self.endpoints = EndpointOps(self.SessionLocal)
         self.results = ResultOps(self.SessionLocal)

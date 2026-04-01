@@ -1,6 +1,6 @@
 export type FileData = {
-    display_name: string;
-    storage_name: string;
+    id: number;
+    name: string;
     size?: number;
     mime_type?: string;
     tags?: string[];

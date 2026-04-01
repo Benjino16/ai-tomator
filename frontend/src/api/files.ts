@@ -16,11 +16,11 @@ export const FilesAPI = {
         }).then(r => r.data);
     },
 
-    delete: (filename: string): Promise<void> =>
-        api.delete(`/files/delete/${filename}`),
+    delete: (file_id: number): Promise<void> =>
+        api.delete(`/files/delete/${file_id}`),
 
-    download: (filename: string): Promise<Blob> =>
-        api.get(`/files/download/${filename}`, {
+    download: (file_id: number): Promise<Blob> =>
+        api.get(`/files/download/${file_id}`, {
             responseType: "blob",
         }).then(r => r.data),
 

@@ -6,10 +6,10 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://user:pass@db:5432/ai_tomator
+      - REDIS_URL=redis://redis:6379/0
 
       #Minio Config
-      - MINIO_ENDPOINT=minio
-      - MINIO_PORT=9000
+      - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - MINIO_BUCKET=llm-files
@@ -19,7 +19,6 @@ services:
       - AUTH_REQUIRED=true #Set to false to enable local mode (no account system)
       - SECURE_COOKIES=true #Set to false to allow JWT authentication over HTTP (not secure!)
       - ACCESS_TOKEN_EXPIRE_MINUTES=1440 # Time in minutes until the client has to log in again
-      - JWT_ENCRYPTION_KEY="CHANGE-THIS-TO-A-SECURE-KEY"
 
 
     healthcheck:
@@ -38,10 +37,10 @@ services:
     command: celery -A ai_tomator.tasks worker --loglevel=info -E
     environment:
       - DATABASE_URL=postgresql://user:pass@db:5432/ai_tomator
+      - REDIS_URL=redis://redis:6379/0
 
       #Minio Config
-      - MINIO_ENDPOINT=minio
-      - MINIO_PORT=9000
+      - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - MINIO_BUCKET=llm-files

@@ -27,8 +27,8 @@ class Result(Base, UserGroupMixin):
 
         result_dict.update(
             {
-                "display_file_name": self.batch_file.display_name,
-                "storage_file_name": self.batch_file.storage_name,
+                "file_id": self.batch_file.id,
+                "file_name": self.batch_file.name,
                 "input_token_count": self.batch_file.input_token_count,
                 "output_token_count": self.batch_file.output_token_count,
                 "input": self.batch_file.input,

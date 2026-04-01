@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, status, Depends
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import Response
 
 from ai_tomator.service.file_service import FileService
 from ai_tomator.api.models.file_models import FileData
 from fastapi import UploadFile, File, Form
 from typing import Optional, List
-import os
+
 
 from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 
@@ -21,28 +21,14 @@ def build_file_router(file_service: FileService, jwt_authenticator: JWTAuthentic
     ):
         return FileData(**file_service.upload_file(file, tags, user["id"]))
 
-    @router.get("/download/{filename}")
-    def download_file(filename: str, user=Depends(jwt_authenticator)):
+    @router.get("/download/{file_id}")
+    def download_file(id: int, user=Depends(jwt_authenticator)):
+        pass
+
+    @router.delete("/delete/{file_id}")
+    def delete_file(file_id: int, user=Depends(jwt_authenticator)):
         try:
-            file_path = file_service.get_file_path(filename)
-        except FileNotFoundError:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
-            )
-
-        if not os.path.isfile(file_path):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
-            )
-
-        return FileResponse(
-            path=file_path, filename=filename, media_type="application/octet-stream"
-        )
-
-    @router.delete("/delete/{filename}")
-    def delete_file(filename: str, user=Depends(jwt_authenticator)):
-        try:
-            file_service.delete_file(filename, user["id"])
+            file_service.delete_file(file_id, user["id"])
             return Response(status_code=status.HTTP_204_NO_CONTENT)
         except FileNotFoundError:
             raise HTTPException(
