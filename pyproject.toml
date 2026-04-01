@@ -16,26 +16,6 @@ authors = [{ name = "Ben Kathöfer", email = "benjino@posteo.de" }]
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
-dependencies = [
-    "fastapi",
-    "uvicorn",
-    "python-multipart",
-    "openai",
-    "google-genai",
-    "PyPDF2",
-    "PyMuPDF",
-    "openpyxl",
-    "pandas",
-    "sqlalchemy",
-    "psycopg2",
-    "tiktoken",
-    "ollama",
-    "python-jose[cryptography]",
-    "argon2-cffi",
-    "celery",
-    "redis",
-    "minio"
-]
 
 [project.optional-dependencies]
 dev = [

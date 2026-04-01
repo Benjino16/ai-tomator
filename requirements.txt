@@ -16,3 +16,5 @@ argon2-cffi
 celery
 redis
 minio
+pydantic
+pydantic_settings
