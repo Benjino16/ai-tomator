@@ -25,7 +25,7 @@ class PyMuPDFFileReader(BaseFileReader):
 
     def _read_pdf(self, file: BinaryIO) -> str:
         text = ""
-        doc = pymupdf.open(file)
+        doc = pymupdf.open(stream=file, filetype="pdf")
         for page in doc:
             text += page.get_text()
         return text

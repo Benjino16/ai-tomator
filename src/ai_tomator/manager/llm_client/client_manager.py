@@ -3,7 +3,7 @@ from typing import BinaryIO
 from ai_tomator.manager.llm_client.clients.gemini_client import GeminiLLMClient
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
-from ai_tomator.manager.llm_client.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 from ai_tomator.manager.llm_client.clients.openai_client import OpenAILLMClient
 from ai_tomator.manager.llm_client.clients.ollama_client import OllamaLLMClient
 from ai_tomator.manager.llm_client.clients.test_client import TestLLMClient
@@ -12,7 +12,7 @@ from ai_tomator.manager.file_reader.reader_manager import FileReaderManager
 
 class ClientManager:
     def __init__(self):
-        self.engine_map = {
+        self.client_map = {
             "test": TestLLMClient,
             "gemini": GeminiLLMClient,
             "openai": OpenAILLMClient,
@@ -27,15 +27,14 @@ class ClientManager:
         if name not in self._instances:
             client_type = endpoint["client"]
 
-            if client_type not in self.engine_map:
+            if client_type not in self.client_map:
                 raise ValueError(f"Engine '{client_type}' not supported.")
 
-            client_cls = self.engine_map[client_type]
+            client_cls = self.client_map[client_type]
             self._instances[name] = client_cls(
                 api_token=endpoint["token"],
                 base_url=endpoint["url"],
             )
-            print("NEW ENGINE CREATED")
 
         return self._instances[name]
 
@@ -48,7 +47,7 @@ class ClientManager:
         model,
         temperature,
         json_format,
-    ) -> EngineResponse:
+    ) -> LLMClientResponse:
         engine = self._get_engine_instance(endpoint)
 
         if file_reader == "upload":
@@ -58,7 +57,7 @@ class ClientManager:
             include_file = None
             content = FileReaderManager.read(file_reader, file)
 
-        response: EngineResponse = engine.run(
+        response: LLMClientResponse = engine.run(
             model=model,
             prompt=prompt,
             content=content,
@@ -92,4 +91,4 @@ class ClientManager:
         return engine.token_count(model, prompt_tokens, completion_tokens)
 
     def get_engines(self):
-        return list(self.engine_map.keys())
+        return list(self.client_map.keys())

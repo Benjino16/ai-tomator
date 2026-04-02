@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from ai_tomator.manager.file_reader import FileReaderManager
+from ai_tomator.manager.file_reader.reader_manager import (FileReaderManager)
 
 
 @pytest.fixture
@@ -10,7 +10,7 @@ def dummy_pdf(tmp_path):
     return pdf_path
 
 
-@patch("ai_tomator.core.file_reader.pypdf2_reader.PdfReader")
+@patch("ai_tomator.manager.file_reader.pypdf2_reader.PdfReader")
 def test_manager_reads_via_registered_reader(mock_pdfreader, dummy_pdf):
     """Ensure FileReaderManager dispatches correctly to registered reader."""
     mock_page = MagicMock()

@@ -3,7 +3,7 @@ from typing import Optional, BinaryIO
 from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
-from ai_tomator.manager.llm_client.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 
 MODELS = ["test_model_pro", "test_model_fast"]
 
@@ -59,7 +59,7 @@ class TestLLMClient(BaseLLMClient):
         file: Optional[BinaryIO] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
-    ) -> EngineResponse:
+    ) -> LLMClientResponse:
 
         if not file and not content:
             raise ValueError("Either file_path or content must be specified")
@@ -76,8 +76,8 @@ class TestLLMClient(BaseLLMClient):
             else f"Content: {content}"
         )
 
-        return EngineResponse(
-            engine=self.__class__.__name__,
+        return LLMClientResponse(
+            client=self.__class__.__name__,
             model=model,
             temperature=model_settings.temperature,
             json_format=model_settings.json_format,

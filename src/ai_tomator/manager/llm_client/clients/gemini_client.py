@@ -6,7 +6,7 @@ from google import genai
 
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
-from ai_tomator.manager.llm_client.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 
 
 class GeminiLLMClient(BaseLLMClient):
@@ -49,7 +49,7 @@ class GeminiLLMClient(BaseLLMClient):
         file: Optional[BinaryIO] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
-    ) -> EngineResponse:
+    ) -> LLMClientResponse:
         if file is None and content is None:
             raise ValueError("Either file_path or content must be specified")
 
@@ -84,8 +84,8 @@ class GeminiLLMClient(BaseLLMClient):
                 ),
             },
         )
-        return EngineResponse(
-            engine=self.__class__.__name__,
+        return LLMClientResponse(
+            client=self.__class__.__name__,
             model=model,
             temperature=model_settings.temperature,
             json_format=model_settings.json_format,

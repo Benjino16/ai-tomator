@@ -55,7 +55,6 @@ def run_batch(
     file_manager = FileManager(file_storage, db)
     client_manager = ClientManager()
 
-    print("Test 12345")
     logger.info("Task gestartet")
 
     db.batches.add_batch_log(batch_id, "Batch with id: {} now running".format(batch_id))

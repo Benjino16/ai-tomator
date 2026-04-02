@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, BinaryIO
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
-from ai_tomator.manager.llm_client.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
 
 
@@ -19,7 +19,7 @@ class BaseLLMClient(ABC):
         file: Optional[BinaryIO] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
-    ) -> EngineResponse:
+    ) -> LLMClientResponse:
         pass
 
     @abstractmethod

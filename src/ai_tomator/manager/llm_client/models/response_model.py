@@ -3,8 +3,8 @@ from typing import Optional
 
 
 @dataclass
-class EngineResponse:
-    engine: str
+class LLMClientResponse:
+    client: str
     model: str
     prompt: str
     input: str

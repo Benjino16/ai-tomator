@@ -1,7 +1,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker
 
-from ai_tomator.manager.llm_client.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
     Batch,
@@ -70,7 +70,7 @@ class BatchOps:
             return batch.to_dict()
 
     def update_status(
-        self, batch_id: int, status: BatchStatus, engine_response: EngineResponse = None
+        self, batch_id: int, status: BatchStatus, engine_response: LLMClientResponse = None
     ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
@@ -100,7 +100,7 @@ class BatchOps:
         batch_id: int,
         file_id: int,
         status: BatchFileStatus,
-        engine_response: EngineResponse = None,
+        engine_response: LLMClientResponse = None,
         costs_in_usd: float = None,
     ):
         with self.SessionLocal() as session:
