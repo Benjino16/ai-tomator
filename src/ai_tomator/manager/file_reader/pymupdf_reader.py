@@ -1,6 +1,8 @@
 import re
+from typing import BinaryIO
+
 import pymupdf
-from ai_tomator.core.file_reader.base import BaseFileReader
+from ai_tomator.manager.file_reader.base import BaseFileReader
 
 
 class PyMuPDFFileReader(BaseFileReader):
@@ -13,17 +15,17 @@ class PyMuPDFFileReader(BaseFileReader):
 
     default_mode = "default"
 
-    def read(self, file_path: str, mode: str) -> str:
-        text = self._read_pdf(file_path)
+    def read(self, file: BinaryIO, mode: str) -> str:
+        text = self._read_pdf(file)
 
         if mode == "remove_urls":
             text = self._remove_urls(text)
 
         return text.strip()
 
-    def _read_pdf(self, file_path: str) -> str:
+    def _read_pdf(self, file: BinaryIO) -> str:
         text = ""
-        doc = pymupdf.open(file_path)
+        doc = pymupdf.open(stream=file, filetype="pdf")
         for page in doc:
             text += page.get_text()
         return text

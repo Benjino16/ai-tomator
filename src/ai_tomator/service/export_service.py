@@ -1,7 +1,7 @@
 from io import BytesIO, StringIO
 from typing import Union, Tuple
 from ai_tomator.manager.database import Database
-from ai_tomator.core.exporter.exporter import BatchExporter
+from ai_tomator.manager.exporter.exporter import BatchExporter
 
 
 class ExportService:

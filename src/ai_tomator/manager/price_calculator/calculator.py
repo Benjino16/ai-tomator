@@ -1,7 +1,7 @@
 import requests
 import tiktoken
 
-from ai_tomator.core.file_reader.reader_manager import FileReaderManager
+from ai_tomator.manager.file_reader.reader_manager import FileReaderManager
 
 
 def estimate_batch_costs_in_usd(

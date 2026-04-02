@@ -14,7 +14,7 @@ def build_endpoint_router(
     def add_endpoint(ep: EndpointRequest, user=Depends(jwt_authenticator)):
         try:
             return endpoint_service.add(
-                ep.name, ep.engine, ep.provider, user["id"], ep.url, ep.token
+                ep.name, ep.client, ep.provider, user["id"], ep.url, ep.token
             )
         except NameAlreadyExistsError as e:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

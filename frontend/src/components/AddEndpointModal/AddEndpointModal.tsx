@@ -24,7 +24,7 @@ export function AddEndpointModal({ isOpen, onClose, onCreated }: Props) {
 
         const payload: Record<string, string> = {
             name: name,
-            engine: client,
+            client: client,
             provider: provider,
         };
         if (baseUrl) payload.url = baseUrl;

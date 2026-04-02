@@ -1,7 +1,7 @@
 export interface Endpoint {
     id: number;
     name: string;
-    engine: string;
+    client: string;
     provider: string;
     url: string;
     token: string;

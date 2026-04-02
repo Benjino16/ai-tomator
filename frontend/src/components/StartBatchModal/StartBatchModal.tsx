@@ -110,7 +110,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
         e.preventDefault();
 
         FilesAPI.getFilesByTag(fileTag).then(r => {
-            let files = r.map(f => f.storage_name)
+            let files = r.map(f => f.id)
 
             if (promptId === null) {
                 alert("Please select a prompt");

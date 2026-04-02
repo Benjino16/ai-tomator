@@ -1,7 +1,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker
 
-from ai_tomator.core.engine.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
     Batch,
@@ -23,7 +23,7 @@ class BatchOps:
         self,
         name: str,
         status: BatchStatus,
-        files: list[str],
+        files: list[int],
         engine: str,
         endpoint: str,
         file_reader: str,
@@ -50,18 +50,15 @@ class BatchOps:
                 group_id=subq,
             )
 
-            db_files = session.query(File).filter(File.storage_name.in_(files)).all()
-            storage_to_id = {f.storage_name: f.id for f in db_files}
-
-            missing = [f for f in files if f not in storage_to_id]
+            db_files = session.query(File).filter(File.id.in_(files)).all()
+            missing = [f for f in files if f not in files]
             if missing:
                 raise ValueError(f"Files not found in database: {missing}")
 
             batch.batch_files = [
                 BatchFile(
                     file_id=f.id,
-                    storage_name=f.storage_name,
-                    display_name=f.display_name,
+                    name=f.name,
                     status=BatchFileStatus.QUEUED,
                 )
                 for f in db_files
@@ -73,7 +70,10 @@ class BatchOps:
             return batch.to_dict()
 
     def update_status(
-        self, batch_id: int, status: BatchStatus, engine_response: EngineResponse = None
+        self,
+        batch_id: int,
+        status: BatchStatus,
+        engine_response: LLMClientResponse = None,
     ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
@@ -101,9 +101,9 @@ class BatchOps:
     def update_batch_file_status(
         self,
         batch_id: int,
-        storage_name: str,
+        file_id: int,
         status: BatchFileStatus,
-        engine_response: EngineResponse = None,
+        engine_response: LLMClientResponse = None,
         costs_in_usd: float = None,
     ):
         with self.SessionLocal() as session:
@@ -112,11 +112,11 @@ class BatchOps:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             batch_file = (
                 session.query(BatchFile)
-                .filter_by(storage_name=storage_name, batch_id=batch.id)
+                .filter_by(file_id=file_id, batch_id=batch.id)
                 .first()
             )
             if not batch_file:
-                raise ValueError(f"BatchFile '{storage_name}' not found.")
+                raise ValueError(f"BatchFile '{file_id}' not found.")
 
             batch_file.status = status
 
@@ -136,16 +136,16 @@ class BatchOps:
             session.refresh(batch_file)
             return batch_file
 
-    def add_file_log(self, batch_id: int, storage_name: str, log: str):
+    def add_file_log(self, batch_id: int, file_id: int, log: str):
         with self.SessionLocal() as session:
             batch_file = (
                 session.query(BatchFile)
-                .filter_by(batch_id=batch_id, storage_name=storage_name)
+                .filter_by(batch_id=batch_id, file_id=file_id)
                 .first()
             )
             if not batch_file:
                 raise ValueError(
-                    f"BatchFile with storage_name '{storage_name}' not found in batch {batch_id}."
+                    f"BatchFile with file_id '{file_id}' not found in batch {batch_id}."
                 )
 
         return self.add_batch_log(

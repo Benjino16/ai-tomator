@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
-from ai_tomator.core.engine.engine_manager import EngineManager
-from ai_tomator.core.engine.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.client_manager import ClientManager
+from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 
 
 class MockEngine:
@@ -9,14 +9,14 @@ class MockEngine:
         self.api_token = api_token
         self.base_url = base_url
 
-    def run(self, model, prompt, content, file_path, model_settings):
-        return EngineResponse(
+    def run(self, model, prompt, content, file, model_settings):
+        return LLMClientResponse(
             model=model,
             prompt=prompt,
             temperature=model_settings.temperature,
             output=content,
-            engine="Test Engine",
-            input=content or f"[Uploaded File: {file_path}]",
+            client="Test Engine",
+            input=content or f"[Uploaded File: {file}]",
             input_tokens=0,
             output_tokens=0,
             top_k=None,
@@ -29,28 +29,28 @@ class MockEngine:
 
 
 @pytest.fixture
-def engine_manager():
-    em = EngineManager()
-    em.engine_map = {"mock": MockEngine}
-    return em
+def client_manager():
+    cm = ClientManager()
+    cm.client_map = {"mock": MockEngine}
+    return cm
 
 
 @patch(
-    "ai_tomator.core.engine.engine_manager.FileReaderManager.read",
+    "ai_tomator.manager.llm_client.client_manager.FileReaderManager.read",
     return_value="file content",
 )
-def test_process_with_file_content(mock_read, engine_manager):
+def test_process_with_file_content(mock_read, client_manager):
     endpoint = {
         "name": "test_endpoint",
-        "engine": "mock",
+        "client": "mock",
         "token": "abc123",
         "url": "http://example.com",
     }
-    result = engine_manager.process(
+    result = client_manager.process(
         endpoint=endpoint,
         file_reader="text",
         prompt="Test prompt",
-        file_path="path/to/file.txt",
+        file="path/to/file.txt",
         model="gpt-test",
         temperature=0.5,
         json_format=False,
@@ -61,18 +61,18 @@ def test_process_with_file_content(mock_read, engine_manager):
     assert result.model == "gpt-test"
 
 
-def test_process_with_upload(engine_manager):
+def test_process_with_upload(client_manager):
     endpoint = {
         "name": "test_endpoint",
-        "engine": "mock",
+        "client": "mock",
         "token": "abc123",
         "url": "http://example.com",
     }
-    result = engine_manager.process(
+    result = client_manager.process(
         endpoint=endpoint,
         file_reader="upload",
         prompt="Another test",
-        file_path="path/to/upload.txt",
+        file="path/to/upload.txt",
         model="gpt-test",
         temperature=1.0,
         json_format=False,
@@ -82,20 +82,20 @@ def test_process_with_upload(engine_manager):
     assert result.prompt == "Another test"
 
 
-def test_invalid_engine_raises(engine_manager):
+def test_invalid_engine_raises(client_manager):
     endpoint = {
         "name": "test_endpoint",
-        "engine": "invalid",
+        "client": "invalid",
         "token": "123",
         "url": "x",
     }
     with pytest.raises(ValueError) as e:
-        engine_manager.process(
+        client_manager.process(
             endpoint, "text", "prompt", "file.txt", "model", 0.2, False
         )
     assert "not supported" in str(e.value)
 
 
-def test_get_engines(engine_manager):
-    engines = list(engine_manager.get_engines())
+def test_get_engines(client_manager):
+    engines = list(client_manager.get_engines())
     assert engines == ["mock"]

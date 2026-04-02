@@ -37,7 +37,7 @@ export default function EndpointsPage() {
                 {endpoints.map((ep) => (
                     <tr key={ep.name}>
                         <td>{ep.name}</td>
-                        <td>{ep.engine}</td>
+                        <td>{ep.client}</td>
                         <td>{ep.provider}</td>
                         <td>{ep.url}</td>
                         <td>{ep.token}</td>

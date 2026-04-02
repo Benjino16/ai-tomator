@@ -7,48 +7,16 @@ on:
 jobs:
   build-and-test-backend:
     runs-on: ubuntu-latest
-    services:
-      db:
-        image: postgres:18
-        env:
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: pass
-          POSTGRES_DB: ai_tomator
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          tags: pr-test:${{ github.event.pull_request.number }}
-          load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Start backend and check health
+      - name: Start services with Docker Compose
         run: |
-          docker run --name backend-test --network host -d \
-            -e DATABASE_URL=postgresql://user:pass@localhost:5432/ai_tomator \
-            -e STORAGE_DIR=/data/storage \
-            -e SECURE_COOKIES=false \
-            -e ACCESS_TOKEN_EXPIRE_MINUTES=1440 \
-            -e JWT_ENCRYPTION_KEY="CHANGE-THIS-TO-A-SECURE-KEY" \
-            pr-test:${{ github.event.pull_request.number }}
-          
+          docker compose -f compose.yaml -f compose.build.yaml up -d --build
+
+      - name: Check backend health
+        run: |
           for i in {1..10}; do
             if curl -fs http://localhost:8000/health; then
               exit 0
@@ -56,5 +24,5 @@ jobs:
             sleep 2
           done
           echo "Health check failed"
-          docker logs backend-test
+          docker compose logs
           exit 1

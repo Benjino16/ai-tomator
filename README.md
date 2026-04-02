@@ -7,6 +7,32 @@ AI-Tomator is an all-in-one solution for scientific file evaluation using LLMs. 
 
 <br>
 
+## Setup (with Pre-built Docker Images)
+This is recommended for production.
+
+### Prerequisites
+
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+
+### Steps
+
+1. Create a directory for the service:
+```
+   mkdir ai-tomator
+   cd ai-tomator
+```
+2. Place the [compose.yaml](/compose.yaml) file inside this directory.
+```
+   curl -L https://raw.githubusercontent.com/Benjino16/ai-tomator/main/compose.yaml -o compose.yaml
+```
+
+3. Start the service:
+```
+   docker compose up -d
+```
+
+
 ## Setup (Build from Repository)
 
 ### Prerequisites
@@ -24,9 +50,7 @@ AI-Tomator is an all-in-one solution for scientific file evaluation using LLMs. 
   ```bash
    cd ai-tomator
   ```
-3. **Start the service:**
+3. **Build/Start the service:**
   ```bash
-   docker compose up -d
+   docker compose -f compose.yaml -f compose.build.yaml up -d
   ```
-> [!TIP]
->  Use `sudo` if your Docker installation requires elevated permissions.

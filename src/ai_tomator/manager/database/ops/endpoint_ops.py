@@ -10,13 +10,13 @@ class EndpointOps:
         self.SessionLocal = session_local
 
     def add(
-        self, name: str, engine: str, provider: str, user_id: int, url=None, token=None
+        self, name: str, client: str, provider: str, user_id: int, url=None, token=None
     ):
         with self.SessionLocal() as session:
             subq = get_group_id_subquery(session, user_id)
             ep = Endpoint(
                 name=name,
-                engine=engine,
+                client=client,
                 provider=provider,
                 url=url,
                 token=token,

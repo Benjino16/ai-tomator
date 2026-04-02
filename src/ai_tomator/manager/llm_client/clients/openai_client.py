@@ -1,15 +1,15 @@
-from typing import Optional
+from typing import Optional, BinaryIO
 
-from ai_tomator.core.engine.base import BaseEngine
+from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
 import tiktoken
 import openai
 
-from ai_tomator.core.engine.models.engine_health_model import EngineHealth
-from ai_tomator.core.engine.models.model_settings_model import ModelSettings
-from ai_tomator.core.engine.models.response_model import EngineResponse
+from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
+from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
+from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 
 
-class OpenAIEngine(BaseEngine):
+class OpenAILLMClient(BaseLLMClient):
 
     def __init__(self, api_token=None, base_url=None):
         super().__init__(api_token, base_url)
@@ -49,17 +49,15 @@ class OpenAIEngine(BaseEngine):
         self,
         model: str,
         prompt: str,
-        file_path: Optional[str] = None,
+        file: Optional[BinaryIO] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
-    ) -> EngineResponse:
-        if file_path is None and content is None:
+    ) -> LLMClientResponse:
+        if file is None and content is None:
             raise ValueError("Either file_path or content must be specified")
 
-        if file_path:
-            uploaded = self.client.files.create(
-                file=open(file_path, "rb"), purpose="input"
-            )
+        if file:
+            uploaded = self.client.files.create(file=open(file, "rb"), purpose="input")
             response = self.client.responses.create(
                 model=model,
                 input=[
@@ -80,8 +78,8 @@ class OpenAIEngine(BaseEngine):
                 response_format={"type": "json_object"},
             )
 
-        return EngineResponse(
-            engine=self.__class__.__name__,
+        return LLMClientResponse(
+            client=self.__class__.__name__,
             model=model,
             temperature=model_settings.temperature,
             json_format=model_settings.json_format,
