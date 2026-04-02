@@ -8,7 +8,6 @@ PyMuPDF
 openpyxl
 pandas
 sqlalchemy
-psycopg2
 tiktoken
 ollama
 python-jose[cryptography]
@@ -18,3 +17,4 @@ redis
 minio
 pydantic
 pydantic_settings
+psycopg2

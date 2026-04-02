@@ -70,7 +70,10 @@ class BatchOps:
             return batch.to_dict()
 
     def update_status(
-        self, batch_id: int, status: BatchStatus, engine_response: LLMClientResponse = None
+        self,
+        batch_id: int,
+        status: BatchStatus,
+        engine_response: LLMClientResponse = None,
     ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
