@@ -2,8 +2,7 @@ export interface BatchFile {
     id: number;
     batch_id: number;
     file_id: number;
-    storage_name: string;
-    display_name: string;
+    name: string;
     status: "QUEUED" | "RUNNING" | "FAILED" | "COMPLETED";
     output: string;
     input_token_count: number;

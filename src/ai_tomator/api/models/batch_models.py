@@ -39,8 +39,7 @@ class BatchFileData(BaseModel):
     id: int
     batch_id: int
     file_id: int
-    storage_name: str
-    display_name: str
+    name: str
     status: str
     output: Optional[str]
     input_token_count: Optional[int]

@@ -21,7 +21,7 @@ export function BatchFileModal({ isOpen, onClose, file }: Props) {
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
-            <h3>{file.display_name}</h3>
+            <h3>{file.name}</h3>
             <p>Kosten: {file.costs_in_usd} USD</p>
             <p>Output:</p>
             <div className={styles.fileOutput}>

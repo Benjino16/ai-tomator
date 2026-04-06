@@ -1,4 +1,4 @@
-from ai_tomator.tasks import run_batch
+from ai_tomator.celery.tasks.run_batch import run_batch
 from .database import Database
 from .database.models.batch import BatchStatus
 import logging
