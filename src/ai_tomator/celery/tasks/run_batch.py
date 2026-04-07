@@ -17,7 +17,6 @@ def run_batch(
     endpoint,
     file_reader,
     model,
-    prompt,
     delay,
     temperature,
     json_format,
@@ -33,7 +32,7 @@ def run_batch(
                 endpoint,
                 file_reader,
                 model,
-                prompt,
+                file["prompt"],
                 temperature,
                 json_format,
             )
@@ -44,6 +43,7 @@ def run_batch(
     # callback after completing all sub-task
     callback = finalize_batch.si(batch_id)
     chord(tasks, callback).apply_async()
+
 
 @app.task
 def finalize_batch(batch_id):

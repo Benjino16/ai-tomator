@@ -102,6 +102,9 @@ class BatchFile(Base):
         default=BatchFileStatus.QUEUED,
     )
 
+    prompt: Mapped[str] = mapped_column(Text, nullable=False)
+    prompt_marker: Mapped[str] = mapped_column(Text, nullable=False)
+
     input: Mapped[str] = mapped_column(Text, nullable=True)
     output: Mapped[str] = mapped_column(Text, nullable=True)
     input_token_count: Mapped[int] = mapped_column(Integer, nullable=True)

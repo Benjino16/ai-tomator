@@ -8,16 +8,18 @@ from testcontainers.compose import DockerCompose
 
 BASE_URL = "http://localhost:8000"
 
-os.environ['COMPOSE_PROJECT_NAME'] = 'ai_tomator_test'
+os.environ["COMPOSE_PROJECT_NAME"] = "ai_tomator_test"
+
 
 @pytest.fixture(scope="session")
 def compose():
     with DockerCompose(
         ".",
-        compose_file_name=["compose.yaml", "compose.build.yaml"],
+        compose_file_name=["compose.yaml", "compose.dev.yaml"],
     ) as compose:
         wait_for_backend()
         yield compose
+
 
 def wait_for_backend():
     for _ in range(30):
@@ -30,10 +32,12 @@ def wait_for_backend():
         time.sleep(1)
     raise RuntimeError("Backend not ready")
 
+
 @pytest.fixture(scope="session")
 def client():
     with httpx.Client(base_url=BASE_URL) as client:
         yield client
+
 
 @pytest.fixture(scope="session")
 def authenticated_client(client):
@@ -54,27 +58,36 @@ def test_health(compose):
     r = httpx.get(f"{BASE_URL}/health")
     assert r.status_code == 200
 
+
 def test_file_workflow(compose, authenticated_client):
     r = authenticated_client.get(f"{BASE_URL}/api/files/")
     assert r.status_code == 200
 
-    r = authenticated_client.post(f"{BASE_URL}/api/files/upload", json={"tags": ["test_tag"]}, files={"file": BytesIO(b"test"), "filename": "test.txt"})
+    r = authenticated_client.post(
+        f"{BASE_URL}/api/files/upload",
+        json={"tags": ["test_tag"]},
+        files={"file": BytesIO(b"test"), "filename": "test.txt"},
+    )
     assert r.status_code == 200
     file_id = r.json()["id"]
     file_name = r.json()["name"]
     r = authenticated_client.get(f"{BASE_URL}/api/files/")
     assert r.status_code == 200
-    assert file_id in [item['id'] for item in r.json()]
-    assert file_name in [item['name'] for item in r.json()]
+    assert file_id in [item["id"] for item in r.json()]
+    assert file_name in [item["name"] for item in r.json()]
 
     r = authenticated_client.delete(f"{BASE_URL}/api/files/delete/{file_id}")
     assert r.status_code == 204
+
 
 def test_prompt_workflow(compose, authenticated_client):
     r = authenticated_client.get(f"{BASE_URL}/api/prompts/")
     assert r.status_code == 200
 
-    r = authenticated_client.post(f"{BASE_URL}/api/prompts/add", json={"name": "test_prompt", "content": "this is a test"})
+    r = authenticated_client.post(
+        f"{BASE_URL}/api/prompts/add",
+        json={"name": "test_prompt", "content": "this is a test"},
+    )
     assert r.status_code == 200
     result = r.json()
     prompt_id = result["id"]
@@ -82,29 +95,41 @@ def test_prompt_workflow(compose, authenticated_client):
     prompt_content = result["content"]
     r = authenticated_client.get(f"{BASE_URL}/api/prompts/")
     assert r.status_code == 200
-    assert prompt_id in [item['id'] for item in r.json()]
-    assert prompt_name in [item['name'] for item in r.json()]
-    assert prompt_content in [item['content'] for item in r.json()]
+    assert prompt_id in [item["id"] for item in r.json()]
+    assert prompt_name in [item["name"] for item in r.json()]
+    assert prompt_content in [item["content"] for item in r.json()]
 
     r = authenticated_client.delete(f"{BASE_URL}/api/prompts/delete/{prompt_id}")
     assert r.status_code == 200
+
 
 def test_batch_workflow(compose, authenticated_client):
     r = authenticated_client.get(f"{BASE_URL}/api/batches/")
     assert r.status_code == 200
 
-    r = authenticated_client.post(f"{BASE_URL}/api/prompts/add",
-                                  json={"name": "test_prompt", "content": "this is a test"})
+    r = authenticated_client.post(
+        f"{BASE_URL}/api/prompts/add",
+        json={"name": "test_prompt", "content": "this is a test"},
+    )
     assert r.status_code == 200
     prompt_id = r.json()["id"]
 
-    r = authenticated_client.post(f"{BASE_URL}/api/endpoints/add",
-                                  json={"name": "test_endpoint", "client": "test_engine", "provider": "self_hosted"})
+    r = authenticated_client.post(
+        f"{BASE_URL}/api/endpoints/add",
+        json={
+            "name": "test_endpoint",
+            "client": "test_engine",
+            "provider": "self_hosted",
+        },
+    )
     assert r.status_code == 200
     endpoint_name = r.json()["name"]
 
-    r = authenticated_client.post(f"{BASE_URL}/api/files/upload", json={"tags": ["test_tag"]},
-                                  files={"file": BytesIO(b"test"), "filename": "test.txt"})
+    r = authenticated_client.post(
+        f"{BASE_URL}/api/files/upload",
+        json={"tags": ["test_tag"]},
+        files={"file": BytesIO(b"test"), "filename": "test.txt"},
+    )
     assert r.status_code == 200
     file_id = r.json()["id"]
 
@@ -116,12 +141,14 @@ def test_batch_workflow(compose, authenticated_client):
         "model": "test_model_pro",
         "delay": 10,
         "temperature": 1.0,
-        "json_format": False
+        "json_format": False,
     }
-    r = authenticated_client.post(f"{BASE_URL}/api/batches/start", json=batch_run_payload)
+    r = authenticated_client.post(
+        f"{BASE_URL}/api/batches/start", json=batch_run_payload
+    )
     assert r.status_code == 200
     batch_id = r.json()["id"]
 
     r = authenticated_client.get(f"{BASE_URL}/api/batches/")
     assert r.status_code == 200
-    assert batch_id in [item['id'] for item in r.json()]
+    assert batch_id in [item["id"] for item in r.json()]

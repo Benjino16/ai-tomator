@@ -23,7 +23,6 @@ class BatchOps:
         self,
         name: str,
         status: BatchStatus,
-        files: list[int],
         engine: str,
         endpoint: str,
         file_reader: str,
@@ -50,24 +49,35 @@ class BatchOps:
                 group_id=subq,
             )
 
-            db_files = session.query(File).filter(File.id.in_(files)).all()
-            missing = [f for f in files if f not in files]
-            if missing:
-                raise ValueError(f"Files not found in database: {missing}")
-
-            batch.batch_files = [
-                BatchFile(
-                    file_id=f.id,
-                    name=f.name,
-                    status=BatchFileStatus.QUEUED,
-                )
-                for f in db_files
-            ]
-
             session.add(batch)
             session.commit()
             session.refresh(batch)
             return batch.to_dict()
+
+    def add_batch_file(
+        self, batch_id: int, file_id: int, prompt: str, prompt_marker: str
+    ):
+        with self.SessionLocal() as session:
+            batch = session.query(Batch).filter_by(id=batch_id).first()
+            if not batch:
+                raise ValueError(f"Batch id '{batch_id}' not found.")
+
+            file = session.query(File).filter_by(id=file_id).first()
+            if not file:
+                raise ValueError(f"File id '{file_id}' not found.")
+
+            new_batch_file = BatchFile(
+                file_id=file_id,
+                name=file.name,
+                status=BatchFileStatus.QUEUED,
+                prompt=prompt,
+                prompt_marker=prompt_marker,
+            )
+
+            batch.batch_files.append(new_batch_file)
+
+            session.commit()
+            return new_batch_file.to_dict()
 
     def update_status(
         self,

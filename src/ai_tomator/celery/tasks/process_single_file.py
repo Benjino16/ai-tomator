@@ -2,7 +2,7 @@ from ai_tomator.celery.worker import app
 from celery.utils.log import get_task_logger
 from ai_tomator.config import ServiceSettings
 from ai_tomator.manager.database import Database
-from ai_tomator.manager.database.models.batch import BatchFileStatus, BatchStatus
+from ai_tomator.manager.database.models.batch import BatchFileStatus
 from ai_tomator.manager.file_storage import MinIOStorage
 from ai_tomator.manager.file_manager import FileManager
 from ai_tomator.manager.llm_client.client_manager import ClientManager
@@ -10,6 +10,7 @@ from ai_tomator.manager.price_calculator import calculate_price
 
 service_settings = ServiceSettings()
 logger = get_task_logger(__name__)
+
 
 @app.task(bind=True)
 def process_single_file(
