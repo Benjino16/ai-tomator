@@ -1,11 +1,14 @@
 import enum
-
-from sqlalchemy import ForeignKey, func, Enum, Integer, Text, Float
+from typing import TYPE_CHECKING
+from sqlalchemy import ForeignKey, func, Enum, Integer, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
 from .user_group_mixin import UserGroupMixin
-from .file import File
+
+if TYPE_CHECKING:
+    from .batch_file import BatchFile
+    from .batch_task import BatchTask
 
 
 class BatchStatus(enum.Enum):
@@ -54,6 +57,10 @@ class Batch(Base, UserGroupMixin):
         back_populates="batch", cascade="all, delete-orphan"
     )
 
+    batch_tasks: Mapped[list["BatchTask"]] = relationship(
+        back_populates="batch", cascade="all, delete-orphan"
+    )
+
     batch_logs: Mapped[list["BatchLog"]] = relationship(
         back_populates="batch", cascade="all, delete-orphan"
     )
@@ -82,43 +89,6 @@ class Batch(Base, UserGroupMixin):
     ]
 
 
-class BatchFileStatus(enum.Enum):
-    QUEUED = "QUEUED"
-    RUNNING = "RUNNING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
-
-
-class BatchFile(Base):
-    __tablename__ = "batch_files"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(nullable=False)
-    batch_id: Mapped[int] = mapped_column(ForeignKey("batches.id"), nullable=False)
-    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
-    status: Mapped["BatchFileStatus"] = mapped_column(
-        Enum(BatchFileStatus, name="batch_file_status_enum"),
-        nullable=False,
-        default=BatchFileStatus.QUEUED,
-    )
-
-    input: Mapped[str] = mapped_column(Text, nullable=True)
-    output: Mapped[str] = mapped_column(Text, nullable=True)
-    input_token_count: Mapped[int] = mapped_column(Integer, nullable=True)
-    output_token_count: Mapped[int] = mapped_column(Integer, nullable=True)
-    seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
-
-    costs_in_usd: Mapped[float] = mapped_column(Float, nullable=True)
-
-    batch: Mapped["Batch"] = relationship(back_populates="batch_files")
-    file: Mapped["File"] = relationship()
-
-    batch_logs: Mapped[list["BatchLog"]] = relationship(back_populates="batch_file")
-
-    def to_dict(self):
-        return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
-
-
 class BatchLog(Base):
     __tablename__ = "batch_logs"
 
@@ -127,11 +97,15 @@ class BatchLog(Base):
     batch_file_id: Mapped[int] = mapped_column(
         ForeignKey("batch_files.id"), nullable=True
     )
+    batch_task_id: Mapped[int] = mapped_column(
+        ForeignKey("batch_tasks.id"), nullable=True
+    )
     log: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 
     batch: Mapped["Batch"] = relationship(back_populates="batch_logs")
     batch_file: Mapped["BatchFile"] = relationship(back_populates="batch_logs")
+    batch_task: Mapped["BatchTask"] = relationship(back_populates="batch_logs")
 
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}

@@ -12,6 +12,7 @@ class Prompt(Base, UserGroupMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
     content: Mapped[str] = mapped_column(nullable=False)
+    multi_prompt: Mapped[bool] = mapped_column(nullable=False, default=False)
 
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 

@@ -1,4 +1,4 @@
-from ai_tomator.tasks import run_batch
+from ai_tomator.celery.tasks.run_batch import run_batch
 from .database import Database
 from .database.models.batch import BatchStatus
 import logging
@@ -14,11 +14,10 @@ class BatchManager:
     def start_batch(
         self,
         batch_id,
-        file_infos,
+        tasks,
         endpoint,
         file_reader,
         model,
-        prompt,
         delay,
         temperature,
         json_format,
@@ -29,11 +28,10 @@ class BatchManager:
 
         task = run_batch.delay(
             batch_id=batch_id,
-            file_infos=file_infos,
+            batch_tasks=tasks,
             endpoint=endpoint,
             file_reader=file_reader,
             model=model,
-            prompt=prompt,
             delay=delay,
             temperature=temperature,
             json_format=json_format,

@@ -3,7 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
 from .user_group_mixin import UserGroupMixin
-from .batch import Batch, BatchFile
+from .batch import Batch
+from .batch_file import BatchFile
 
 
 class Result(Base, UserGroupMixin):

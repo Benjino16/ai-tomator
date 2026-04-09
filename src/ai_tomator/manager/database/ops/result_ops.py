@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 
-from ai_tomator.manager.database.models.batch import BatchFile
+from ai_tomator.manager.database.models.batch_file import BatchFile
 from ai_tomator.manager.database.models.result import Result, Batch
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 

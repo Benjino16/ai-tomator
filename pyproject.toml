@@ -31,7 +31,6 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-addopts = "--cov=ai_tomator --cov-report=term-missing"
 
 [tool.black]
 line-length = 88

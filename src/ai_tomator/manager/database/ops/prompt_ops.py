@@ -9,11 +9,17 @@ class PromptOps:
     def __init__(self, session_local: sessionmaker):
         self.SessionLocal = session_local
 
-    def add(self, name: str, content: str, user_id: int) -> dict:
+    def add(self, name: str, content: str, multi_prompt: bool, user_id: int) -> dict:
         with self.SessionLocal() as session:
             subq = get_group_id_subquery(session, user_id)
 
-            pr = Prompt(name=name, content=content, user_id=user_id, group_id=subq)
+            pr = Prompt(
+                name=name,
+                content=content,
+                multi_prompt=multi_prompt,
+                user_id=user_id,
+                group_id=subq,
+            )
             session.add(pr)
             try:
                 session.commit()

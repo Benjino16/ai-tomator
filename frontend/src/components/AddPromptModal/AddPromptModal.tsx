@@ -14,6 +14,7 @@ type Props = {
 export function AddPromptModal({ isOpen, onClose, onCreated }: Props) {
     const [name, setName] = useState("");
     const [content, setContent] = useState("");
+    const [isMultiPrompt, setIsMultiPrompt] = useState(false);
 
 
 
@@ -23,6 +24,7 @@ export function AddPromptModal({ isOpen, onClose, onCreated }: Props) {
         PromptsAPI.create({
             name: name,
             content: content,
+            multi_prompt: isMultiPrompt
         }).then((data) => {
             onCreated(data);
             console.log(data);
@@ -76,6 +78,15 @@ export function AddPromptModal({ isOpen, onClose, onCreated }: Props) {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                 />
+
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={isMultiPrompt}
+                        onChange={(e) => setIsMultiPrompt(e.target.checked)}
+                    />
+                    Multi Prompt (interpreter)
+                </label>
 
                 <button type="submit">Add</button>
             </form>
