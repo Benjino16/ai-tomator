@@ -1,6 +1,7 @@
 import enum
+from datetime import datetime
 
-from sqlalchemy import ForeignKey, Enum, Integer, Text, Float
+from sqlalchemy import ForeignKey, Enum, Integer, Text, Float, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ai_tomator.manager.database.base import Base
 from .batch_file import BatchFile
@@ -42,6 +43,11 @@ class BatchTask(Base):
     seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     costs_in_usd: Mapped[float] = mapped_column(Float, nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        nullable=False, default=func.now(), onupdate=func.now()
+    )
 
     batch: Mapped["Batch"] = relationship(back_populates="batch_tasks")
     batch_file: Mapped["BatchFile"] = relationship(back_populates="batch_tasks")

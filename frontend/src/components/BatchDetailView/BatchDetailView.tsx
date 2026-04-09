@@ -42,7 +42,6 @@ export function BatchDetailView({ files }: BatchDetailViewProps) {
                             >
                                 <div>{file.name}</div>
                                 {file.costs_in_usd && <div>${file.costs_in_usd.toFixed(4)}</div>}
-                                {file.seed && <div>{file.seed}</div>}
                                 <div className={styles.statusContainer}>
                                     <span>{file.status}</span>
                                     <span className={styles.statusSymbol}>{symbol}</span>

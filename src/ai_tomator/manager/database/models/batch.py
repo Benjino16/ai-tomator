@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from .batch_file import BatchFile
     from .batch_task import BatchTask
 
+
 class BatchStatus(enum.Enum):
     STARTING = "STARTING"
     RUNNING = "RUNNING"

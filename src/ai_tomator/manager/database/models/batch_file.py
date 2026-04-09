@@ -1,5 +1,7 @@
 import enum
-from sqlalchemy import ForeignKey, Enum, Integer, Text, Float
+from datetime import datetime
+
+from sqlalchemy import ForeignKey, Enum, Integer, Text, Float, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ai_tomator.manager.database.base import Base
 from .file import File
@@ -8,6 +10,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .batch_task import BatchTask
+
 
 class BatchFileStatus(enum.Enum):
     QUEUED = "QUEUED"
@@ -34,6 +37,11 @@ class BatchFile(Base):
     input_token_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     output_token_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     costs_in_usd: Mapped[float] = mapped_column(Float, nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        nullable=False, default=func.now(), onupdate=func.now()
+    )
 
     batch: Mapped["Batch"] = relationship(back_populates="batch_files")
     file: Mapped["File"] = relationship()

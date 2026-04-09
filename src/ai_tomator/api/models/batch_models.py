@@ -45,6 +45,8 @@ class BatchTaskData(BaseModel):
     input_token_count: Optional[int]
     output_token_count: Optional[int]
     costs_in_usd: Optional[float]
+    created_at: datetime
+    updated_at: datetime
 
 
 class BatchFileData(BaseModel):
@@ -57,3 +59,5 @@ class BatchFileData(BaseModel):
     output_token_count: Optional[int]
     costs_in_usd: Optional[float]
     batch_tasks: list[BatchTaskData]
+    created_at: datetime
+    updated_at: datetime

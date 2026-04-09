@@ -9,24 +9,30 @@ type Props = {
 };
 
 export function BatchFileModal({ isOpen, onClose, file }: Props) {
-    let content;
-    try {
-        const parsedOutput = JSON.parse(file.output);
-        content = typeof parsedOutput === "string"
-            ? parsedOutput
-            : JSON.stringify(parsedOutput, null, 2);
-    } catch {
-        content = file.output;
+    function jsonInterpreter(content: string) {
+        try {
+            const parsedOutput = JSON.parse(file.batch_tasks[0].output);
+            content = typeof parsedOutput === "string"
+                ? parsedOutput
+                : JSON.stringify(parsedOutput, null, 2);
+        } catch {
+            content = file.batch_tasks[0].output;
+        }
+        return content;
     }
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <h3>{file.name}</h3>
-            <p>Kosten: {file.costs_in_usd} USD</p>
+            {file.costs_in_usd != null && <p>Kosten: {file.costs_in_usd} USD</p>}
             <p>Output:</p>
-            <div className={styles.fileOutput}>
-                <pre>{content}</pre>
-            </div>
+            {file.batch_tasks.map((batchTask, index) => (
+                <div key={batchTask.id ?? index} className={styles.fileOutput}>
+                    {batchTask.prompt_marker != null && <p>{batchTask.prompt_marker}</p>}
+                    <pre>{jsonInterpreter(batchTask.output)}</pre>
+                </div>
+            ))
+            }
         </Modal>
     );
 }
