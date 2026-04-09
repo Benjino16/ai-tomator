@@ -5,6 +5,7 @@ from celery.utils.log import get_task_logger
 from ai_tomator.config import ServiceSettings
 from ai_tomator.manager.database import Database
 from ai_tomator.manager.database.models.batch import BatchStatus
+from ai_tomator.manager.database.models.batch_file import BatchFileStatus
 
 service_settings = ServiceSettings()
 logger = get_task_logger(__name__)
@@ -13,7 +14,7 @@ logger = get_task_logger(__name__)
 @app.task
 def run_batch(
     batch_id,
-    file_infos,
+    batch_tasks,
     endpoint,
     file_reader,
     model,
@@ -24,25 +25,45 @@ def run_batch(
     db = Database(service_settings.postgres_dsn)
     db.batches.update_status(batch_id=batch_id, status=BatchStatus.RUNNING)
 
-    tasks = group(
-        *[
-            process_single_file.s(
-                batch_id,
-                file,
-                endpoint,
-                file_reader,
-                model,
-                file["prompt"],
-                temperature,
-                json_format,
-            )
-            for file in file_infos
-        ]
-    )
+    from collections import defaultdict
 
-    # callback after completing all sub-task
-    callback = finalize_batch.si(batch_id)
-    chord(tasks, callback).apply_async()
+    grouped_tasks = defaultdict(list)
+    for task in batch_tasks:
+        grouped_tasks[task["batch_file_id"]].append(task)
+
+    file_chords = []
+
+    for batch_file_id, tasks_in_file in grouped_tasks.items():
+        # Tasks pro Datei in einen group packen
+        g = group(
+            *[
+                process_single_file.s(
+                    batch_id,
+                    task,
+                    endpoint,
+                    file_reader,
+                    model,
+                    task["prompt"],
+                    temperature,
+                    json_format,
+                )
+                for task in tasks_in_file
+            ]
+        )
+
+        # chord bauen, aber NICHT direkt ausführen
+        c = chord(g, finalize_batch_file.si(batch_file_id))
+        file_chords.append(c)
+
+    # Outer chord für gesamten Batch
+    batch_chord = chord(group(*file_chords), finalize_batch.si(batch_id))
+    batch_chord.apply_async()
+
+
+@app.task
+def finalize_batch_file(batch_file_id):
+    db = Database(service_settings.postgres_dsn)
+    db.batches.update_batch_file_status(batch_file_id, BatchFileStatus.COMPLETED)
 
 
 @app.task

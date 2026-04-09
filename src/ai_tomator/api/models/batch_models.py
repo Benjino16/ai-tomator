@@ -35,14 +35,25 @@ class BatchData(BaseModel):
     stopped_at: Optional[datetime]
 
 
+class BatchTaskData(BaseModel):
+    id: int
+    batch_id: int
+    file_id: int
+    status: str
+    prompt_marker: Optional[str]
+    output: Optional[str]
+    input_token_count: Optional[int]
+    output_token_count: Optional[int]
+    costs_in_usd: Optional[float]
+
+
 class BatchFileData(BaseModel):
     id: int
     batch_id: int
     file_id: int
     name: str
     status: str
-    output: Optional[str]
     input_token_count: Optional[int]
     output_token_count: Optional[int]
-    seed: Optional[str]
     costs_in_usd: Optional[float]
+    batch_tasks: list[BatchTaskData]

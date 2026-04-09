@@ -49,9 +49,12 @@ class BatchService:
 
         prompt_content = prompt_record["content"]
         multi_prompt = prompt_record["multi_prompt"]
+        logger.info(f"Multi Prompt: {multi_prompt}")
         if multi_prompt:
             try:
                 prompts_list = interpret_prompt(prompt_content)
+                logger.info("Batch with Multi-Prompt started")
+                logger.info(f"Interpretation as {len(prompts_list)} prompts.")
             except Exception as e:
                 logger.exception(e)
                 raise ValueError(f"Invalid prompt content: {prompt_content}")
@@ -73,31 +76,40 @@ class BatchService:
             user_id=user_id,
         )
 
-        file_infos = []
+        tasks = []
         for file_id in files:
             path = self.file_service.get_file_path(file_id, user_id)
             if path is None:
                 raise ValueError(f"Invalid file: {file_id}")
+
+            batch_file = self.db.batches.add_batch_file(
+                batch_id=db_batch["id"],
+                file_id=file_id,
+                prompt=prompt_content,
+            )
             for prompt in prompts_list:
-                file_infos.append(
+                batch_task = self.db.batches.add_batch_task(
+                    batch_id=db_batch["id"],
+                    file_id=file_id,
+                    batch_file_id=batch_file["id"],
+                    prompt=prompt.prompt,
+                    prompt_marker=prompt.marker,
+                )
+                tasks.append(
                     {
-                        "id": file_id,
+                        "id": batch_task["id"],
+                        "file_id": file_id,
+                        "batch_file_id": batch_task["batch_file_id"],
                         "path": path,
                         "prompt": prompt.prompt,
                         "marker": prompt.marker,
                     }
                 )
-                self.db.batches.add_batch_file(
-                    batch_id=db_batch["id"],
-                    file_id=file_id,
-                    prompt=prompt.prompt,
-                    prompt_marker=prompt.marker,
-                )
 
         batch_id = db_batch["id"]
         self.batch_manager.start_batch(
             batch_id,
-            file_infos,
+            tasks,
             endpoint,
             file_reader,
             model,

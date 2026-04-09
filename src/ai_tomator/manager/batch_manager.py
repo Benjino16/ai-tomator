@@ -14,7 +14,7 @@ class BatchManager:
     def start_batch(
         self,
         batch_id,
-        file_infos,
+        tasks,
         endpoint,
         file_reader,
         model,
@@ -28,7 +28,7 @@ class BatchManager:
 
         task = run_batch.delay(
             batch_id=batch_id,
-            file_infos=file_infos,
+            batch_tasks=tasks,
             endpoint=endpoint,
             file_reader=file_reader,
             model=model,

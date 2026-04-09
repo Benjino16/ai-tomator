@@ -27,9 +27,10 @@ def interpret_prompt(prompt: str) -> list[MultiPrompt]:
 
         for task in tasks:
             task_prompt = task.get("prompt", "")
+            task_id = task.get("id", "")
 
             full_prompt = f"{pre}\n{task_prompt}\n{post}".strip()
-            result.append(full_prompt)
+            result.append(MultiPrompt(task_id, full_prompt))
 
         return result
 

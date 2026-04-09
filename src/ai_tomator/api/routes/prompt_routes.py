@@ -16,7 +16,10 @@ def build_prompt_router(
     def add_prompt(prompt: PromptRequest, user=Depends(jwt_authenticator)):
         try:
             return prompt_service.add(
-                name=prompt.name, content=prompt.content, user_id=user["id"]
+                name=prompt.name,
+                content=prompt.content,
+                multi_prompt=prompt.multi_prompt,
+                user_id=user["id"],
             )
         except NameAlreadyExistsError as e:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))

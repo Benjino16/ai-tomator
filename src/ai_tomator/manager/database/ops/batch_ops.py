@@ -1,15 +1,14 @@
 from sqlalchemy import func
-from sqlalchemy.orm import sessionmaker
-
+from sqlalchemy.orm import sessionmaker, selectinload
+from ai_tomator.manager.database.models.batch_task import BatchTask, BatchTaskStatus
 from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
     Batch,
-    BatchFile,
     BatchStatus,
-    BatchFileStatus,
     BatchLog,
 )
+from ai_tomator.manager.database.models.batch_file import BatchFile, BatchFileStatus
 from ai_tomator.manager.database.models.file import File
 
 print("BatchOps using:", Batch.__module__, File.__module__)
@@ -55,7 +54,10 @@ class BatchOps:
             return batch.to_dict()
 
     def add_batch_file(
-        self, batch_id: int, file_id: int, prompt: str, prompt_marker: str
+        self,
+        batch_id: int,
+        file_id: int,
+        prompt: str,
     ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
@@ -71,13 +73,46 @@ class BatchOps:
                 name=file.name,
                 status=BatchFileStatus.QUEUED,
                 prompt=prompt,
-                prompt_marker=prompt_marker,
             )
 
             batch.batch_files.append(new_batch_file)
 
             session.commit()
             return new_batch_file.to_dict()
+
+    def add_batch_task(
+        self,
+        batch_id: int,
+        file_id: int,
+        batch_file_id: int,
+        prompt: str,
+        prompt_marker: str,
+    ):
+        with self.SessionLocal() as session:
+            batch = session.query(Batch).filter_by(id=batch_id).first()
+            if not batch:
+                raise ValueError(f"Batch id '{batch_id}' not found.")
+
+            file = session.query(File).filter_by(id=file_id).first()
+            if not file:
+                raise ValueError(f"File id '{file_id}' not found.")
+
+            batch_file = session.query(BatchFile).filter_by(id=batch_file_id).first()
+            if not batch_file:
+                raise ValueError(f"File id '{batch_file_id}' not found.")
+
+            new_batch_task = BatchTask(
+                batch=batch,
+                batch_file=batch_file,
+                file_id=file_id,
+                status=BatchTaskStatus.QUEUED,
+                prompt=prompt,
+                prompt_marker=prompt_marker,
+            )
+
+            session.add(new_batch_task)
+            session.commit()
+            return new_batch_task.to_dict()
 
     def update_status(
         self,
@@ -110,59 +145,73 @@ class BatchOps:
 
     def update_batch_file_status(
         self,
-        batch_id: int,
-        file_id: int,
+        batch_file_id: int,
         status: BatchFileStatus,
+    ):
+        with self.SessionLocal() as session:
+            batch_file = session.query(BatchFile).filter_by(id=batch_file_id).first()
+            if not batch_file:
+                raise ValueError(f"BatchFile '{batch_file_id}' not found.")
+
+            batch_file.status = status
+
+            session.commit()
+            session.refresh(batch_file)
+            return batch_file
+
+    def update_batch_task_status(
+        self,
+        batch_task_id: int,
+        status: BatchTaskStatus,
         engine_response: LLMClientResponse = None,
         costs_in_usd: float = None,
     ):
         with self.SessionLocal() as session:
-            batch = session.query(Batch).filter_by(id=batch_id).first()
-            if not batch:
-                raise ValueError(f"Batch id '{batch_id}' not found.")
-            batch_file = (
-                session.query(BatchFile)
-                .filter_by(file_id=file_id, batch_id=batch.id)
-                .first()
-            )
-            if not batch_file:
-                raise ValueError(f"BatchFile '{file_id}' not found.")
+            batch_task = session.query(BatchTask).filter_by(id=batch_task_id).first()
+            if not batch_task:
+                raise ValueError(f"Batch Task id '{batch_task_id}' not found.")
 
-            batch_file.status = status
+            batch_task.status = status
 
             if engine_response:
-                batch_file.input = engine_response.input
-                batch_file.output = engine_response.output
-                batch_file.input_token_count = engine_response.input_tokens
-                batch_file.output_token_count = engine_response.output_tokens
-                batch_file.seed = engine_response.seed
-
-            if costs_in_usd and batch_file.costs_in_usd is None:
-                batch_file.costs_in_usd = costs_in_usd
-                batch.costs_in_usd += costs_in_usd
-
-            session.commit()
-            session.refresh(batch)
-            session.refresh(batch_file)
-            return batch_file
-
-    def add_file_log(self, batch_id: int, file_id: int, log: str):
-        with self.SessionLocal() as session:
-            batch_file = (
-                session.query(BatchFile)
-                .filter_by(batch_id=batch_id, file_id=file_id)
-                .first()
-            )
-            if not batch_file:
-                raise ValueError(
-                    f"BatchFile with file_id '{file_id}' not found in batch {batch_id}."
+                batch_task.input = engine_response.input
+                batch_task.output = engine_response.output
+                batch_task.input_token_count = engine_response.input_tokens
+                batch_task.output_token_count = engine_response.output_tokens
+                batch_task.seed = engine_response.seed
+                batch_task.batch_file.input_token_count += engine_response.input_tokens
+                batch_task.batch_file.output_token_count += (
+                    engine_response.output_tokens
                 )
 
-        return self.add_batch_log(
-            batch_id=batch_id,
-            batch_file_id=batch_file.id,
+            if costs_in_usd and batch_task.costs_in_usd is None:
+                batch_task.costs_in_usd = costs_in_usd
+                batch_task.batch.costs_in_usd += costs_in_usd
+                batch_task.batch_file.costs_in_usd += costs_in_usd
+
+            session.commit()
+            session.refresh(batch_task)
+            return batch_task
+
+    def add_task_log(self, batch_task_id: int, log: str):
+        with self.SessionLocal() as session:
+            batch_task = session.query(BatchTask).filter_by(id=batch_task_id).first()
+            if not batch_task:
+                raise ValueError(
+                    f"BatchTask with batch_task_id '{batch_task_id}' not found."
+                )
+
+        batch_log = BatchLog(
+            batch_id=batch_task.batch_id,
+            batch_file_id=batch_task.batch_file_id,
+            batch_task_id=batch_task.id,
             log=log,
         )
+
+        session.add(batch_log)
+        session.commit()
+        session.refresh(batch_log)
+        return batch_log.to_dict()
 
     def add_batch_log(self, batch_id: int, log: str, batch_file_id: int | None = None):
         with self.SessionLocal() as session:
@@ -195,10 +244,19 @@ class BatchOps:
 
     def get_files(self, batch_id: int, user_id: int) -> dict:
         with self.SessionLocal() as session:
-            query = session.query(Batch).filter_by(id=batch_id)
+            query = (
+                session.query(Batch)
+                .options(
+                    selectinload(Batch.batch_files).selectinload(BatchFile.batch_tasks)
+                )
+                .filter_by(id=batch_id)
+            )
+
             batch = Batch.accessible_by(query, user_id).first()
+
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
+
             return [bl.to_dict() for bl in batch.batch_files]
 
     def get_log(self, batch_id: int, user_id: int) -> dict:

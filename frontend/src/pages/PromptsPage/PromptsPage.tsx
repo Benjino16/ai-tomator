@@ -27,6 +27,7 @@ export default function PromptsPage() {
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Multi</th>
                     <th>Content</th>
                     <th>Action</th>
                 </tr>
@@ -36,6 +37,7 @@ export default function PromptsPage() {
                     <tr key={prompt.id}>
                         <td>{prompt.id}</td>
                         <td>{prompt.name}</td>
+                        <td>{prompt.multi_prompt.toString()}</td>
                         <td>
                             <div className={styles.promptPreview}>{prompt.content}</div>
                         </td>

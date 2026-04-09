@@ -1,0 +1,53 @@
+import enum
+
+from sqlalchemy import ForeignKey, Enum, Integer, Text, Float
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from ai_tomator.manager.database.base import Base
+from .batch_file import BatchFile
+from .file import File
+from .batch import BatchLog, Batch
+
+
+class BatchTaskStatus(enum.Enum):
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+
+class BatchTask(Base):
+    __tablename__ = "batch_tasks"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    batch_id: Mapped[int] = mapped_column(ForeignKey("batches.id"), nullable=False)
+    batch_file_id: Mapped[int] = mapped_column(
+        ForeignKey("batch_files.id"), nullable=False
+    )
+
+    status: Mapped["BatchTaskStatus"] = mapped_column(
+        Enum(BatchTaskStatus, name="batch_file_status_enum"),
+        nullable=False,
+        default=BatchTaskStatus.QUEUED,
+    )
+
+    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
+
+    prompt: Mapped[str] = mapped_column(Text, nullable=False)
+    prompt_marker: Mapped[str] = mapped_column(Text, nullable=False)
+
+    input: Mapped[str] = mapped_column(Text, nullable=True)
+    output: Mapped[str] = mapped_column(Text, nullable=True)
+    input_token_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    output_token_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    seed: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    costs_in_usd: Mapped[float] = mapped_column(Float, nullable=True)
+
+    batch: Mapped["Batch"] = relationship(back_populates="batch_tasks")
+    batch_file: Mapped["BatchFile"] = relationship(back_populates="batch_tasks")
+    file: Mapped["File"] = relationship()
+
+    batch_logs: Mapped[list["BatchLog"]] = relationship(back_populates="batch_task")
+
+    def to_dict(self):
+        return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
