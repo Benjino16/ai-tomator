@@ -6,6 +6,7 @@ import pytest
 
 BASE_URL = "http://localhost:8000"
 
+
 def wait_for_backend(retries=30, delay=1):
     """Waits for the backend to be available at BASE_URL/health."""
     for _ in range(retries):
@@ -18,15 +19,18 @@ def wait_for_backend(retries=30, delay=1):
         time.sleep(delay)
     raise RuntimeError("Backend not ready")
 
+
 @pytest.fixture(scope="session", autouse=True)
 def ensure_backend_ready():
     """Session fixture that ensures the backend is running."""
     wait_for_backend()
 
+
 @pytest.fixture(scope="session")
 def client():
     with httpx.Client(base_url=BASE_URL) as client:
         yield client
+
 
 @pytest.fixture(scope="session")
 def authenticated_client(client):
@@ -44,9 +48,11 @@ def authenticated_client(client):
     assert r.status_code == 200
     return client
 
+
 def test_health():
     r = httpx.get(f"{BASE_URL}/health")
     assert r.status_code == 200
+
 
 def test_file_workflow(authenticated_client):
     # Retrieve list of files
@@ -73,6 +79,7 @@ def test_file_workflow(authenticated_client):
     r = authenticated_client.delete(f"/api/files/delete/{file_id}")
     assert r.status_code == 204
 
+
 def test_prompt_workflow(authenticated_client):
     # Retrieve prompts
     r = authenticated_client.get("/api/prompts/")
@@ -95,6 +102,7 @@ def test_prompt_workflow(authenticated_client):
     # Delete the prompt
     r = authenticated_client.delete(f"/api/prompts/delete/{prompt_id}")
     assert r.status_code == 200
+
 
 def test_batch_workflow(authenticated_client):
     # Create a prompt

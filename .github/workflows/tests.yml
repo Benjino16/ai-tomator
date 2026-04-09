@@ -35,7 +35,7 @@ jobs:
 
       - name: Start services with Docker Compose
         run: |
-          docker compose -f compose.yaml -f compose.build.yaml up -d --build
+          docker compose -f compose.yaml -f compose.dev.yaml up -d --build
 
       - name: Check backend health
         run: |
