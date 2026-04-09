@@ -25,7 +25,6 @@ dev = [
     "httpx",
     "black",
     "ruff",
-    "testcontainers",
     "celery-types",
 ]
 
