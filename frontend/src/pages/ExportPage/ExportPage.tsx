@@ -92,7 +92,7 @@ export default function ExportPage() {
                         <td>{batch.status}</td>
                         <td>{batch.model}</td>
                         <td>{batch.temperature}</td>
-                        <td>{batch.endpoint}</td>
+                        <td>{batch.endpoint_id}</td>
                         <td>{batch.file_reader}</td>
                     </tr>
                 ))}

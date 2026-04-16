@@ -8,6 +8,7 @@ from ai_tomator.manager.database.ops.file_ops import FileOps
 from ai_tomator.manager.database.ops.prompt_ops import PromptOps
 from ai_tomator.manager.database.ops.user_ops import UserOps
 from ai_tomator.manager.database.ops.group_ops import GroupOps
+from ai_tomator.manager.database.ops.worker_ops import WorkerOps
 
 
 class Database:
@@ -18,6 +19,7 @@ class Database:
     prompts: PromptOps
     users: UserOps
     groups: GroupOps
+    workers: WorkerOps
 
     def __init__(self, db_path):
         self.SessionLocal = get_session(str(db_path))
@@ -28,3 +30,4 @@ class Database:
         self.prompts = PromptOps(self.SessionLocal)
         self.users = UserOps(self.SessionLocal)
         self.groups = GroupOps(self.SessionLocal)
+        self.worker = WorkerOps(self.SessionLocal)

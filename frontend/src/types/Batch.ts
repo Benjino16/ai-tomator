@@ -1,11 +1,10 @@
 export interface Batch {
     id: number;
     name: string;
-    status: "RUNNING" | "FAILED" | "COMPLETED";
+    status: "QUEUED" | "RUNNING" | "FAILED" | "COMPLETED" | "STOPPED";
     progress?: string;
-    prompt: string;
     prompt_id: number;
-    endpoint: string;
+    endpoint_id: number;
     files: number[];
     file_reader: string;
     model: string;
@@ -17,4 +16,13 @@ export interface Batch {
     updated_at: string;
     started_at?: string;
     stopped_at?: string;
+    batch_worker_settings: BatchWorkerSettings;
+}
+
+export interface BatchWorkerSettings {
+    max_tasks_per_minute: number;
+    max_parallel_tasks: number;
+    retries_per_failed_task: number;
+    max_retries: number;
+    queue_batch: boolean;
 }

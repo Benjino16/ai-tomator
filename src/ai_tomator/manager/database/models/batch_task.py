@@ -7,6 +7,7 @@ from ai_tomator.manager.database.base import Base
 from .batch_file import BatchFile
 from .file import File
 from .batch import BatchLog, Batch
+from .endpoint import Endpoint
 
 
 class BatchTaskStatus(enum.Enum):
@@ -24,6 +25,8 @@ class BatchTask(Base):
     batch_file_id: Mapped[int] = mapped_column(
         ForeignKey("batch_files.id"), nullable=False
     )
+    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
+    endpoint_id: Mapped[int] = mapped_column(ForeignKey("endpoints.id"), nullable=False)
 
     status: Mapped["BatchTaskStatus"] = mapped_column(
         Enum(BatchTaskStatus, name="batch_file_status_enum"),
@@ -31,7 +34,8 @@ class BatchTask(Base):
         default=BatchTaskStatus.QUEUED,
     )
 
-    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=False)
+    runner_task_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    retry_of_batch_task_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
     prompt_marker: Mapped[str] = mapped_column(Text, nullable=False)
@@ -48,12 +52,20 @@ class BatchTask(Base):
     updated_at: Mapped[datetime] = mapped_column(
         nullable=False, default=func.now(), onupdate=func.now()
     )
+    started_at: Mapped[datetime] = mapped_column(nullable=True)
+    stopped_at: Mapped[datetime] = mapped_column(nullable=True)
 
     batch: Mapped["Batch"] = relationship(back_populates="batch_tasks")
     batch_file: Mapped["BatchFile"] = relationship(back_populates="batch_tasks")
     file: Mapped["File"] = relationship()
+    endpoint: Mapped["Endpoint"] = relationship()
 
     batch_logs: Mapped[list["BatchLog"]] = relationship(back_populates="batch_task")
+
+    STOPPED_STATUSES = [
+        BatchTaskStatus.COMPLETED,
+        BatchTaskStatus.FAILED,
+    ]
 
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}

@@ -9,7 +9,6 @@ from ai_tomator.config import ServiceSettings, AppSettings
 from ai_tomator.manager.database import Database
 from ai_tomator.manager.endpoint_manager import EndpointManager
 from ai_tomator.manager.file_manager import FileManager
-from ai_tomator.manager.batch_manager import BatchManager
 from ai_tomator.manager.file_storage import MinIOStorage
 from ai_tomator.manager.llm_client import ClientManager
 from ai_tomator.service.endpoint_service import EndpointService
@@ -61,7 +60,6 @@ def create_app(required_user_auth=True) -> FastAPI:
 
         file_manager = FileManager(file_storage, db)
         client_manager = ClientManager()
-        batch_manager = BatchManager(db)
         endpoint_manager = EndpointManager(client_manager)
 
         jwt_authenticator = JWTAuthenticator(
@@ -78,13 +76,12 @@ def create_app(required_user_auth=True) -> FastAPI:
 
         file_service = FileService(db, file_manager)
         endpoint_service = EndpointService(db, endpoint_manager)
-        batch_service = BatchService(db, batch_manager, endpoint_service, file_service)
+        batch_service = BatchService(db, endpoint_service, file_service)
         export_service = ExportService(db)
         prompt_service = PromptService(db)
         price_service = PriceService(db, file_service)
 
         file_manager.sync_storage_with_db()
-        batch_manager.recover_batches()
 
         router = build_router(
             file_service,

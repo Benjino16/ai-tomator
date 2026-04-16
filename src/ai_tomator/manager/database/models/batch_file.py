@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Enum, Integer, Text, Float, func
+from sqlalchemy import ForeignKey, Enum, Integer, Float, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ai_tomator.manager.database.base import Base
 from .file import File
@@ -32,8 +32,6 @@ class BatchFile(Base):
         default=BatchFileStatus.QUEUED,
     )
 
-    prompt: Mapped[str] = mapped_column(Text, nullable=False)
-
     input_token_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     output_token_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     costs_in_usd: Mapped[float] = mapped_column(Float, nullable=True)
@@ -51,6 +49,15 @@ class BatchFile(Base):
     )
 
     batch_logs: Mapped[list["BatchLog"]] = relationship(back_populates="batch_file")
+
+    ACTIVE_STATUSES = [
+        BatchFileStatus.QUEUED,
+        BatchFileStatus.RUNNING,
+    ]
+    STOPPED_STATUSES = [
+        BatchFileStatus.COMPLETED,
+        BatchFileStatus.FAILED,
+    ]
 
     def to_dict(self):
         data = {c.key: getattr(self, c.key) for c in self.__mapper__.columns}

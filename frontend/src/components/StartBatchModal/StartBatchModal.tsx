@@ -8,6 +8,7 @@ import { PromptsAPI } from "../../api/prompts.ts";
 import type { Prompt } from "../../types/Prompt.ts";
 import type { Batch } from "../../types/Batch.ts";
 import styles from "./StartBatchModal.module.css"
+import type {Endpoint} from "../../types/Endpoint.ts";
 
 
 type Props = {
@@ -17,8 +18,8 @@ type Props = {
 };
 
 export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
-    const [endpoint, setEndpoint] = useState("");
-    const [endpoints, setEndpoints] = useState<string[]>([]);
+    const [endpointId, setEndpointId] = useState<number | null>(null);
+    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
     const [loadingEndpoints, setLoadingEndpoints] = useState(false);
 
     const [fileTag, setFileTag] = useState("");
@@ -43,7 +44,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
     const [delay, setDelay] = useState<number>(10);
 
     useEffect(() => {
-        if (!endpoint) {
+        if (!endpointId) {
             setModels([]);
             setModel("");
             return;
@@ -52,7 +53,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
         const loadModels = async () => {
             setLoadingModels(true);
             try {
-                const mdls = await EndpointsAPI.getModels(endpoint);
+                const mdls = await EndpointsAPI.getModels(endpointId);
                 setModels(mdls);
             } catch (err) {
                 console.error(err);
@@ -63,7 +64,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
         };
 
         loadModels();
-    }, [endpoint]);
+    }, [endpointId]);
 
 
     useEffect(() => {
@@ -84,7 +85,7 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     PromptsAPI.getAll(),
                 ]);
 
-                setEndpoints(eps.map(ep => ep.name));
+                setEndpoints(eps);
                 setFileTags(fTags);
                 setFileReaders(fReaders);
                 setPrompts(prms);
@@ -116,17 +117,27 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                 alert("Please select a prompt");
                 return;
             }
+            if (endpointId === null) {
+                alert("Please select a endpoint");
+                return;
+            }
 
 
             BatchesAPI.create({
                 prompt_id: promptId,
                 files: files,
-                endpoint: endpoint,
+                endpoint_id: endpointId,
                 file_reader: fileReader,
                 model: model,
-                delay: delay,
                 temperature: temperature,
-                json_format: jsonFormat === "True"
+                json_format: jsonFormat === "True",
+                batch_worker_settings: {
+                    max_tasks_per_minute: 2,
+                    max_parallel_tasks: 1,
+                    retries_per_failed_task: 2,
+                    max_retries: 5,
+                    queue_batch: true
+                }
 
             }).then((data) => {
                 onCreated(data)
@@ -150,8 +161,8 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                 <label>Endpoint</label>
                 <select
                     required
-                    value={endpoint}
-                    onChange={(e) => setEndpoint(e.target.value)}
+                    value={endpointId ?? ""}
+                    onChange={(e) => setEndpointId(parseInt(e.target.value))}
                     disabled={loadingEndpoints}
                 >
                     <option value="" disabled>
@@ -159,8 +170,8 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     </option>
 
                     {endpoints.map((ep) => (
-                        <option key={ep} value={ep}>
-                            {ep}
+                        <option key={ep.id} value={ep.id}>
+                            {ep.name}
                         </option>
                     ))}
                 </select>
@@ -170,10 +181,10 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     required
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    disabled={!endpoint || loadingModels}
+                    disabled={!endpointId || loadingModels}
                 >
                     <option value="" disabled>
-                        {!endpoint
+                        {!endpointId
                             ? "Select endpoint first"
                             : loadingModels
                                 ? "Loading..."

@@ -11,6 +11,7 @@ class EndpointRequest(BaseModel):
 
 
 class EndpointResponse(BaseModel):
+    id: int
     name: str
     client: str
     provider: str

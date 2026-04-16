@@ -13,9 +13,9 @@ export default function EndpointsPage() {
         EndpointsAPI.getAll().then(setEndpoints);
     }, []);
 
-    function handleDeleteEndpoint(ep_name: string): void {
-        EndpointsAPI.delete(ep_name).then(() => {
-            setEndpoints(prev => prev.filter(ep => ep.name !== ep_name));
+    function handleDeleteEndpoint(ep_id: number): void {
+        EndpointsAPI.delete(ep_id).then(() => {
+            setEndpoints(prev => prev.filter(ep => ep.id !== ep_id));
         });
     }
 
@@ -42,7 +42,7 @@ export default function EndpointsPage() {
                         <td>{ep.url}</td>
                         <td>{ep.token}</td>
                         <td>
-                            <button onClick={() => handleDeleteEndpoint(ep.name)}>Del</button>
+                            <button onClick={() => handleDeleteEndpoint(ep.id)}>Del</button>
                         </td>
                     </tr>
                 ))}

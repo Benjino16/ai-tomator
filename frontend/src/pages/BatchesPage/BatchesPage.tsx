@@ -93,7 +93,7 @@ export default function BatchesPage() {
 
                             <div>{batch.model}</div>
                             <div>{batch.temperature}</div>
-                            <div>{batch.endpoint}</div>
+                            <div>{batch.endpoint_id}</div>
                             <div>{batch.file_reader}</div>
 
                             <div>

@@ -15,14 +15,14 @@ def build_batch_router(
 
         result = batch_service.start(
             prompt_id=request.prompt_id,
+            endpoint_id=request.endpoint_id,
             files=request.files,
-            endpoint_name=request.endpoint,
             file_reader=request.file_reader,
             model=request.model,
-            delay=request.delay,
             temperature=request.temperature,
             user_id=user["id"],
             json_format=request.json_format,
+            batch_worker_settings=request.batch_worker_settings,
         )
         return BatchData(**result)
 
