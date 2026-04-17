@@ -41,7 +41,17 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
     const [loadingPrompts, setLoadingPrompts] = useState(false);
 
     const [temperature, setTemperature] = useState<number>(1);
-    const [delay, setDelay] = useState<number>(10);
+
+    // Advanced batch settings
+    const [advancedOpen, setAdvancedOpen] = useState(false);
+    const [maxTasksPerMinute, setMaxTasksPerMinute] = useState<number>(5);
+    const [maxParallelTasks, setMaxParallelTasks] = useState<number>(1);
+    const [retriesPerFailedTask, setRetriesPerFailedTask] = useState<number>(2);
+    const [maxRetries, setMaxRetries] = useState<number>(5);
+    const [queueBatch, setQueueBatch] = useState<boolean>(true);
+
+    // Advanced model settings
+    const [advancedModelOpen, setAdvancedModelOpen] = useState(false);
 
     useEffect(() => {
         if (!endpointId) {
@@ -81,7 +91,6 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     EndpointsAPI.getAll(),
                     FilesAPI.getFileTags(),
                     PipelineAPI.getFileReaders(),
-
                     PromptsAPI.getAll(),
                 ]);
 
@@ -105,8 +114,6 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
     }, [isOpen]);
 
 
-
-
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
@@ -122,7 +129,6 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                 return;
             }
 
-
             BatchesAPI.create({
                 prompt_id: promptId,
                 files: files,
@@ -132,13 +138,12 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                 temperature: temperature,
                 json_format: jsonFormat === "True",
                 batch_worker_settings: {
-                    max_tasks_per_minute: 2,
-                    max_parallel_tasks: 1,
-                    retries_per_failed_task: 2,
-                    max_retries: 5,
-                    queue_batch: true
+                    max_tasks_per_minute: maxTasksPerMinute,
+                    max_parallel_tasks: maxParallelTasks,
+                    retries_per_failed_task: retriesPerFailedTask,
+                    max_retries: maxRetries,
+                    queue_batch: queueBatch,
                 }
-
             }).then((data) => {
                 onCreated(data)
             }).catch(error => {
@@ -146,8 +151,6 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                 alert(error.detail);
             })
         })
-
-
 
         onClose();
     }
@@ -168,7 +171,6 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     <option value="" disabled>
                         {loadingEndpoints ? "Loading..." : "Please select"}
                     </option>
-
                     {endpoints.map((ep) => (
                         <option key={ep.id} value={ep.id}>
                             {ep.name}
@@ -190,13 +192,11 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                                 ? "Loading..."
                                 : "Please select"}
                     </option>
-
                     {models.map((md) => (
                         <option key={md} value={md}>
                             {md.replace("models/", "")}
                         </option>
-                    ))
-                    }
+                    ))}
                 </select>
 
                 <label>File-Tag</label>
@@ -208,7 +208,6 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     <option value="" disabled>
                         {loadingFileTags ? "Loading..." : "Please select"}
                     </option>
-
                     {fileTags.map((ft) => (
                         <option key={ft} value={ft}>
                             {ft}
@@ -221,12 +220,10 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     required
                     value={fileReader}
                     onChange={(e) => setFileReader(e.target.value)}
-
                 >
                     <option value="" disabled>
                         {loadingFileReaders ? "Loading..." : "Please select"}
                     </option>
-
                     {fileReaders.map((fr) => (
                         <option key={fr} value={fr}>
                             {fr}
@@ -243,7 +240,6 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     <option value="" disabled>
                         {loadingPrompts ? "Loading..." : "Please select"}
                     </option>
-
                     {prompts.map((pr) => (
                         <option key={pr.id} value={pr.id}>
                             {pr.name}
@@ -251,41 +247,108 @@ export function StartBatchModal({ isOpen, onClose, onCreated }: Props) {
                     ))}
                 </select>
 
-                <label>Temperature</label>
-                <input
-                    id="temperature-input"
-                    placeholder="Temperature"
-                    required
-                    type="number"
-                    value={temperature} min="0.0" max="3.0"
-                    step="0.1"
-                    onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                />
 
-                <label>Answer Format</label>
-                <select
-                    required
-                    value={jsonFormat}
-                    onChange={(e) => setJSONFormat(e.target.value)}
+                {/* Model Settings */}
+                <div className={styles.advancedSection}>
+                    <button
+                        type="button"
+                        className={styles.advancedToggle}
+                        onClick={() => setAdvancedModelOpen(prev => !prev)}
+                    >
+                        <span className={`${styles.advancedArrow} ${advancedOpen ? styles.advancedArrowOpen : ""}`}>
+                            ▶
+                        </span>
+                        Model Settings
+                    </button>
 
-                >
-                    <option value="True">
-                        JSON
-                    </option>
-                    <option value="False">
-                        Text
-                    </option>
+                    {advancedModelOpen && (
+                        <div className={styles.advancedFields}>
+                            <label>Temperature</label>
+                            <input
+                                id="temperature-input"
+                                placeholder="Temperature"
+                                required
+                                type="number"
+                                value={temperature} min="0.0" max="3.0"
+                                step="0.1"
+                                onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                            />
 
-                </select>
+                            <label>Answer Format</label>
+                            <select
+                                required
+                                value={jsonFormat}
+                                onChange={(e) => setJSONFormat(e.target.value)}
+                            >
+                                <option value="True">JSON</option>
+                                <option value="False">Text</option>
+                            </select>
+                        </div>
+                    )}
+                </div>
 
-                <label>API Request Delay</label>
-                <input
-                    placeholder="(seconds)"
-                    required
-                    type="number"
-                    min="0" max="360" value={delay}
-                    onChange={(e) => setDelay(parseInt(e.target.value))}
-                />
+                {/* Batch Settings */}
+                <div className={styles.advancedSection}>
+                    <button
+                        type="button"
+                        className={styles.advancedToggle}
+                        onClick={() => setAdvancedOpen(prev => !prev)}
+                    >
+                        <span className={`${styles.advancedArrow} ${advancedOpen ? styles.advancedArrowOpen : ""}`}>
+                            ▶
+                        </span>
+                        Batch Settings
+                    </button>
+
+                    {advancedOpen && (
+                        <div className={styles.advancedFields}>
+                            <label>Max Tasks per Minute</label>
+                            <input
+                                type="number"
+                                required
+                                min={1} max={20}
+                                value={maxTasksPerMinute}
+                                onChange={(e) => setMaxTasksPerMinute(parseInt(e.target.value))}
+                            />
+
+                            <label>Max Parallel Tasks</label>
+                            <input
+                                type="number"
+                                required
+                                min={1} max={20}
+                                value={maxParallelTasks}
+                                onChange={(e) => setMaxParallelTasks(parseInt(e.target.value))}
+                            />
+
+                            <label>Retries per Failed Task</label>
+                            <input
+                                type="number"
+                                required
+                                min={0} max={20}
+                                value={retriesPerFailedTask}
+                                onChange={(e) => setRetriesPerFailedTask(parseInt(e.target.value))}
+                            />
+
+                            <label>Max Retries</label>
+                            <input
+                                type="number"
+                                required
+                                min={0} max={20}
+                                value={maxRetries}
+                                onChange={(e) => setMaxRetries(parseInt(e.target.value))}
+                            />
+
+                            <label>Queue Batch</label>
+                            <select
+                                value={queueBatch ? "true" : "false"}
+                                onChange={(e) => setQueueBatch(e.target.value === "true")}
+                            >
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    )}
+                </div>
 
                 <button type="submit">Start</button>
             </form>
