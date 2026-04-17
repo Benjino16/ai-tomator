@@ -56,3 +56,4 @@ class EndpointOps:
                 raise ValueError(f"Endpoint ID '{endpoint_id}' not found.")
             session.delete(ep)
             session.commit()
+            return ep.to_dict_public()

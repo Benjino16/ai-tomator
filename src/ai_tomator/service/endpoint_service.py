@@ -36,5 +36,5 @@ class EndpointService:
         return self.db.endpoints.list(user_id)
 
     def delete(self, endpoint_id: int, user_id: int) -> dict:
-        self.db.endpoints.delete(endpoint_id, user_id)
-        return {"id": endpoint_id, "status": "deleted"}
+        endpoint = self.db.endpoints.delete(endpoint_id, user_id)
+        return endpoint
