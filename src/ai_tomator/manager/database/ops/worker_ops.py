@@ -110,6 +110,12 @@ class WorkerOps:
                 .all()
             )
 
+    def get_running_batch_tasks(self) -> list[BatchTask]:
+        with self.SessionLocal() as session:
+            return (
+                session.query(BatchTask).filter_by(status=BatchTaskStatus.RUNNING).all()
+            )
+
     def get_endpoint(self, endpoint_id: int):
         with self.SessionLocal() as session:
             endpoint = (

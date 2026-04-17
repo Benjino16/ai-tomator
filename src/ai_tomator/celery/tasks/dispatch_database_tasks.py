@@ -54,11 +54,7 @@ def dispatch_database_tasks():
         if task:
             endpoint = db.worker.get_endpoint(batch.endpoint_id)
             file_path = db.worker.get_file_path(task.file_id)
-            db.batches.update_batch_task_status(task.id, BatchTaskStatus.RUNNING)
-            db.batches.update_batch_file_status(
-                task.batch_file_id, BatchFileStatus.RUNNING
-            )
-            process_single_file.delay(
+            worker_task = process_single_file.delay(
                 batch_id=batch.id,
                 batch_task={
                     "id": task.id,
@@ -74,4 +70,10 @@ def dispatch_database_tasks():
                 prompt=task.prompt,
                 temperature=batch.temperature,
                 json_format=batch.json_format,
+            )
+            db.batches.update_batch_task_status(
+                task.id, BatchTaskStatus.RUNNING, worker_task_id=worker_task.id
+            )
+            db.batches.update_batch_file_status(
+                task.batch_file_id, BatchFileStatus.RUNNING
             )

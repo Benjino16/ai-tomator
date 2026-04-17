@@ -34,7 +34,7 @@ class BatchTask(Base):
         default=BatchTaskStatus.QUEUED,
     )
 
-    runner_task_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    worker_task_id: Mapped[int] = mapped_column(Integer, nullable=True)
     retry_of_batch_task_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
     prompt: Mapped[str] = mapped_column(Text, nullable=False)

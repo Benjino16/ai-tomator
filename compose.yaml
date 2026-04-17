@@ -49,7 +49,7 @@ services:
       - db
       - redis
 
-  scheduler:
+  beat:
     image: ghcr.io/benjino16/ai-tomator/backend:latest
     command: celery -A ai_tomator.celery.worker beat --loglevel=info
     environment:

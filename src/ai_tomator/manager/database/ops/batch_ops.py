@@ -157,6 +157,7 @@ class BatchOps:
         self,
         batch_task_id: int,
         status: BatchTaskStatus,
+        worker_task_id: int = None,
         retry_task_id: int = None,
         engine_response: LLMClientResponse = None,
         costs_in_usd: float = None,
@@ -167,6 +168,9 @@ class BatchOps:
                 raise ValueError(f"Batch Task id '{batch_task_id}' not found.")
 
             batch_task.status = status
+
+            if worker_task_id:
+                batch_task.worker_task_id = worker_task_id
 
             if retry_task_id:
                 batch_retry_task = (
