@@ -5,7 +5,7 @@ from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealt
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
 from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 
-MODELS = ["test_model_pro", "test_model_fast"]
+MODELS = ["test_model_pro", "test_model_fast", "test_model_fail"]
 
 
 class TestLLMClient(BaseLLMClient):
@@ -67,8 +67,11 @@ class TestLLMClient(BaseLLMClient):
         if model not in MODELS:
             raise ValueError(f"Unknown model {model}")
 
+        if model == "test_model_fail":
+            raise ValueError("Test model fail")
+
         response = (
-            f"[TEST ENGINE] Response"
+            f"[TEST CLIENT] Response"
             f"using model '{model}' at {self.base_url} "
             f"with token '{self.api_token}'."
             f"Uploaded File: {file.name}"

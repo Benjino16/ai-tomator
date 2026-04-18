@@ -11,8 +11,6 @@ from ai_tomator.manager.database.models.batch import (
 from ai_tomator.manager.database.models.batch_file import BatchFile, BatchFileStatus
 from ai_tomator.manager.database.models.file import File
 
-print("BatchOps using:", Batch.__module__, File.__module__)
-
 
 class BatchOps:
     def __init__(self, session_local: sessionmaker):
@@ -22,14 +20,14 @@ class BatchOps:
         self,
         name: str,
         status: BatchStatus,
-        engine: str,
-        endpoint: str,
+        endpoint_id: int,
+        prompt_id: int,
         file_reader: str,
-        prompt: str,
         model: str,
         temperature: float,
         json_format: bool,
         user_id: int,
+        batch_worker_settings,
     ):
         with self.SessionLocal() as session:
             subq = get_group_id_subquery(session, user_id)
@@ -37,15 +35,19 @@ class BatchOps:
             batch = Batch(
                 name=name,
                 status=status,
-                engine=engine,
-                endpoint=endpoint,
-                prompt=prompt,
+                endpoint_id=endpoint_id,
+                prompt_id=prompt_id,
                 file_reader=file_reader,
                 model=model,
                 temperature=temperature,
                 json_format=json_format,
                 user_id=user_id,
                 group_id=subq,
+                max_tasks_per_minute=batch_worker_settings.max_tasks_per_minute,
+                max_parallel_tasks=batch_worker_settings.max_parallel_tasks,
+                retries_per_failed_task=batch_worker_settings.retries_per_failed_task,
+                max_retries=batch_worker_settings.max_retries,
+                queue_batch=batch_worker_settings.queue_batch,
             )
 
             session.add(batch)
@@ -57,7 +59,6 @@ class BatchOps:
         self,
         batch_id: int,
         file_id: int,
-        prompt: str,
     ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
@@ -72,7 +73,6 @@ class BatchOps:
                 file_id=file_id,
                 name=file.name,
                 status=BatchFileStatus.QUEUED,
-                prompt=prompt,
             )
 
             batch.batch_files.append(new_batch_file)
@@ -87,27 +87,32 @@ class BatchOps:
         batch_file_id: int,
         prompt: str,
         prompt_marker: str,
+        retry_task_id: int = None,
     ):
         with self.SessionLocal() as session:
-            batch = session.query(Batch).filter_by(id=batch_id).first()
+            batch = session.get(Batch, batch_id)
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
-
-            file = session.query(File).filter_by(id=file_id).first()
-            if not file:
+            if not session.get(File, file_id):
                 raise ValueError(f"File id '{file_id}' not found.")
+            if not session.get(BatchFile, batch_file_id):
+                raise ValueError(f"BatchFile id '{batch_file_id}' not found.")
 
-            batch_file = session.query(BatchFile).filter_by(id=batch_file_id).first()
-            if not batch_file:
-                raise ValueError(f"File id '{batch_file_id}' not found.")
+            root_task_id = None
+            if retry_task_id:
+                retry_task = session.get(BatchTask, retry_task_id)
+                root_task_id = retry_task.root_task_id or retry_task_id
 
             new_batch_task = BatchTask(
-                batch=batch,
-                batch_file=batch_file,
+                batch_id=batch_id,
+                batch_file_id=batch_file_id,
                 file_id=file_id,
                 status=BatchTaskStatus.QUEUED,
                 prompt=prompt,
                 prompt_marker=prompt_marker,
+                endpoint_id=batch.endpoint_id,
+                retry_of_batch_task_id=retry_task_id,
+                root_task_id=root_task_id,
             )
 
             session.add(new_batch_task)
@@ -118,7 +123,6 @@ class BatchOps:
         self,
         batch_id: int,
         status: BatchStatus,
-        engine_response: LLMClientResponse = None,
     ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
@@ -132,12 +136,6 @@ class BatchOps:
                 batch.stopped_at = func.now()
 
             batch.status = status
-
-            if engine_response:
-                batch.top_p = engine_response.top_p
-                batch.top_k = engine_response.top_k
-                batch.max_output_tokens = engine_response.max_output_tokens
-                batch.context_window = engine_response.context_window
 
             session.commit()
             session.refresh(batch)
@@ -163,6 +161,7 @@ class BatchOps:
         self,
         batch_task_id: int,
         status: BatchTaskStatus,
+        worker_task_id: int = None,
         engine_response: LLMClientResponse = None,
         costs_in_usd: float = None,
     ):
@@ -172,6 +171,9 @@ class BatchOps:
                 raise ValueError(f"Batch Task id '{batch_task_id}' not found.")
 
             batch_task.status = status
+
+            if worker_task_id:
+                batch_task.worker_task_id = worker_task_id
 
             if engine_response:
                 batch_task.input = engine_response.input

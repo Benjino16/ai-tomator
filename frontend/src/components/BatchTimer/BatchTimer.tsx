@@ -12,7 +12,7 @@ export function BatchTimer({ startTime, stopTime }: BatchTimerProps) {
             const id = setInterval(cb, 1000);
             return () => clearInterval(id);
         },
-        () => Date.now() - (3600 * 1000)
+        () => Date.now()
     );
 
     const startDate = new Date(startTime).getTime();

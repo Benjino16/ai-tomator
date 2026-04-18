@@ -1,7 +1,10 @@
-from fastapi import Cookie, HTTPException
+from fastapi import HTTPException, Security
 from jose import jwt, JWTError
+from fastapi.security import APIKeyCookie
 
 from ai_tomator.manager.database import Database
+
+cookie_scheme = APIKeyCookie(name="access_token")
 
 
 class JWTAuthenticator:
@@ -19,7 +22,7 @@ class JWTAuthenticator:
         self.require_user_auth = require_user_auth
         self.secure_cookies = secure_cookies
 
-    def __call__(self, access_token: str | None = Cookie(default=None)):
+    def __call__(self, access_token: str | None = Security(cookie_scheme)):
         if not self.require_user_auth:
             return self.db.users.get_by_username("localhost")
         if not access_token:

@@ -1,6 +1,6 @@
 import enum
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, func, Enum, Integer, Float
+from sqlalchemy import ForeignKey, func, Enum, Integer, Float, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
@@ -9,17 +9,17 @@ from .user_group_mixin import UserGroupMixin
 if TYPE_CHECKING:
     from .batch_file import BatchFile
     from .batch_task import BatchTask
+    from .endpoint import Endpoint
+    from .prompt import Prompt
 
 
 class BatchStatus(enum.Enum):
-    STARTING = "STARTING"
-    RUNNING = "RUNNING"
-    STOPPING = "STOPPING"
-    STOPPED = "STOPPED"
-    FAILED = "FAILED"
-    COMPLETED = "COMPLETED"
     SCHEDULED = "SCHEDULED"
     QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    STOPPED = "STOPPED"
+    FAILED = "FAILED"
 
 
 class Batch(Base, UserGroupMixin):
@@ -31,10 +31,9 @@ class Batch(Base, UserGroupMixin):
         Enum(BatchStatus, name="batch_status_enum"), nullable=False
     )
 
-    engine: Mapped[str] = mapped_column(nullable=False)
-    endpoint: Mapped[str] = mapped_column(nullable=False)
+    endpoint_id: Mapped[int] = mapped_column(ForeignKey("endpoints.id"), nullable=False)
+    prompt_id: Mapped[int] = mapped_column(ForeignKey("prompts.id"), nullable=False)
     file_reader: Mapped[str] = mapped_column(nullable=False)
-    prompt: Mapped[str] = mapped_column(nullable=False)
     model: Mapped[str] = mapped_column(nullable=False)
     temperature: Mapped[float] = mapped_column(nullable=False)
     json_format: Mapped[bool] = mapped_column(nullable=False)
@@ -46,12 +45,21 @@ class Batch(Base, UserGroupMixin):
 
     costs_in_usd: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
 
+    max_tasks_per_minute: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_parallel_tasks: Mapped[int] = mapped_column(Integer, nullable=False)
+    retries_per_failed_task: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_retries: Mapped[int] = mapped_column(Integer, nullable=False)
+    queue_batch: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
-    started_at: Mapped[datetime] = mapped_column(nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         nullable=False, default=func.now(), onupdate=func.now()
     )
+    started_at: Mapped[datetime] = mapped_column(nullable=True)
     stopped_at: Mapped[datetime] = mapped_column(nullable=True)
+
+    endpoint: Mapped["Endpoint"] = relationship()
+    prompt: Mapped["Prompt"] = relationship()
 
     batch_files: Mapped[list["BatchFile"]] = relationship(
         back_populates="batch", cascade="all, delete-orphan"
@@ -69,17 +77,13 @@ class Batch(Base, UserGroupMixin):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
 
     ACTIVE_STATUSES = [
-        BatchStatus.STARTING,
         BatchStatus.RUNNING,
-        BatchStatus.STOPPING,
         BatchStatus.SCHEDULED,
         BatchStatus.QUEUED,
     ]
 
     RUNNING_STATUSES = [
-        BatchStatus.STARTING,
         BatchStatus.RUNNING,
-        BatchStatus.STOPPING,
     ]
 
     STOPPED_STATUSES = [

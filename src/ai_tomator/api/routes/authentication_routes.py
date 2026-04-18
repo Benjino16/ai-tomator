@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Response, HTTPException, Depends
+from fastapi import APIRouter, Response, HTTPException, Security
 from ai_tomator.service.login_service import LoginService
 from ..models.login_models import LoginRequest, RegisterRequest
 from ai_tomator.service.jwt_authenticator import JWTAuthenticator
@@ -37,7 +37,7 @@ def build_authentication_router(
             raise HTTPException(status_code=400, detail=str(e))
 
     @router.get("/me", response_model=dict)
-    def me(user=Depends(jwt_authenticator)):
+    def me(user=Security(jwt_authenticator)):
         return {"success": True, "username": user["username"]}
 
     @router.post("/logout", response_model=dict)

@@ -49,6 +49,23 @@ services:
       - db
       - redis
 
+  beat:
+    image: ghcr.io/benjino16/ai-tomator/backend:latest
+    command: celery -A ai_tomator.celery.worker beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/ai_tomator
+      - REDIS_URL=redis://redis:6379/0
+
+      #Minio Config
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=llm-files
+      - MINIO_SECURE=false  # "true" if TLS is activated
+    depends_on:
+      - db
+      - redis
+
   frontend:
     image: ghcr.io/benjino16/ai-tomator/frontend:latest
     ports:
