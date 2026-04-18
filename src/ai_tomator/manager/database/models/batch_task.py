@@ -36,6 +36,7 @@ class BatchTask(Base):
 
     worker_task_id: Mapped[int] = mapped_column(Integer, nullable=True)
     retry_of_batch_task_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    root_task_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
     prompt_marker: Mapped[str] = mapped_column(Text, nullable=False)

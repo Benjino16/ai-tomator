@@ -87,28 +87,32 @@ class BatchOps:
         batch_file_id: int,
         prompt: str,
         prompt_marker: str,
+        retry_task_id: int = None,
     ):
         with self.SessionLocal() as session:
-            batch = session.query(Batch).filter_by(id=batch_id).first()
+            batch = session.get(Batch, batch_id)
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
-
-            file = session.query(File).filter_by(id=file_id).first()
-            if not file:
+            if not session.get(File, file_id):
                 raise ValueError(f"File id '{file_id}' not found.")
+            if not session.get(BatchFile, batch_file_id):
+                raise ValueError(f"BatchFile id '{batch_file_id}' not found.")
 
-            batch_file = session.query(BatchFile).filter_by(id=batch_file_id).first()
-            if not batch_file:
-                raise ValueError(f"File id '{batch_file_id}' not found.")
+            root_task_id = None
+            if retry_task_id:
+                retry_task = session.get(BatchTask, retry_task_id)
+                root_task_id = retry_task.root_task_id or retry_task_id
 
             new_batch_task = BatchTask(
-                batch=batch,
-                batch_file=batch_file,
+                batch_id=batch_id,
+                batch_file_id=batch_file_id,
                 file_id=file_id,
                 status=BatchTaskStatus.QUEUED,
                 prompt=prompt,
                 prompt_marker=prompt_marker,
                 endpoint_id=batch.endpoint_id,
+                retry_of_batch_task_id=retry_task_id,
+                root_task_id=root_task_id,
             )
 
             session.add(new_batch_task)
@@ -158,7 +162,6 @@ class BatchOps:
         batch_task_id: int,
         status: BatchTaskStatus,
         worker_task_id: int = None,
-        retry_task_id: int = None,
         engine_response: LLMClientResponse = None,
         costs_in_usd: float = None,
     ):
@@ -171,15 +174,6 @@ class BatchOps:
 
             if worker_task_id:
                 batch_task.worker_task_id = worker_task_id
-
-            if retry_task_id:
-                batch_retry_task = (
-                    session.query(BatchTask).filter_by(id=retry_task_id).first()
-                )
-                if not batch_retry_task:
-                    raise ValueError(f"BatchTask Retry id '{retry_task_id}' not found.")
-                new_retry_id = batch_retry_task.retry_of_batch_task_id or retry_task_id
-                batch_task.retry_of_batch_task_id = new_retry_id
 
             if engine_response:
                 batch_task.input = engine_response.input

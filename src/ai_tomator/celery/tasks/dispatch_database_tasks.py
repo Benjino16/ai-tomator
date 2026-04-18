@@ -15,6 +15,16 @@ logger = get_task_logger(__name__)
 def dispatch_database_tasks():
     db = Database(service_settings.postgres_dsn)
 
+    for task in db.worker.get_failed_tasks_with_open_retry():
+        db.batches.add_batch_task(
+            batch_id=task.batch_id,
+            file_id=task.file_id,
+            batch_file_id=task.batch_file_id,
+            prompt=task.prompt,
+            prompt_marker=task.prompt_marker,
+            retry_task_id=task.id,
+        )
+
     for batch_file in db.worker.get_running_batch_files_with_no_pending_task():
         db.batches.update_batch_file_status(batch_file.id, BatchFileStatus.COMPLETED)
 
@@ -42,6 +52,12 @@ def dispatch_database_tasks():
     running_batches = db.worker.get_batches_with_status(BatchStatus.RUNNING)
     logger.info(f"Fetched {len(running_batches)} running batches")
     for batch in running_batches:
+
+        if db.worker.count_failed_task_of_batch(batch.id) > batch.max_retries:
+            db.batches.update_status(batch.id, BatchStatus.FAILED)
+            # todo: set remaining batch files failed
+            # todo: set remaining batch tasks failed
+
         if db.worker.count_running_tasks_on_batch(batch.id) >= batch.max_parallel_tasks:
             continue
         if (
@@ -74,6 +90,6 @@ def dispatch_database_tasks():
             db.batches.update_batch_task_status(
                 task.id, BatchTaskStatus.RUNNING, worker_task_id=worker_task.id
             )
-            db.batches.update_batch_file_status(
+            db.batches.update_batch_file_status(  # todo: set to queued when no tasks running
                 task.batch_file_id, BatchFileStatus.RUNNING
             )

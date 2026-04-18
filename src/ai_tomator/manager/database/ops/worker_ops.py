@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
-from sqlalchemy import func, and_
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import func, and_, select
+from sqlalchemy.orm import sessionmaker, aliased
 
 from ai_tomator.manager.database.models.batch_file import BatchFile
 from ai_tomator.manager.database.models.batch_task import BatchTask, BatchTaskStatus
@@ -73,14 +73,8 @@ class WorkerOps:
 
     def get_running_batch_files_with_no_pending_task(self):
         with self.SessionLocal() as session:
-            pending_tasks = (
-                session.query(BatchTask.batch_file_id)
-                .filter(
-                    BatchTask.status.in_(
-                        [BatchTaskStatus.QUEUED, BatchTaskStatus.RUNNING]
-                    )
-                )
-                .subquery()
+            pending_tasks = session.query(BatchTask.batch_file_id).filter(
+                BatchTask.status.in_([BatchTaskStatus.QUEUED, BatchTaskStatus.RUNNING])
             )
             return (
                 session.query(BatchFile)
@@ -93,14 +87,8 @@ class WorkerOps:
 
     def get_running_batches_with_no_pending_task(self):
         with self.SessionLocal() as session:
-            pending_tasks = (
-                session.query(BatchTask.batch_id)
-                .filter(
-                    BatchTask.status.in_(
-                        [BatchTaskStatus.QUEUED, BatchTaskStatus.RUNNING]
-                    )
-                )
-                .subquery()
+            pending_tasks = session.query(BatchTask.batch_id).filter(
+                BatchTask.status.in_([BatchTaskStatus.QUEUED, BatchTaskStatus.RUNNING])
             )
             return (
                 session.query(Batch)
@@ -110,10 +98,62 @@ class WorkerOps:
                 .all()
             )
 
-    def get_running_batch_tasks(self) -> list[BatchTask]:
+    def count_failed_task_of_batch(self, batch_id) -> int:
         with self.SessionLocal() as session:
             return (
-                session.query(BatchTask).filter_by(status=BatchTaskStatus.RUNNING).all()
+                session.query(BatchTask)
+                .filter_by(batch_id=batch_id, status=BatchTaskStatus.FAILED)
+                .count()
+            )
+
+    def get_failed_tasks_with_open_retry(self) -> list[BatchTask]:
+        with self.SessionLocal() as session:
+            RetryTask = aliased(BatchTask)
+
+            # count retries of root task
+            retry_count = (
+                select(func.count(RetryTask.id))
+                .where(RetryTask.retry_of_batch_task_id == BatchTask.id)
+                .correlate(BatchTask)
+                .scalar_subquery()
+            )
+
+            # does a retry already exists
+            open_retry_exists = (
+                select(RetryTask.id)
+                .where(
+                    RetryTask.retry_of_batch_task_id == BatchTask.id,
+                    RetryTask.status.in_(
+                        [
+                            BatchTaskStatus.QUEUED,
+                            BatchTaskStatus.RUNNING,
+                        ]
+                    ),
+                )
+                .correlate(BatchTask)
+                .exists()
+            )
+
+            stmt = (
+                select(BatchTask)
+                .join(BatchTask.batch)
+                .where(
+                    Batch.status == BatchStatus.RUNNING,
+                    BatchTask.status == BatchTaskStatus.FAILED,
+                    BatchTask.retry_of_batch_task_id is None,
+                    retry_count < Batch.retries_per_failed_task,
+                    ~open_retry_exists,
+                )
+            )
+
+            return list(session.execute(stmt).scalars().all())
+
+    def get_running_batch_tasks(self) -> list[BatchTask]:
+        with self.SessionLocal() as session:
+            return list(
+                session.scalars(
+                    select(BatchTask).where(BatchTask.status == BatchTaskStatus.RUNNING)
+                )
             )
 
     def get_endpoint(self, endpoint_id: int):

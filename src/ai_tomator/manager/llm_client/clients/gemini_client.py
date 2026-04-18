@@ -55,6 +55,7 @@ class GeminiLLMClient(BaseLLMClient):
 
         if file:
             file = self.client.files.upload(file=file)
+            # todo: fix missing mime_type exception
             contents = [
                 {
                     "role": "user",

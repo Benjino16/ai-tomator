@@ -1,8 +1,14 @@
 import time
 
 
-def wait_for_status(authenticated_client, batch_id, status, raise_on_status=None):
-    for i in range(60):
+def wait_for_status(
+    authenticated_client,
+    batch_id,
+    status,
+    raise_on_status=None,
+    raise_after_seconds=120,
+):
+    for i in range(raise_after_seconds):
         time.sleep(1)
         r = authenticated_client.get("/api/batches/")
         assert r.status_code == 200
@@ -33,7 +39,7 @@ def test_batch_workflow(
             "max_parallel_tasks": 1,
             "retries_per_failed_task": 3,
             "max_retries": 5,
-            "queue_batch": True,
+            "queue_batch": False,
         },
     }
     r = authenticated_client.post("/api/batches/start", json=batch_run_payload)
@@ -48,5 +54,5 @@ def test_batch_workflow(
     assert match["status"] == "QUEUED"
 
     assert wait_for_status(
-        authenticated_client, batch_id, "COMPLETED", ["FAILED", "STOPPED"]
+        authenticated_client, batch_id, "COMPLETED", ["FAILED", "STOPPED"], 60
     )
