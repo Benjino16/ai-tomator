@@ -1,11 +1,16 @@
 # database/base.py
+from datetime import datetime
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.pool import StaticPool
+from sqlalchemy import DateTime
 
 
 class Base(DeclarativeBase):
-    pass
+    type_annotation_map = {
+        datetime: DateTime(timezone=True),
+    }
 
 
 def get_session(db_path: str = "sqlite:///ai_tomator.db"):
