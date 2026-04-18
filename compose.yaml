@@ -39,14 +39,14 @@ services:
       - ACCESS_TOKEN_EXPIRE_MINUTES=1440
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || Path(`/redoc`) || Path(`/openapi.json`)"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`) || PathPrefix(`/health`) || PathPrefix(`/docs`) || Path(`/redoc`) || Path(`/openapi.json`)"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.routers.backend.priority=10"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
-
     depends_on:
       - db
       - redis
+      - minio
 
   frontend:
     image: ghcr.io/benjino16/ai-tomator/frontend:latest
@@ -88,7 +88,6 @@ services:
       - MINIO_BUCKET=llm-files
       - MINIO_SECURE=false
     depends_on:
-      - db
       - redis
 
   db:
@@ -102,17 +101,12 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
 
   minio:
     image: minio/minio
     container_name: minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
