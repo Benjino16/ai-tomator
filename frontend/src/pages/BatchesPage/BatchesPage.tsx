@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BatchesAPI } from "../../api/batches.ts";
-import { type Batch } from "../../types/Batch.ts";
+import { type Batch, ACTIVE_STATUSES } from "../../types/Batch.ts";
 import { type BatchFile } from "../../types/BatchFile.ts";
 import { Button } from "../../components/Button/Button.tsx";
 import { StartBatchModal } from "../../components/StartBatchModal/StartBatchModal.tsx";
@@ -9,15 +9,38 @@ import { BatchTimer } from "../../components/BatchTimer/BatchTimer.tsx";
 import { BatchDetailView } from "../../components/BatchDetailView/BatchDetailView.tsx";
 import styles from "../../pages/BatchesPage/BatchesPage.module.css";
 
+
 export default function BatchesPage() {
     const [batches, setBatches] = useState<Batch[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [expandedBatchId, setExpandedBatchId] = useState<number | null>(null);
     const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
 
+
     useEffect(() => {
         BatchesAPI.getAll().then(setBatches);
     }, []);
+    useEffect(() => {
+        const hasActiveBatch = batches.some(b => ACTIVE_STATUSES.includes(b.status));
+        if (!hasActiveBatch) return;
+
+        const interval = setInterval(() => {
+            BatchesAPI.getAll().then(setBatches);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [batches]);
+    useEffect(() => {
+        if(!expandedBatchId) return;
+        const expandedBatch = batches.find(b => b.id === expandedBatchId);
+        if (!expandedBatch || !ACTIVE_STATUSES.includes(expandedBatch.status)) return;
+
+        const interval = setInterval(() => {
+            BatchesAPI.getBatchFilesById(expandedBatchId).then(setBatchFiles);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [batches, expandedBatchId]);
 
     function handleStop(batch_id: number) {
         BatchesAPI.stop(batch_id).catch((err) => {

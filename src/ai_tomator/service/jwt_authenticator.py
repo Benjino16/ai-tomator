@@ -1,10 +1,11 @@
-from fastapi import Cookie, HTTPException, Security
+from fastapi import HTTPException, Security
 from jose import jwt, JWTError
 from fastapi.security import APIKeyCookie
 
 from ai_tomator.manager.database import Database
 
 cookie_scheme = APIKeyCookie(name="access_token")
+
 
 class JWTAuthenticator:
     def __init__(

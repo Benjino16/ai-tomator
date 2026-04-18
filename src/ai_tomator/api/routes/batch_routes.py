@@ -49,7 +49,6 @@ def build_batch_router(
 
     @router.get("/", response_model=list[BatchData])
     def list_runs(user=Security(jwt_authenticator)):
-        print(batch_service.list_batches(user["id"]))
         return batch_service.list_batches(user["id"])
 
     return router
