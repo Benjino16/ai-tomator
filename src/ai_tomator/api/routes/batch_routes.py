@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Security
 
 from ai_tomator.api.models.batch_models import BatchData, BatchRunRequest, BatchFileData
 from ai_tomator.service.jwt_authenticator import JWTAuthenticator
@@ -11,7 +11,7 @@ def build_batch_router(
     router = APIRouter(prefix="/batches", tags=["Batches"])
 
     @router.post("/start", response_model=BatchData)
-    def start_run(request: BatchRunRequest, user=Depends(jwt_authenticator)):
+    def start_run(request: BatchRunRequest, user=Security(jwt_authenticator)):
 
         result = batch_service.start(
             prompt_id=request.prompt_id,
@@ -27,7 +27,7 @@ def build_batch_router(
         return BatchData(**result)
 
     @router.post("/stop/{batch_id}")
-    def stop_run(batch_id: int, user=Depends(jwt_authenticator)):
+    def stop_run(batch_id: int, user=Security(jwt_authenticator)):
         try:
             result = batch_service.stop(batch_id, user["id"])
             return BatchData(**result)
@@ -35,20 +35,20 @@ def build_batch_router(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     @router.get("/{batch_id}", response_model=BatchData)
-    def get_batch(batch_id: int, user=Depends(jwt_authenticator)):
+    def get_batch(batch_id: int, user=Security(jwt_authenticator)):
         result = batch_service.get_batch(batch_id, user["id"])
         return BatchData(**result)
 
     @router.get("/files/{batch_id}", response_model=list[BatchFileData])
-    def get_batch_files(batch_id: int, user=Depends(jwt_authenticator)):
+    def get_batch_files(batch_id: int, user=Security(jwt_authenticator)):
         return batch_service.get_batch_files(batch_id, user["id"])
 
     @router.get("/log/{batch_id}")
-    def get_batch_log(batch_id: int, user=Depends(jwt_authenticator)):
+    def get_batch_log(batch_id: int, user=Security(jwt_authenticator)):
         return batch_service.get_batch_log(batch_id, user["id"])
 
     @router.get("/", response_model=list[BatchData])
-    def list_runs(user=Depends(jwt_authenticator)):
+    def list_runs(user=Security(jwt_authenticator)):
         print(batch_service.list_batches(user["id"]))
         return batch_service.list_batches(user["id"])
 

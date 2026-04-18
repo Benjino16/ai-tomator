@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Security
 from ai_tomator.service.jwt_authenticator import JWTAuthenticator
 from ...core.exceptions import NameAlreadyExistsError
 from ...service.user_service import UserService
@@ -11,7 +11,7 @@ def build_admin_router(
     router = APIRouter(prefix="/admin", tags=["Admin"])
 
     @router.post("/set_group", response_model=dict)
-    def set_group(username: str, group_id: int, user=Depends(jwt_authenticator)):
+    def set_group(username: str, group_id: int, user=Security(jwt_authenticator)):
         if user["is_admin"]:
             try:
                 return user_service.set_user_group(username, group_id)
@@ -20,13 +20,13 @@ def build_admin_router(
         raise HTTPException(status_code=403, detail="Not authorized")
 
     @router.get("/users", response_model=list[dict])
-    def get_users(user=Depends(jwt_authenticator)):
+    def get_users(user=Security(jwt_authenticator)):
         if user["is_admin"]:
             return user_service.get_users()
         raise HTTPException(status_code=403, detail="Not authorized")
 
     @router.get("/groups", response_model=list[dict])
-    def get_groups(user=Depends(jwt_authenticator)):
+    def get_groups(user=Security(jwt_authenticator)):
         if user["is_admin"]:
             return user_service.get_groups()
         raise HTTPException(status_code=403, detail="Not authorized")
@@ -36,7 +36,7 @@ def build_admin_router(
         return not user_service.does_any_user_exist()
 
     @router.post("/add_group", response_model=dict)
-    def add_group(group_name: str, user=Depends(jwt_authenticator)):
+    def add_group(group_name: str, user=Security(jwt_authenticator)):
         if user["is_admin"]:
             try:
                 return user_service.add_group(group_name)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Security
 from starlette import status
 
 from ai_tomator.api.models.prompt_models import PromptData, PromptRequest
@@ -13,7 +13,7 @@ def build_prompt_router(
     router = APIRouter(prefix="/prompts", tags=["Prompts"])
 
     @router.post("/add")
-    def add_prompt(prompt: PromptRequest, user=Depends(jwt_authenticator)):
+    def add_prompt(prompt: PromptRequest, user=Security(jwt_authenticator)):
         try:
             return prompt_service.add(
                 name=prompt.name,
@@ -25,11 +25,11 @@ def build_prompt_router(
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
     @router.get("/", response_model=list[PromptData])
-    def list_prompts(user=Depends(jwt_authenticator)):
+    def list_prompts(user=Security(jwt_authenticator)):
         return prompt_service.list(user["id"])
 
     @router.delete("/delete/{prompt_id}")
-    def delete_prompt(prompt_id: int, user=Depends(jwt_authenticator)):
+    def delete_prompt(prompt_id: int, user=Security(jwt_authenticator)):
         try:
             return prompt_service.delete(prompt_id=prompt_id, user_id=user["id"])
         except ValueError as e:

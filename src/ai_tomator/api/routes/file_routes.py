@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Security
 from fastapi.responses import Response
 
 from ai_tomator.service.file_service import FileService
@@ -17,16 +17,16 @@ def build_file_router(file_service: FileService, jwt_authenticator: JWTAuthentic
     def upload_file(
         file: UploadFile = File(...),
         tags: Optional[List[str]] = Form(None),
-        user=Depends(jwt_authenticator),
+        user=Security(jwt_authenticator),
     ):
         return FileData(**file_service.upload_file(file, tags, user["id"]))
 
     @router.get("/download/{file_id}")
-    def download_file(id: int, user=Depends(jwt_authenticator)):
+    def download_file(id: int, user=Security(jwt_authenticator)):
         pass
 
     @router.delete("/delete/{file_id}")
-    def delete_file(file_id: int, user=Depends(jwt_authenticator)):
+    def delete_file(file_id: int, user=Security(jwt_authenticator)):
         try:
             file_service.delete_file(file_id, user["id"])
             return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -36,11 +36,11 @@ def build_file_router(file_service: FileService, jwt_authenticator: JWTAuthentic
             )
 
     @router.get("/", response_model=list[FileData])
-    def list_files(user=Depends(jwt_authenticator)):
+    def list_files(user=Security(jwt_authenticator)):
         return file_service.list_files(user["id"])
 
     @router.get("/tags", response_model=list[str])
-    def get_file_tags(user=Depends(jwt_authenticator)):
+    def get_file_tags(user=Security(jwt_authenticator)):
         files = file_service.list_files(user["id"])
 
         tags = set()
@@ -51,7 +51,7 @@ def build_file_router(file_service: FileService, jwt_authenticator: JWTAuthentic
         return sorted(tags)
 
     @router.get("/by-tag/{tag}", response_model=list[FileData])
-    def get_files_by_tag(tag: str, user=Depends(jwt_authenticator)):
+    def get_files_by_tag(tag: str, user=Security(jwt_authenticator)):
         files = file_service.list_files(user["id"])
 
         return [FileData(**f) for f in files if f.get("tags") and tag in f["tags"]]

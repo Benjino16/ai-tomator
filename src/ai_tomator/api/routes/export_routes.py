@@ -1,4 +1,4 @@
-from fastapi import Query, Depends
+from fastapi import Query, Security
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
@@ -13,7 +13,7 @@ def build_export_router(
 
     @router.get("/batches")
     def export_csv(
-        mode: str, batch_ids: list[int] = Query(), user=Depends(jwt_authenticator)
+        mode: str, batch_ids: list[int] = Query(), user=Security(jwt_authenticator)
     ):
         file_buffer, filename, content_type = export_service.export_batches(
             batch_ids, mode, user["id"]
