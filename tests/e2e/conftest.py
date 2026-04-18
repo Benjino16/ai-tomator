@@ -4,7 +4,7 @@ import pytest
 import uuid
 from fixtures import upload_file, create_endpoint, create_prompt  # noqa: F401
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost"
 
 
 def wait_for_backend(retries=30, delay=1):

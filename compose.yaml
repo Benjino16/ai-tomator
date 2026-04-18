@@ -1,36 +1,65 @@
 services:
+  traefik:
+    image: traefik:v3.6
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      # Uncomment for HTTPS:
+      # - "--entrypoints.websecure.address=:443"
+      # - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      # - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      # - "--certificatesresolvers.letsencrypt.acme.email=you@example.com"
+      # - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # - "letsencrypt:/letsencrypt"
+    depends_on:
+      - backend
+      - frontend
+
   backend:
     image: ghcr.io/benjino16/ai-tomator/backend:latest
     command: uvicorn ai_tomator.app:app --host 0.0.0.0 --port 8000
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     environment:
       - DATABASE_URL=postgresql://user:pass@db:5432/ai_tomator
       - REDIS_URL=redis://redis:6379/0
-
-      #Minio Config
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - MINIO_BUCKET=llm-files
-      - MINIO_SECURE=false  # "true" if TLS is activated
-
-      #JWT Authentication Config
-      - AUTH_REQUIRED=true #Set to false to enable local mode (no account system)
-      - SECURE_COOKIES=true #Set to false to allow JWT authentication over HTTP (not secure!)
-      - ACCESS_TOKEN_EXPIRE_MINUTES=1440 # Time in minutes until the client has to log in again
-
-
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-
+      - MINIO_SECURE=false
+      - AUTH_REQUIRED=true
+      - SECURE_COOKIES=true
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`) || PathPrefix(`/health`) || PathPrefix(`/docs`) || Path(`/redoc`) || Path(`/openapi.json`)"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.backend.priority=10"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
     depends_on:
       - db
       - redis
+      - minio
+
+  frontend:
+    image: ghcr.io/benjino16/ai-tomator/frontend:latest
+    expose:
+      - "80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.priority=1"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+    depends_on:
+      - backend
 
   worker:
     image: ghcr.io/benjino16/ai-tomator/backend:latest
@@ -38,13 +67,11 @@ services:
     environment:
       - DATABASE_URL=postgresql://user:pass@db:5432/ai_tomator
       - REDIS_URL=redis://redis:6379/0
-
-      #Minio Config
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - MINIO_BUCKET=llm-files
-      - MINIO_SECURE=false  # "true" if TLS is activated
+      - MINIO_SECURE=false
     depends_on:
       - db
       - redis
@@ -55,24 +82,13 @@ services:
     environment:
       - DATABASE_URL=postgresql://user:pass@db:5432/ai_tomator
       - REDIS_URL=redis://redis:6379/0
-
-      #Minio Config
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
       - MINIO_BUCKET=llm-files
-      - MINIO_SECURE=false  # "true" if TLS is activated
+      - MINIO_SECURE=false
     depends_on:
-      - db
       - redis
-
-  frontend:
-    image: ghcr.io/benjino16/ai-tomator/frontend:latest
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - backend
 
   db:
     image: postgres:18
@@ -85,17 +101,12 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
 
   minio:
     image: minio/minio
     container_name: minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -103,9 +114,8 @@ services:
     volumes:
       - minio_data:/data
 
-
-
 volumes:
   postgres_data:
   redis_data:
   minio_data:
+  # letsencrypt:
