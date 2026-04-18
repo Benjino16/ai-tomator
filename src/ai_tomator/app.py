@@ -39,7 +39,10 @@ service_settings = ServiceSettings()
 app_settings = AppSettings()
 
 if not app_settings.secure_cookies:
-    logger.warning("Secure cookie is disabled. This is only recommended for development.")
+    logger.warning(
+        "Secure cookie is disabled. This is only recommended for development."
+    )
+
 
 def create_app(required_user_auth=True) -> FastAPI:
 
