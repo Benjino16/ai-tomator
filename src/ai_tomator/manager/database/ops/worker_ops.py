@@ -140,7 +140,7 @@ class WorkerOps:
                 .where(
                     Batch.status == BatchStatus.RUNNING,
                     BatchTask.status == BatchTaskStatus.FAILED,
-                    BatchTask.retry_of_batch_task_id is None,
+                    BatchTask.retry_of_batch_task_id.is_(None),
                     retry_count < Batch.retries_per_failed_task,
                     ~open_retry_exists,
                 )
