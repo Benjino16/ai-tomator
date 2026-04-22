@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, BinaryIO
+
+from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
 from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
@@ -16,7 +18,7 @@ class BaseLLMClient(ABC):
         self,
         model: str,
         prompt: str,
-        file: Optional[BinaryIO] = None,
+        file: Optional[MediaFile] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
     ) -> LLMClientResponse:
@@ -32,14 +34,4 @@ class BaseLLMClient(ABC):
 
     @abstractmethod
     def token_count(self, model: str, text: str) -> int:
-        pass
-
-    @abstractmethod
-    def cost_estimate(
-        self, model: str, prompt_tokens: int, completion_tokens: int
-    ) -> float:
-        pass
-
-    @abstractmethod
-    def time_estimate(self, model: str, tokens: int) -> float:
         pass

@@ -10,7 +10,7 @@ from ai_tomator.manager.database import Database
 from ai_tomator.manager.endpoint_manager import EndpointManager
 from ai_tomator.manager.file_manager import FileManager
 from ai_tomator.manager.file_storage import MinIOStorage
-from ai_tomator.manager.llm_client import ClientManager
+from ai_tomator.manager.llm_client.client_manager import ClientManager
 from ai_tomator.service.endpoint_service import EndpointService
 from ai_tomator.service.export_service import ExportService
 from ai_tomator.service.file_service import FileService

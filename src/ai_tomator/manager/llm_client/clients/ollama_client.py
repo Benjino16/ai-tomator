@@ -1,5 +1,6 @@
 from typing import Optional, BinaryIO
 
+from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
 import tiktoken
@@ -37,19 +38,12 @@ class OllamaLLMClient(BaseLLMClient):
             enc = tiktoken.get_encoding("cl100k_base")
         return len(enc.encode(text))
 
-    def cost_estimate(
-        self, model: str, prompt_tokens: int, completion_tokens: int
-    ) -> float:
-        return 0  # todo: implement price calculation
-
-    def time_estimate(self, model: str, tokens: int) -> float:
-        return tokens / 150  # todo: implement real statistic
 
     def run(
         self,
         model: str,
         prompt: str,
-        file: Optional[BinaryIO] = None,
+        file: Optional[MediaFile] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
     ) -> LLMClientResponse:

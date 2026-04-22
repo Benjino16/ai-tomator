@@ -40,11 +40,11 @@ def process_single_file(
             batch_task["id"],
             f"Processing file: {batch_task['file_id']} with endpoint {model} at {endpoint['name']}",
         )
-        file_content = file_manager.download_by_path(batch_task["path"])
+        file = file_manager.download_intern(batch_task["file_id"])
         result = client_manager.process(
             endpoint=endpoint,
             file_reader=file_reader,
-            file=file_content,
+            file=file,
             model=model,
             prompt=prompt,
             temperature=temperature,

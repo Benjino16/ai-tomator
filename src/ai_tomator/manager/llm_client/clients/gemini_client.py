@@ -1,10 +1,14 @@
+import io
 from typing import Optional, BinaryIO
 
+from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
 import tiktoken
 from google import genai
+from google.genai import errors as genai_errors
 
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
+from ai_tomator.manager.llm_client.models.exceptions import RateLimitError
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
 from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 
@@ -34,19 +38,12 @@ class GeminiLLMClient(BaseLLMClient):
             enc = tiktoken.get_encoding("cl100k_base")
         return len(enc.encode(text))
 
-    def cost_estimate(
-        self, model: str, prompt_tokens: int, completion_tokens: int
-    ) -> float:
-        return 0  # todo: implement price calculation
-
-    def time_estimate(self, model: str, tokens: int) -> float:
-        return tokens / 150  # todo: implement real statistic
 
     def run(
         self,
         model: str,
         prompt: str,
-        file: Optional[BinaryIO] = None,
+        file: Optional[MediaFile] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
     ) -> LLMClientResponse:
@@ -54,8 +51,14 @@ class GeminiLLMClient(BaseLLMClient):
             raise ValueError("Either file_path or content must be specified")
 
         if file:
-            file = self.client.files.upload(file=file)
-            # todo: fix missing mime_type exception
+            file_obj = io.BytesIO(file.data)
+            file_obj.name = file.name
+
+            file = self.client.files.upload(
+                file=file_obj, config=genai.types.UploadFileConfig(
+                    mime_type=file.mime_type,
+                    display_name=file.name
+                ))
             contents = [
                 {
                     "role": "user",
@@ -75,16 +78,29 @@ class GeminiLLMClient(BaseLLMClient):
                     ],
                 },
             ]
-        response = self.client.models.generate_content(
-            model=model,
-            contents=contents,
-            config={
-                "temperature": model_settings.temperature,
-                "response_mime_type": (
-                    "application/json" if model_settings.json_format else "text/plain"
-                ),
-            },
-        )
+
+        response_type = "application/json" if model_settings.json_format else "text/plain"
+        try:
+            response = self.client.models.generate_content(
+                model=model,
+                contents=contents, # type: ignore
+                config={ # type: ignore
+                    "temperature": model_settings.temperature,
+                    "response_mime_type": (
+                        response_type
+                    ),
+                },
+            )
+        except genai_errors.ClientError as e:
+            if e.code == 429:
+                raise RateLimitError(e)
+            else:
+                raise e
+        except genai_errors.ServerError as e:
+            if e.code == 503:
+                raise RateLimitError(e)
+            else:
+                raise e
         return LLMClientResponse(
             client=self.__class__.__name__,
             model=model,

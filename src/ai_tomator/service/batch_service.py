@@ -3,7 +3,7 @@ import logging
 from .endpoint_service import EndpointService
 from .file_service import FileService
 from ai_tomator.manager.file_reader.reader_manager import FileReaderManager
-from ai_tomator.manager.llm_client import ClientManager
+from ai_tomator.manager.llm_client.client_manager import ClientManager
 from ai_tomator.manager.prompt_interpreter import interpret_prompt
 from ..manager.database import Database
 from ..manager.database.models.batch import BatchStatus

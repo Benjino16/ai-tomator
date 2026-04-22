@@ -1,10 +1,12 @@
 from typing import Optional, BinaryIO
 
+from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
 import tiktoken
 import openai
 
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
+from ai_tomator.manager.llm_client.models.exceptions import RateLimitError
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
 from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 
@@ -37,46 +39,45 @@ class OpenAILLMClient(BaseLLMClient):
             enc = tiktoken.get_encoding("cl100k_base")
         return len(enc.encode(text))
 
-    def cost_estimate(
-        self, model: str, prompt_tokens: int, completion_tokens: int
-    ) -> float:
-        return 0  # todo: implement price calculation
-
-    def time_estimate(self, model: str, tokens: int) -> float:
-        return tokens / 150  # todo: implement real statistic
 
     def run(
         self,
         model: str,
         prompt: str,
-        file: Optional[BinaryIO] = None,
+        file: Optional[MediaFile] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
     ) -> LLMClientResponse:
         if file is None and content is None:
             raise ValueError("Either file_path or content must be specified")
 
-        if file:
-            uploaded = self.client.files.create(file=open(file, "rb"), purpose="input")
-            response = self.client.responses.create(
-                model=model,
-                input=[
-                    {"type": "text", "text": prompt},
-                    {"type": "input_file", "file_id": uploaded.id},
-                ],
-                temperature=model_settings.temperature,
-            )
-        else:
-            response = self.client.chat.completions.create(
-                model=model,
-                temperature=model_settings.temperature,
-                messages=[
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": content},
-                ],
-                stream=False,
-                response_format={"type": "json_object"},
-            )
+        response_format = {"type": "json_object"} if model_settings.json_format else {"type": "text"}
+        try:
+            if file:
+                uploaded = self.client.files.create(file=open(file.data, "rb"), purpose="input")
+                response = self.client.responses.create( # type: ignore
+                    model=model,
+                    input=[
+                        {"type": "text", "text": prompt},
+                        {"type": "input_file", "file_id": uploaded.id},
+                    ],
+                    temperature=model_settings.temperature,
+                    stream=False,
+                    response_format=response_format,
+                )
+            else:
+                response = self.client.chat.completions.create( # type: ignore
+                    model=model,
+                    temperature=model_settings.temperature,
+                    messages=[
+                        {"role": "system", "content": prompt},
+                        {"role": "user", "content": content},
+                    ],
+                    stream=False,
+                    response_format=response_format,
+                )
+        except openai.RateLimitError as e:
+            raise RateLimitError(e)
 
         return LLMClientResponse(
             client=self.__class__.__name__,

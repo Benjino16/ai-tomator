@@ -6,11 +6,13 @@ def test_file_workflow(authenticated_client):
     r = authenticated_client.get("/api/files/")
     assert r.status_code == 200
 
+    pdf_bytes = open("tests/fixtures/sample-1.pdf", "rb").read()
+
     # Upload a file
     r = authenticated_client.post(
         "/api/files/upload",
         json={"tags": ["test_tag"]},
-        files={"file": ("test.txt", BytesIO(b"test"))},
+        files={"file": ("test.txt", pdf_bytes)},
     )
     assert r.status_code == 200
     file_id = r.json()["id"]

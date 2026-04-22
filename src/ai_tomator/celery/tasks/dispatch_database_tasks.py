@@ -15,7 +15,9 @@ logger = get_task_logger(__name__)
 def dispatch_database_tasks():
     db = Database(service_settings.postgres_dsn)
 
-    for task in db.worker.get_failed_tasks_with_open_retry():
+    task_with_open_retry = db.worker.get_failed_tasks_with_open_retry()
+    logger.debug(f"Fetched {len(task_with_open_retry)} task with open retry")
+    for task in task_with_open_retry:
         db.batches.add_batch_task(
             batch_id=task.batch_id,
             file_id=task.file_id,
@@ -41,13 +43,13 @@ def dispatch_database_tasks():
         )
 
     scheduled_batches = db.worker.get_batches_with_status(BatchStatus.SCHEDULED)
-    logger.info(f"Fetched {len(scheduled_batches)} scheduled batches")
+    logger.debug(f"Fetched {len(scheduled_batches)} scheduled batches")
     for batch in scheduled_batches:
         # todo: check if scheduled date is passed and then queue the batch
         pass
 
     queued_batches = db.worker.get_batches_with_status(BatchStatus.QUEUED)
-    logger.info(f"Fetched {len(queued_batches)} queued batches")
+    logger.debug(f"Fetched {len(queued_batches)} queued batches")
     for batch in queued_batches:
         if not batch.queue_batch or not db.worker.check_for_running_batch_on_endpoint(
             batch.endpoint_id
@@ -62,7 +64,7 @@ def dispatch_database_tasks():
             )
 
     running_batches = db.worker.get_batches_with_status(BatchStatus.RUNNING)
-    logger.info(f"Fetched {len(running_batches)} running batches")
+    logger.debug(f"Fetched {len(running_batches)} running batches")
     for batch in running_batches:
 
         if db.worker.count_failed_task_of_batch(batch.id) > batch.max_retries:

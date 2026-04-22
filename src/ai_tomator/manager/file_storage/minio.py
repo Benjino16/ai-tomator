@@ -1,5 +1,6 @@
 import io
-from typing import List
+from io import BytesIO
+from typing import List, BinaryIO
 
 from minio import Minio
 from .base import FileStorage
@@ -16,24 +17,30 @@ class MinIOStorage(FileStorage):
         if not self.client.bucket_exists(bucket_name):
             self.client.make_bucket(bucket_name)
 
-    def upload(self, file_path: str, content: bytes) -> bool:
+    def upload(self, file_path: str, content: BinaryIO, length: int = -1) -> bool:
         try:
-            content_io = io.BytesIO(content)
             self.client.put_object(
-                self.bucket_name, file_path, content_io, length=len(content)
+                bucket_name=self.bucket_name,
+                object_name=file_path,
+                data=content,
+                length=length,
+                part_size=10 * 1024 * 1024,
             )
             return True
         except Exception as e:
             print(f"Upload error: {e}")
             return False
 
-    def download(self, file_path: str) -> bytes:
+    def download(self, file_path: str) -> BinaryIO:
         try:
             response = self.client.get_object(self.bucket_name, file_path)
-            return response.read()
+            return BytesIO(response.read())
         except Exception as e:
             print(f"Download error: {e}")
             raise
+        finally:
+            response.close()
+            response.release_conn()
 
     def delete(self, file_path: str) -> bool:
         try:
