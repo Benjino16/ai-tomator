@@ -60,17 +60,23 @@ class BatchService:
         else:
             prompts_list = [MultiPrompt("-", prompt_content)]
 
-        db_batch = self.db.batches.add(
-            name=batch_name,
-            status=BatchStatus.QUEUED,
-            endpoint_id=endpoint_id,
-            prompt_id=prompt_id,
-            file_reader=file_reader,
-            model=model,
-            temperature=temperature,
-            json_format=json_format,
-            user_id=user_id,
-            batch_worker_settings=batch_worker_settings,
+        batch_args = {
+            "name": batch_name,
+            "status": BatchStatus.QUEUED,
+            "endpoint_id": endpoint_id,
+            "prompt_id": prompt_id,
+            "file_reader": file_reader,
+            "model": model,
+            "temperature": temperature,
+            "json_format": json_format,
+            "user_id": user_id,
+            "batch_worker_settings": batch_worker_settings,
+        }
+
+        db_batch = self.db.batches.add(**batch_args)
+        self.db.batches.add_batch_log(
+            batch_id=db_batch["id"],
+            message=f"Batch is now in queue with settings: \n {batch_args}",
         )
 
         for file_id in files:

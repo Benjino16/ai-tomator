@@ -6,7 +6,8 @@ from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
     Batch,
     BatchStatus,
-    BatchLog,
+    BatchLogEntry,
+    LogLevel,
 )
 from ai_tomator.manager.database.models.batch_file import BatchFile, BatchFileStatus
 from ai_tomator.manager.database.models.file import File
@@ -195,7 +196,9 @@ class BatchOps:
             session.refresh(batch_task)
             return batch_task
 
-    def add_task_log(self, batch_task_id: int, log: str):
+    def add_task_log(
+        self, batch_task_id: int, message: str, level: LogLevel = LogLevel.INFO
+    ):
         with self.SessionLocal() as session:
             batch_task = session.query(BatchTask).filter_by(id=batch_task_id).first()
             if not batch_task:
@@ -203,11 +206,12 @@ class BatchOps:
                     f"BatchTask with batch_task_id '{batch_task_id}' not found."
                 )
 
-        batch_log = BatchLog(
+        batch_log = BatchLogEntry(
             batch_id=batch_task.batch_id,
             batch_file_id=batch_task.batch_file_id,
             batch_task_id=batch_task.id,
-            log=log,
+            message=message,
+            level=level,
         )
 
         session.add(batch_log)
@@ -215,7 +219,13 @@ class BatchOps:
         session.refresh(batch_log)
         return batch_log.to_dict()
 
-    def add_batch_log(self, batch_id: int, log: str, batch_file_id: int | None = None):
+    def add_batch_log(
+        self,
+        batch_id: int,
+        message: str,
+        level: LogLevel = LogLevel.INFO,
+        batch_file_id: int | None = None,
+    ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:
@@ -226,11 +236,14 @@ class BatchOps:
                 )
                 if not batch_file:
                     raise ValueError(f"BatchFile '{batch_file_id}' not found.")
-            batch_log = BatchLog(
+
+            batch_log = BatchLogEntry(
                 batch_id=batch_id,
                 batch_file_id=batch_file_id,
-                log=log,
+                message=message,
+                level=level,
             )
+
             session.add(batch_log)
             session.commit()
             session.refresh(batch_log)
@@ -267,7 +280,7 @@ class BatchOps:
             batch = Batch.accessible_by(query, user_id).first()
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
-            return [bl.to_dict() for bl in batch.batch_logs]
+            return [bl.to_dict() for bl in batch.batch_log_entries]
 
     def list(self, user_id: int):
         with self.SessionLocal() as session:
