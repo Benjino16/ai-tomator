@@ -176,9 +176,14 @@ class BatchOps:
             if worker_task_id:
                 batch_task.worker_task_id = worker_task_id
 
+            def _sanitize(value: str | None) -> str | None:
+                if isinstance(value, str):
+                    return value.replace('\x00', '')
+                return value
+
             if engine_response:
-                batch_task.input = engine_response.input
-                batch_task.output = engine_response.output
+                batch_task.input = _sanitize(engine_response.input)
+                batch_task.output = _sanitize(engine_response.output)
                 batch_task.input_token_count = engine_response.input_tokens
                 batch_task.output_token_count = engine_response.output_tokens
                 batch_task.seed = engine_response.seed
