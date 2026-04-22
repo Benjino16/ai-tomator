@@ -11,12 +11,11 @@ type Props = {
 export function BatchFileModal({ isOpen, onClose, file }: Props) {
     function jsonInterpreter(content: string) {
         try {
-            const parsedOutput = JSON.parse(file.batch_tasks[0].output);
+            const parsedOutput = JSON.parse(content);
             content = typeof parsedOutput === "string"
                 ? parsedOutput
                 : JSON.stringify(parsedOutput, null, 2);
         } catch {
-            content = file.batch_tasks[0].output;
         }
         return content;
     }
