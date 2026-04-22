@@ -4,6 +4,7 @@ import { type Batch, ACTIVE_STATUSES } from "../../types/Batch.ts";
 import { type BatchFile } from "../../types/BatchFile.ts";
 import { Button } from "../../components/Button/Button.tsx";
 import { StartBatchModal } from "../../components/StartBatchModal/StartBatchModal.tsx";
+import { BatchLogModal } from "../../components/BatchLogModal/BatchLogModal.tsx";
 import { BatchStatusSymbol } from "../../components/BatchStatusSymbol/BatchStatusSymbol.tsx";
 import { BatchTimer } from "../../components/BatchTimer/BatchTimer.tsx";
 import { BatchDetailView } from "../../components/BatchDetailView/BatchDetailView.tsx";
@@ -12,8 +13,10 @@ import styles from "../../pages/BatchesPage/BatchesPage.module.css";
 
 export default function BatchesPage() {
     const [batches, setBatches] = useState<Batch[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isStartModalOpen, setIsStartModalOpen] = useState(false);
+    const [isLogModalOpen, setIsLogModalOpen] = useState(false);
     const [expandedBatchId, setExpandedBatchId] = useState<number | null>(null);
+    const [logBatchId, setLogBatchId] = useState<number | null>(null);
     const [batchFiles, setBatchFiles] = useState<BatchFile[]>([]);
 
 
@@ -120,6 +123,17 @@ export default function BatchesPage() {
                             <div>{batch.file_reader}</div>
 
                             <div>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setLogBatchId(batch.id);
+                                        setIsLogModalOpen(true);
+                                    }}
+                                >
+                                    View Log
+                                </button>
+                            </div>
+                            <div>
                                 {batch.status === "RUNNING" ? (
                                     <button
                                         className={styles.logoutButton}
@@ -140,6 +154,14 @@ export default function BatchesPage() {
                         {expandedBatchId === batch.id && (
                             <BatchDetailView files={batchFiles} />
                         )}
+                        {/* Batch Log Modal*/}
+                        {logBatchId === batch.id && (
+                            <BatchLogModal
+                                isOpen={isLogModalOpen}
+                                onClose={() => {setIsLogModalOpen(false); setLogBatchId(null);}}
+                                batch={batch}
+                            />
+                        )}
 
                     </div>
                 ))}
@@ -148,13 +170,13 @@ export default function BatchesPage() {
             <div style={{ textAlign: "center", marginTop: "1rem" }}>
                 <Button
                     text="Start Batch"
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => setIsStartModalOpen(true)}
                 />
             </div>
 
             <StartBatchModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isStartModalOpen}
+                onClose={() => setIsStartModalOpen(false)}
                 onCreated={(newBatch: Batch) => {
                     setBatches(prev => [...prev, newBatch]);
                 }}
