@@ -1,6 +1,8 @@
 from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker, selectinload
 from ai_tomator.manager.database.models.batch_task import BatchTask, BatchTaskStatus
+from ai_tomator.manager.database.models.endpoint import Endpoint
+from ai_tomator.manager.database.models.prompt import Prompt
 from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
@@ -289,9 +291,15 @@ class BatchOps:
 
     def list(self, user_id: int):
         with self.SessionLocal() as session:
-            batches = Batch.accessible_by(session.query(Batch), user_id).all()
+            batches = (
+                Batch.accessible_by(session.query(Batch), user_id)
+                .outerjoin(Prompt, Batch.prompt_id == Prompt.id)
+                .outerjoin(Endpoint, Batch.endpoint_id == Endpoint.id)
+                .add_columns(Prompt.name.label("prompt_name"), Endpoint.name.label("endpoint_name"))
+                .all()
+            )
             result = []
-            for batch in batches:
+            for batch, prompt_name, endpoint_name in batches:
                 batch_dict = batch.to_dict()
 
                 total_files = len(batch.batch_files)
@@ -301,6 +309,8 @@ class BatchOps:
                 )
 
                 batch_dict["progress"] = f"{processed_files}/{total_files}"
+                batch_dict["prompt_name"] = prompt_name
+                batch_dict["endpoint_name"] = endpoint_name
                 result.append(batch_dict)
             return result
 
