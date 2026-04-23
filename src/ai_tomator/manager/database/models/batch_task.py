@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ai_tomator.manager.database.base import Base
 from .batch_file import BatchFile
 from .file import File
-from .batch import BatchLog, Batch
+from .batch import BatchLogEntry, Batch
 from .endpoint import Endpoint
 
 
@@ -61,7 +61,9 @@ class BatchTask(Base):
     file: Mapped["File"] = relationship()
     endpoint: Mapped["Endpoint"] = relationship()
 
-    batch_logs: Mapped[list["BatchLog"]] = relationship(back_populates="batch_task")
+    batch_log_entries: Mapped[list["BatchLogEntry"]] = relationship(
+        back_populates="batch_task"
+    )
 
     STOPPED_STATUSES = [
         BatchTaskStatus.COMPLETED,

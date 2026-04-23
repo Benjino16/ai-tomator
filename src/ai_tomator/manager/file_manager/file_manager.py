@@ -1,11 +1,10 @@
-import io
 import os
 import uuid
-from typing import BinaryIO
 
 from fastapi import UploadFile
 from ai_tomator.manager.database import Database
-from .file_storage import FileStorage
+from .media_file import MediaFile
+from ai_tomator.manager.file_storage import FileStorage
 
 
 class FileManager:
@@ -20,8 +19,7 @@ class FileManager:
     def upload(self, file: UploadFile, tags: list[str], user_id: int):
         unique_name = self._unique_name(file.filename)
 
-        content = file.file.read()
-        if not self.storage.upload(unique_name, content):
+        if not self.storage.upload(unique_name, file.file, file.size):
             return None
 
         file_record = self.db.files.add(
@@ -35,22 +33,23 @@ class FileManager:
 
         return file_record
 
-    def download(self, file_id: int, user_id: int) -> BinaryIO:
+    def download(self, file_id: int, user_id: int) -> MediaFile:
         file_record = self.db.files.get(file_id, user_id)
         if not file_record:
             raise ValueError("File does not exist or user has no permissions!")
 
         file_path = file_record.path
-        bytes_data = self.storage.download(file_path)
-        binary_io = io.BytesIO(bytes_data)
-        binary_io.name = file_record.name
-        return binary_io
+        binary_io = self.storage.download(file_path)
+        return MediaFile(binary_io, file_record.name, file_record.mime_type)
 
-    def download_by_path(self, path: str) -> BinaryIO:
-        if not self.storage.exists(path):
+    def download_intern(self, file_id: int) -> MediaFile:
+        file_record = self.db.files.get_system_intern(file_id)
+        if not file_record:
             raise ValueError("File does not exist!")
-        bytes_data = self.storage.download(path)
-        return io.BytesIO(bytes_data)
+
+        file_path = file_record.path
+        binary_io = self.storage.download(file_path)
+        return MediaFile(binary_io.read(), file_record.name, file_record.mime_type)
 
     def delete(self, file_id: int, user_id: int) -> bool:
         file_record = self.db.files.get(file_id, user_id)

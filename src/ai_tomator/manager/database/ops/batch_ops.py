@@ -1,12 +1,17 @@
+from typing import List
+
 from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker, selectinload
 from ai_tomator.manager.database.models.batch_task import BatchTask, BatchTaskStatus
+from ai_tomator.manager.database.models.endpoint import Endpoint
+from ai_tomator.manager.database.models.prompt import Prompt
 from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 from ai_tomator.manager.database.ops.user_ops import get_group_id_subquery
 from ai_tomator.manager.database.models.batch import (
     Batch,
     BatchStatus,
-    BatchLog,
+    BatchLogEntry,
+    LogLevel,
 )
 from ai_tomator.manager.database.models.batch_file import BatchFile, BatchFileStatus
 from ai_tomator.manager.database.models.file import File
@@ -175,9 +180,14 @@ class BatchOps:
             if worker_task_id:
                 batch_task.worker_task_id = worker_task_id
 
+            def _sanitize(value: str | None) -> str | None:
+                if isinstance(value, str):
+                    return value.replace("\x00", "")
+                return value
+
             if engine_response:
-                batch_task.input = engine_response.input
-                batch_task.output = engine_response.output
+                batch_task.input = _sanitize(engine_response.input)
+                batch_task.output = _sanitize(engine_response.output)
                 batch_task.input_token_count = engine_response.input_tokens
                 batch_task.output_token_count = engine_response.output_tokens
                 batch_task.seed = engine_response.seed
@@ -195,7 +205,9 @@ class BatchOps:
             session.refresh(batch_task)
             return batch_task
 
-    def add_task_log(self, batch_task_id: int, log: str):
+    def add_task_log(
+        self, batch_task_id: int, message: str, level: LogLevel = LogLevel.INFO
+    ):
         with self.SessionLocal() as session:
             batch_task = session.query(BatchTask).filter_by(id=batch_task_id).first()
             if not batch_task:
@@ -203,11 +215,12 @@ class BatchOps:
                     f"BatchTask with batch_task_id '{batch_task_id}' not found."
                 )
 
-        batch_log = BatchLog(
+        batch_log = BatchLogEntry(
             batch_id=batch_task.batch_id,
             batch_file_id=batch_task.batch_file_id,
             batch_task_id=batch_task.id,
-            log=log,
+            message=message,
+            level=level,
         )
 
         session.add(batch_log)
@@ -215,7 +228,13 @@ class BatchOps:
         session.refresh(batch_log)
         return batch_log.to_dict()
 
-    def add_batch_log(self, batch_id: int, log: str, batch_file_id: int | None = None):
+    def add_batch_log(
+        self,
+        batch_id: int,
+        message: str,
+        level: LogLevel = LogLevel.INFO,
+        batch_file_id: int | None = None,
+    ):
         with self.SessionLocal() as session:
             batch = session.query(Batch).filter_by(id=batch_id).first()
             if not batch:
@@ -226,11 +245,14 @@ class BatchOps:
                 )
                 if not batch_file:
                     raise ValueError(f"BatchFile '{batch_file_id}' not found.")
-            batch_log = BatchLog(
+
+            batch_log = BatchLogEntry(
                 batch_id=batch_id,
                 batch_file_id=batch_file_id,
-                log=log,
+                message=message,
+                level=level,
             )
+
             session.add(batch_log)
             session.commit()
             session.refresh(batch_log)
@@ -244,7 +266,7 @@ class BatchOps:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             return batch.to_dict()
 
-    def get_files(self, batch_id: int, user_id: int) -> dict:
+    def get_files(self, batch_id: int, user_id: int) -> List[dict]:
         with self.SessionLocal() as session:
             query = (
                 session.query(Batch)
@@ -259,7 +281,7 @@ class BatchOps:
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
 
-            return [bl.to_dict() for bl in batch.batch_files]
+            return [bl.to_dict(include_batch_tasks=True) for bl in batch.batch_files]
 
     def get_log(self, batch_id: int, user_id: int) -> dict:
         with self.SessionLocal() as session:
@@ -267,13 +289,22 @@ class BatchOps:
             batch = Batch.accessible_by(query, user_id).first()
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
-            return [bl.to_dict() for bl in batch.batch_logs]
+            return [bl.to_dict() for bl in batch.batch_log_entries]
 
     def list(self, user_id: int):
         with self.SessionLocal() as session:
-            batches = Batch.accessible_by(session.query(Batch), user_id).all()
+            batches = (
+                Batch.accessible_by(session.query(Batch), user_id)
+                .outerjoin(Prompt, Batch.prompt_id == Prompt.id)
+                .outerjoin(Endpoint, Batch.endpoint_id == Endpoint.id)
+                .add_columns(
+                    Prompt.name.label("prompt_name"),
+                    Endpoint.name.label("endpoint_name"),
+                )
+                .all()
+            )
             result = []
-            for batch in batches:
+            for batch, prompt_name, endpoint_name in batches:
                 batch_dict = batch.to_dict()
 
                 total_files = len(batch.batch_files)
@@ -283,6 +314,8 @@ class BatchOps:
                 )
 
                 batch_dict["progress"] = f"{processed_files}/{total_files}"
+                batch_dict["prompt_name"] = prompt_name
+                batch_dict["endpoint_name"] = endpoint_name
                 result.append(batch_dict)
             return result
 

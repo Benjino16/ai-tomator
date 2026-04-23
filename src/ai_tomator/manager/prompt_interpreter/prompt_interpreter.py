@@ -36,3 +36,7 @@ def interpret_prompt(prompt: str) -> list[MultiPrompt]:
 
     except json.JSONDecodeError:
         raise ValueError("The prompt format is not json")
+
+
+def check_prompt(prompt: str) -> bool:
+    return len(interpret_prompt(prompt)) > 0

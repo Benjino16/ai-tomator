@@ -1,5 +1,7 @@
 import pytest
 from unittest.mock import patch
+
+from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.client_manager import ClientManager
 from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 
@@ -50,13 +52,13 @@ def test_process_with_file_content(mock_read, client_manager):
         endpoint=endpoint,
         file_reader="text",
         prompt="Test prompt",
-        file="path/to/file.txt",
+        file=MediaFile("some bytes", "test.txt", "text/plain"),
         model="gpt-test",
         temperature=0.5,
         json_format=False,
     )
 
-    mock_read.assert_called_once_with("text", "path/to/file.txt")
+    mock_read.assert_called_once_with("text", "some bytes")
     assert result.output == "file content"
     assert result.model == "gpt-test"
 

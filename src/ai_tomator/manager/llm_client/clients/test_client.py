@@ -1,5 +1,6 @@
-from typing import Optional, BinaryIO
+from typing import Optional
 
+from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
@@ -31,24 +32,6 @@ class TestLLMClient(BaseLLMClient):
     def token_count(self, model: str, text: str) -> int:
         return text.count(" ")
 
-    def cost_estimate(
-        self, model: str, prompt_tokens: int, completion_tokens: int
-    ) -> float:
-        if model == "test_model_pro":
-            return prompt_tokens / 200000 + completion_tokens / 200000
-        elif model == "test_model_fast":
-            return prompt_tokens / 400000 + completion_tokens / 400000
-        else:
-            raise ValueError(f"Unknown model: {model}")
-
-    def time_estimate(self, model: str, tokens: int) -> float:
-        if model == "test_model_pro":
-            return tokens / 100
-        elif model == "test_model_fast":
-            return tokens / 1000
-        else:
-            raise ValueError(f"Unknown model: {model}")
-
     def models(self) -> list[str]:
         return MODELS
 
@@ -56,7 +39,7 @@ class TestLLMClient(BaseLLMClient):
         self,
         model: str,
         prompt: str,
-        file: Optional[BinaryIO] = None,
+        file: Optional[MediaFile] = None,
         content: Optional[str] = None,
         model_settings: Optional[ModelSettings] = None,
     ) -> LLMClientResponse:

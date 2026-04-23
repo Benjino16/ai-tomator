@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, BinaryIO
 
 
 class FileStorage(ABC):
     @abstractmethod
-    def upload(self, file_path: str, content: bytes) -> bool:
+    def upload(self, file_path: str, content: BinaryIO, length: int) -> bool:
         pass
 
     @abstractmethod
-    def download(self, file_path: str) -> bytes:
+    def download(self, file_path: str) -> BinaryIO:
         pass
 
     @abstractmethod

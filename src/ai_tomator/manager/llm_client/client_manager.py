@@ -1,5 +1,4 @@
-from typing import BinaryIO
-
+from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.clients.gemini_client import GeminiLLMClient
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
@@ -43,7 +42,7 @@ class ClientManager:
         endpoint,
         file_reader,
         prompt,
-        file: BinaryIO,
+        file: MediaFile,
         model,
         temperature,
         json_format,
@@ -55,7 +54,7 @@ class ClientManager:
             content = None
         else:
             include_file = None
-            content = FileReaderManager.read(file_reader, file)
+            content = FileReaderManager.read(file_reader, file.data)
 
         response: LLMClientResponse = engine.run(
             model=model,

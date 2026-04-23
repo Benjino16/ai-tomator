@@ -3,7 +3,7 @@ import logging
 from .endpoint_service import EndpointService
 from .file_service import FileService
 from ai_tomator.manager.file_reader.reader_manager import FileReaderManager
-from ai_tomator.manager.llm_client import ClientManager
+from ai_tomator.manager.llm_client.client_manager import ClientManager
 from ai_tomator.manager.prompt_interpreter import interpret_prompt
 from ..manager.database import Database
 from ..manager.database.models.batch import BatchStatus
@@ -60,17 +60,23 @@ class BatchService:
         else:
             prompts_list = [MultiPrompt("-", prompt_content)]
 
-        db_batch = self.db.batches.add(
-            name=batch_name,
-            status=BatchStatus.QUEUED,
-            endpoint_id=endpoint_id,
-            prompt_id=prompt_id,
-            file_reader=file_reader,
-            model=model,
-            temperature=temperature,
-            json_format=json_format,
-            user_id=user_id,
-            batch_worker_settings=batch_worker_settings,
+        batch_args = {
+            "name": batch_name,
+            "status": BatchStatus.QUEUED,
+            "endpoint_id": endpoint_id,
+            "prompt_id": prompt_id,
+            "file_reader": file_reader,
+            "model": model,
+            "temperature": temperature,
+            "json_format": json_format,
+            "user_id": user_id,
+            "batch_worker_settings": batch_worker_settings,
+        }
+
+        db_batch = self.db.batches.add(**batch_args)
+        self.db.batches.add_batch_log(
+            batch_id=db_batch["id"],
+            message=f"Batch is now in queue with settings: \n {batch_args}",
         )
 
         for file_id in files:
@@ -94,7 +100,16 @@ class BatchService:
         return db_batch
 
     def stop(self, batch_id: int, user_id: int) -> dict:
-        pass
+        check_batch = self.db.batches.get(batch_id=batch_id, user_id=user_id)
+        if not check_batch:
+            raise ValueError(
+                f"Batch ID {batch_id} does not exist or user has not the permission"
+            )
+        self.db.batches.update_status(batch_id, BatchStatus.STOPPED)
+        self.db.batches.add_batch_log(
+            batch_id, "Batch set to 'STOPPED' remaining task will shut down now."
+        )
+        return check_batch
 
     def get_batch(self, batch_id: int, user_id: int) -> dict:
         return self.db.batches.get(batch_id, user_id)

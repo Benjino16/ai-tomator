@@ -1,14 +1,14 @@
-from io import BytesIO
 import pytest
 import uuid
 
 
 @pytest.fixture(scope="session")
 def upload_file(authenticated_client):
+    pdf_bytes = open("tests/fixtures/sample-1.pdf", "rb").read()
     r = authenticated_client.post(
         "/api/files/upload",
         json={"tags": ["test_tag"]},
-        files={"file": ("test.txt", BytesIO(b"test"))},
+        files={"file": ("test.txt", pdf_bytes)},
     )
     assert r.status_code == 200
     file_id = r.json()["id"]
@@ -22,7 +22,7 @@ def create_endpoint(authenticated_client):
         "/api/endpoints/add",
         json={
             "name": endpoint_name,
-            "client": "test_engine",
+            "client": "test",
             "provider": "self_hosted",
         },
     )

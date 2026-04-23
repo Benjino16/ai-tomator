@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, Enum, Integer, Float, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ai_tomator.manager.database.base import Base
 from .file import File
-from .batch import Batch, BatchLog
+from .batch import Batch, BatchLogEntry
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -48,7 +48,9 @@ class BatchFile(Base):
         back_populates="batch_file", cascade="all, delete-orphan"
     )
 
-    batch_logs: Mapped[list["BatchLog"]] = relationship(back_populates="batch_file")
+    batch_log_entries: Mapped[list["BatchLogEntry"]] = relationship(
+        back_populates="batch_file"
+    )
 
     ACTIVE_STATUSES = [
         BatchFileStatus.QUEUED,
@@ -59,7 +61,8 @@ class BatchFile(Base):
         BatchFileStatus.FAILED,
     ]
 
-    def to_dict(self):
+    def to_dict(self, include_batch_tasks: bool = False) -> dict:
         data = {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
-        data["batch_tasks"] = [task.to_dict() for task in self.batch_tasks]
+        if include_batch_tasks:
+            data["batch_tasks"] = [task.to_dict() for task in self.batch_tasks]
         return data

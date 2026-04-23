@@ -69,7 +69,7 @@ class Batch(Base, UserGroupMixin):
         back_populates="batch", cascade="all, delete-orphan"
     )
 
-    batch_logs: Mapped[list["BatchLog"]] = relationship(
+    batch_log_entries: Mapped[list["BatchLogEntry"]] = relationship(
         back_populates="batch", cascade="all, delete-orphan"
     )
 
@@ -93,8 +93,15 @@ class Batch(Base, UserGroupMixin):
     ]
 
 
-class BatchLog(Base):
-    __tablename__ = "batch_logs"
+class LogLevel(enum.Enum):
+    INFO = "INFO"
+    WARN = "WARN"
+    ERROR = "ERROR"
+    FATAL = "FATAL"
+
+
+class BatchLogEntry(Base):
+    __tablename__ = "batch_log_entries"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     batch_id: Mapped[int] = mapped_column(ForeignKey("batches.id"), nullable=False)
@@ -104,12 +111,17 @@ class BatchLog(Base):
     batch_task_id: Mapped[int] = mapped_column(
         ForeignKey("batch_tasks.id"), nullable=True
     )
-    log: Mapped[str] = mapped_column(nullable=False)
+
+    level: Mapped["LogLevel"] = mapped_column(
+        Enum(LogLevel, name="log_level_enum"), nullable=False
+    )
+    message: Mapped[str] = mapped_column(nullable=False)
+
     created_at: Mapped[datetime] = mapped_column(nullable=False, default=func.now())
 
-    batch: Mapped["Batch"] = relationship(back_populates="batch_logs")
-    batch_file: Mapped["BatchFile"] = relationship(back_populates="batch_logs")
-    batch_task: Mapped["BatchTask"] = relationship(back_populates="batch_logs")
+    batch: Mapped["Batch"] = relationship(back_populates="batch_log_entries")
+    batch_file: Mapped["BatchFile"] = relationship(back_populates="batch_log_entries")
+    batch_task: Mapped["BatchTask"] = relationship(back_populates="batch_log_entries")
 
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in self.__mapper__.columns}

@@ -8,5 +8,8 @@ services:
     build: .
     command: celery -A ai_tomator.celery.worker worker --loglevel=info -E --concurrency=2
 
+  beat:
+    build: .
+
   frontend:
     build: ./frontend

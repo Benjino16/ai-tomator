@@ -2,6 +2,7 @@ from ai_tomator.celery.worker import app
 from celery.utils.log import get_task_logger
 from ai_tomator.config import ServiceSettings
 from ai_tomator.manager.database import Database
+from ai_tomator.manager.database.models.batch import LogLevel
 from ai_tomator.manager.database.models.batch_task import BatchTaskStatus
 from ai_tomator.manager.file_storage import MinIOStorage
 from ai_tomator.manager.file_manager import FileManager
@@ -37,13 +38,13 @@ def process_single_file(
     try:
         db.batches.add_task_log(
             batch_task["id"],
-            f"API Request for file: {batch_task['id']}",
+            f"Processing file: {batch_task['file_id']} with endpoint {model} at {endpoint['name']}",
         )
-        file_content = file_manager.download_by_path(batch_task["path"])
+        file = file_manager.download_intern(batch_task["file_id"])
         result = client_manager.process(
             endpoint=endpoint,
             file_reader=file_reader,
-            file=file_content,
+            file=file,
             model=model,
             prompt=prompt,
             temperature=temperature,
@@ -71,7 +72,7 @@ def process_single_file(
         )
         db.batches.add_task_log(
             batch_task_id=batch_task["id"],
-            log=f"Successfully processed batch task: {batch_task['id']}",
+            message=f"Successfully processed batch task: {batch_task['id']}",
         )
         return {"status": "success", "batch_task_id": batch_task["id"]}
 
@@ -84,6 +85,7 @@ def process_single_file(
         )
         db.batches.add_task_log(
             batch_task_id=batch_task["id"],
-            log=f"Error while processing file: {batch_task['file_id']}",
+            message=f"Error while processing file: {batch_task['file_id']}: {str(e)}",
+            level=LogLevel.ERROR,
         )
         return {"status": "failed", "batch_task_id": batch_task["id"], "error": str(e)}

@@ -1,4 +1,5 @@
 from ..manager.database import Database
+from ai_tomator.manager.prompt_interpreter import prompt_interpreter
 
 
 class PromptService:
@@ -6,6 +7,8 @@ class PromptService:
         self.db = db
 
     def add(self, name: str, content: str, multi_prompt: bool, user_id: int) -> dict:
+        if multi_prompt and not prompt_interpreter.check_prompt(content):
+            raise ValueError("The multi prompt is not valid!")
         return self.db.prompts.add(
             name=name, content=content, multi_prompt=multi_prompt, user_id=user_id
         )

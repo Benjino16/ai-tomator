@@ -13,7 +13,7 @@ def test_endpoint_workflow(authenticated_client):
         "/api/endpoints/add",
         json={
             "name": endpoint_name,
-            "client": "test_engine",
+            "client": "test",
             "provider": "self_hosted",
         },
     )

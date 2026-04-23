@@ -41,6 +41,13 @@ class FileOps:
                 raise ValueError(f"File with ID '{file_id}' not found.")
             return file
 
+    def get_system_intern(self, file_id: int) -> File:
+        with self.SessionLocal() as session:
+            file = session.query(File).filter_by(id=file_id).first()
+            if not file:
+                raise ValueError(f"File with ID '{file_id}' not found.")
+            return file
+
     def list(self, user_id: int):
         with self.SessionLocal() as session:
             query = session.query(File)
