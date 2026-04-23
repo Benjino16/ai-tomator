@@ -51,20 +51,29 @@ class OpenAILLMClient(BaseLLMClient):
         if file is None and content is None:
             raise ValueError("Either file_path or content must be specified")
 
+        text_format = {"format": {"type": "json_object"}} if model_settings.json_format else {
+            "format": {"type": "text"}}
         response_format = {"type": "json_object"} if model_settings.json_format else {"type": "text"}
         try:
             if file:
-                uploaded = self.client.files.create(file=open(file.data, "rb"), purpose="input")
+                uploaded = self.client.files.create(file=(file.name, file.data), purpose="user_data")
                 response = self.client.responses.create( # type: ignore
                     model=model,
                     input=[
-                        {"type": "text", "text": prompt},
-                        {"type": "input_file", "file_id": uploaded.id},
+                        {
+                            "type": "message",
+                            "role": "user",
+                            "content": [
+                                {"type": "input_text", "text": prompt},
+                                {"type": "input_file", "file_id": uploaded.id},
+                            ],
+                        }
                     ],
                     temperature=model_settings.temperature,
                     stream=False,
-                    response_format=response_format,
+                    text=text_format,
                 )
+                result_text = response.output_text
             else:
                 response = self.client.chat.completions.create( # type: ignore
                     model=model,
@@ -76,6 +85,7 @@ class OpenAILLMClient(BaseLLMClient):
                     stream=False,
                     response_format=response_format,
                 )
+                result_text = response.choices[0].message.content
         except openai.RateLimitError as e:
             raise RateLimitError(e)
 
@@ -91,7 +101,7 @@ class OpenAILLMClient(BaseLLMClient):
             context_window=None,
             prompt=prompt,
             input=content or "[Uploaded File]",
-            output=response.choices[0].message.content,
+            output=result_text,
             input_tokens=0,
             output_tokens=0,
         )

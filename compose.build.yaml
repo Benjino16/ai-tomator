@@ -5,5 +5,8 @@ services:
   worker:
     build: .
 
+  beat:
+    build: .
+
   frontend:
     build: ./frontend

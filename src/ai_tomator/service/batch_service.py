@@ -100,7 +100,12 @@ class BatchService:
         return db_batch
 
     def stop(self, batch_id: int, user_id: int) -> dict:
-        pass
+        check_batch = self.db.batches.get(batch_id=batch_id, user_id=user_id)
+        if not check_batch:
+            raise ValueError(f"Batch ID {batch_id} does not exist or user has not the permission")
+        self.db.batches.update_status(batch_id, BatchStatus.STOPPED)
+        self.db.batches.add_batch_log(batch_id, "Batch set to 'STOPPED' remaining task will shut down now.")
+        return check_batch
 
     def get_batch(self, batch_id: int, user_id: int) -> dict:
         return self.db.batches.get(batch_id, user_id)
