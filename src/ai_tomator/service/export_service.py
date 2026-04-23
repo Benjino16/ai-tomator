@@ -13,6 +13,23 @@ class ExportService:
     ) -> Tuple[Union[StringIO, BytesIO], str, str]:
         results = []
         for batch_id in batch_ids:
-            results.extend(self.db.results.list_by_batch(batch_id, user_id))
+            batch_export = self.db.export.get_batch_for_export(batch_id, user_id)
+            long_format = []
+
+            file_by_id = {f.id: f for f in batch_export.files}
+            for batch_tasks in batch_export.batch_tasks:
+                long_format.append({
+                    "batch_id": batch_id,
+                    "batch_task_id": batch_tasks.id,
+                    "client": batch_export.endpoint.client,
+                    "provider": batch_export.endpoint.provider,
+                    "model": batch_export.batch.model,
+                    "temperature": batch_export.batch.temperature,
+                    "file_name": file_by_id[batch_tasks.file_id].name,
+                    "prompt_marker": batch_tasks.prompt_marker,
+                    "output": batch_tasks.output,
+                })
+            results.extend(long_format)
+            pass
         exporter = BatchExporter(mode)
         return exporter.export(results)

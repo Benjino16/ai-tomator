@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy import func
 from sqlalchemy.orm import sessionmaker, selectinload
 from ai_tomator.manager.database.models.batch_task import BatchTask, BatchTaskStatus
@@ -264,7 +266,7 @@ class BatchOps:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
             return batch.to_dict()
 
-    def get_files(self, batch_id: int, user_id: int) -> dict:
+    def get_files(self, batch_id: int, user_id: int) -> List[dict]:
         with self.SessionLocal() as session:
             query = (
                 session.query(Batch)
@@ -279,7 +281,7 @@ class BatchOps:
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
 
-            return [bl.to_dict() for bl in batch.batch_files]
+            return [bl.to_dict(include_batch_tasks=True) for bl in batch.batch_files]
 
     def get_log(self, batch_id: int, user_id: int) -> dict:
         with self.SessionLocal() as session:

@@ -61,7 +61,8 @@ class BatchFile(Base):
         BatchFileStatus.FAILED,
     ]
 
-    def to_dict(self):
+    def to_dict(self, include_batch_tasks: bool = False) -> dict:
         data = {c.key: getattr(self, c.key) for c in self.__mapper__.columns}
-        data["batch_tasks"] = [task.to_dict() for task in self.batch_tasks]
+        if include_batch_tasks:
+            data["batch_tasks"] = [task.to_dict() for task in self.batch_tasks]
         return data
