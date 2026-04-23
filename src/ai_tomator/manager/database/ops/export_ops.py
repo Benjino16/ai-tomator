@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from sqlalchemy.orm import sessionmaker, selectinload
-from ai_tomator.manager.database.models.batch_task import BatchTaskStatus, BatchTask
+from ai_tomator.manager.database.models.batch_task import BatchTask
 from ai_tomator.manager.database.models.batch import (
     Batch,
 )
@@ -20,6 +20,7 @@ class BatchExport:
     files: List[File]
     batch_files: List[BatchFile]
     batch_tasks: List[BatchTask]
+
 
 class ExportOps:
     def __init__(self, session_local: sessionmaker):

@@ -1,4 +1,4 @@
-from typing import Optional, BinaryIO
+from typing import Optional
 
 from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
@@ -39,7 +39,6 @@ class OpenAILLMClient(BaseLLMClient):
             enc = tiktoken.get_encoding("cl100k_base")
         return len(enc.encode(text))
 
-
     def run(
         self,
         model: str,
@@ -51,13 +50,20 @@ class OpenAILLMClient(BaseLLMClient):
         if file is None and content is None:
             raise ValueError("Either file_path or content must be specified")
 
-        text_format = {"format": {"type": "json_object"}} if model_settings.json_format else {
-            "format": {"type": "text"}}
-        response_format = {"type": "json_object"} if model_settings.json_format else {"type": "text"}
+        text_format = (
+            {"format": {"type": "json_object"}}
+            if model_settings.json_format
+            else {"format": {"type": "text"}}
+        )
+        response_format = (
+            {"type": "json_object"} if model_settings.json_format else {"type": "text"}
+        )
         try:
             if file:
-                uploaded = self.client.files.create(file=(file.name, file.data), purpose="user_data")
-                response = self.client.responses.create( # type: ignore
+                uploaded = self.client.files.create(
+                    file=(file.name, file.data), purpose="user_data"
+                )
+                response = self.client.responses.create(  # type: ignore
                     model=model,
                     input=[
                         {
@@ -75,7 +81,7 @@ class OpenAILLMClient(BaseLLMClient):
                 )
                 result_text = response.output_text
             else:
-                response = self.client.chat.completions.create( # type: ignore
+                response = self.client.chat.completions.create(  # type: ignore
                     model=model,
                     temperature=model_settings.temperature,
                     messages=[

@@ -182,7 +182,7 @@ class BatchOps:
 
             def _sanitize(value: str | None) -> str | None:
                 if isinstance(value, str):
-                    return value.replace('\x00', '')
+                    return value.replace("\x00", "")
                 return value
 
             if engine_response:
@@ -297,7 +297,10 @@ class BatchOps:
                 Batch.accessible_by(session.query(Batch), user_id)
                 .outerjoin(Prompt, Batch.prompt_id == Prompt.id)
                 .outerjoin(Endpoint, Batch.endpoint_id == Endpoint.id)
-                .add_columns(Prompt.name.label("prompt_name"), Endpoint.name.label("endpoint_name"))
+                .add_columns(
+                    Prompt.name.label("prompt_name"),
+                    Endpoint.name.label("endpoint_name"),
+                )
                 .all()
             )
             result = []

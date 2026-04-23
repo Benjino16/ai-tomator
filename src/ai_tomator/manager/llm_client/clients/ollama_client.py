@@ -1,4 +1,4 @@
-from typing import Optional, BinaryIO
+from typing import Optional
 
 from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
@@ -37,7 +37,6 @@ class OllamaLLMClient(BaseLLMClient):
         except KeyError:
             enc = tiktoken.get_encoding("cl100k_base")
         return len(enc.encode(text))
-
 
     def run(
         self,

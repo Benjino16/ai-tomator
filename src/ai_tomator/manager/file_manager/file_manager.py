@@ -1,4 +1,3 @@
-import io
 import os
 import uuid
 
@@ -6,8 +5,6 @@ from fastapi import UploadFile
 from ai_tomator.manager.database import Database
 from .media_file import MediaFile
 from ai_tomator.manager.file_storage import FileStorage
-
-
 
 
 class FileManager:

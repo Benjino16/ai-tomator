@@ -1,7 +1,5 @@
 import time
 
-import pytest
-
 
 def wait_for_status(
     authenticated_client,
@@ -22,7 +20,11 @@ def wait_for_status(
             r = authenticated_client.get(f"/api/batches/log/{batch_id}")
             log = r.json()
             assert r.status_code == 200
-            raise RuntimeError("Raise on status {}, batch details {}, log {}".format(match["status"], match, log))
+            raise RuntimeError(
+                "Raise on status {}, batch details {}, log {}".format(
+                    match["status"], match, log
+                )
+            )
     raise RuntimeError("Timed out waiting for status")
 
 
@@ -43,7 +45,7 @@ def test_batch_workflow(
             "max_tasks_per_minute": 20,
             "max_parallel_tasks": 1,
             "retries_per_failed_task": 3,
-            "max_retries": 0, #! important for testing, set batch to failed as soon as one task fails
+            "max_retries": 0,  #! important for testing, set batch to failed as soon as one task fails
             "queue_batch": False,
         },
     }

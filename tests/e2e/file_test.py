@@ -1,6 +1,3 @@
-from io import BytesIO
-
-
 def test_file_workflow(authenticated_client):
     # Retrieve list of files
     r = authenticated_client.get("/api/files/")

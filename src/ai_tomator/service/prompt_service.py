@@ -1,6 +1,7 @@
 from ..manager.database import Database
 from ai_tomator.manager.prompt_interpreter import prompt_interpreter
 
+
 class PromptService:
     def __init__(self, db: Database):
         self.db = db
