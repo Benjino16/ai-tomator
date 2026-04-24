@@ -1,5 +1,6 @@
 from ..manager.database import Database
 from ..manager.endpoint_manager import EndpointManager
+from ..manager.llm_client.models.engine_health_model import EngineHealth
 
 
 class EndpointService:
@@ -18,6 +19,23 @@ class EndpointService:
     ) -> dict:
         ep = self.db.endpoints.add(name, client, provider, user_id, url, token)
         return ep
+
+    def test(
+        self,
+        name: str,
+        client: str,
+        provider: str,
+        url: str | None = None,
+        token: str | None = None,
+    ) -> EngineHealth:
+        temp_endpoint = {
+            "name": name,
+            "client": client,
+            "provider": provider,
+            "url": url,
+            "token": token,
+        }
+        return self.endpoint_manager.get_health(temp_endpoint)
 
     def get(self, endpoint_id: int, user_id: int, show_api=False) -> dict:
         endpoint = self.db.endpoints.get(endpoint_id, user_id, show_api)

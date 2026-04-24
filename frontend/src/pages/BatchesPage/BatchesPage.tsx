@@ -99,25 +99,6 @@ export default function BatchesPage() {
 
                             <BatchStatusSymbol status={batch.status} />
 
-                            {/* Clickable endpoint chip */}
-                            <button
-                                className={styles.chip}
-                                onClick={e => { e.stopPropagation(); setEndpointBatchId(batch.id); }}
-                                title="View endpoint"
-                            >
-                                <span className={styles.chipLabel}>Endpoint</span>
-                                <span className={styles.chipValue}>{batch.endpoint_name ?? batch.endpoint_id}</span>
-                            </button>
-
-                            {/* Clickable prompt chip */}
-                            <button
-                                className={styles.chip}
-                                onClick={e => { e.stopPropagation(); setPromptBatchId(batch.id); }}
-                                title="View prompt"
-                            >
-                                <span className={styles.chipLabel}>Prompt</span>
-                                <span className={styles.chipValue}>{batch.prompt_name ?? batch.prompt_id}</span>
-                            </button>
 
                             <span className={styles.model}>{batch.model}</span>
                         </div>
@@ -162,6 +143,25 @@ export default function BatchesPage() {
                                     title="View details"
                                 >
                                     <DetailIcon /> Details
+                                </button>
+                                {/* Clickable endpoint chip */}
+                                <button
+                                    className={styles.chip}
+                                    onClick={e => { e.stopPropagation(); setEndpointBatchId(batch.id); }}
+                                    title="View endpoint"
+                                >
+                                    <span className={styles.chipLabel}>Endpoint</span>
+                                    <span className={styles.chipValue}>{batch.endpoint_name ?? batch.endpoint_id}</span>
+                                </button>
+
+                                {/* Clickable prompt chip */}
+                                <button
+                                    className={styles.chip}
+                                    onClick={e => { e.stopPropagation(); setPromptBatchId(batch.id); }}
+                                    title="View prompt"
+                                >
+                                    <span className={styles.chipLabel}>Prompt</span>
+                                    <span className={styles.chipValue}>{batch.prompt_name ?? batch.prompt_id}</span>
                                 </button>
                             </div>
 

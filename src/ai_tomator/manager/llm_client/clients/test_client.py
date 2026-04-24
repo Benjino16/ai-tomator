@@ -14,20 +14,19 @@ class TestLLMClient(BaseLLMClient):
     TestEngine is a mock implementation of BaseEngine.
 
     It allows users to validate their AI-Tomator setup without needing
-    a real API endpoint. All calls are simulated locally and always use
-    the predefined test domain (https://test.ai-tomator.local) and token.
+    a real API endpoint. All calls are simulated locally.
 
     This llm_client ensures that the system’s routing, configuration, and
     llm_client management logic work correctly before connecting to real APIs.
     """
 
     def health(self) -> EngineHealth:
-        if self.base_url == "https://test.ai-tomator.local":
-            return EngineHealth(True)
-        else:
+        if self.base_url and self.base_url != "https://test.ai-tomator.local":
             return EngineHealth(
                 False, "Could not establish API connection to URL: " + self.base_url
             )
+        else:
+            return EngineHealth(True)
 
     def token_count(self, model: str, text: str) -> int:
         return text.count(" ")

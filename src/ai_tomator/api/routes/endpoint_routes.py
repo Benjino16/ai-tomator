@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Security
+
 from ai_tomator.api.models.endpoint_models import EndpointRequest, EndpointResponse
 from ai_tomator.core.exceptions import NameAlreadyExistsError
 from ai_tomator.service.endpoint_service import EndpointService
@@ -18,6 +19,22 @@ def build_endpoint_router(
             )
         except NameAlreadyExistsError as e:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+    @router.post("/test")
+    def test_endpoint(ep: EndpointRequest, user=Security(jwt_authenticator)):
+        endpoint_health = endpoint_service.test(
+            ep.name, ep.client, ep.provider, ep.url, ep.token
+        )
+        if endpoint_health.healthy:
+            return {
+                "success": True,
+                "name": ep.name,
+            }
+        else:
+            return {
+                "success": False,
+                "error": endpoint_health.error,
+            }
 
     @router.get("/", response_model=list[EndpointResponse])
     def list_endpoints(user=Security(jwt_authenticator)):
