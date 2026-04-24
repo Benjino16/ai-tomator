@@ -3,10 +3,10 @@
     flex-direction: column;
     flex-shrink: 0;
     display: flex;
-    justify-content: space-between; /* Top-Bereich + Footer */
+    justify-content: space-between;
     padding: 1rem;
-    background-color: #1e1e2f;
-    color: white;
+    background-color: var(--bg-sidebar);
+    color: var(--text-on-dark);
 }
 
 .sidebarTop h2 {
@@ -23,7 +23,7 @@
 }
 
 .sidebarTop nav a {
-    color: #f9fafb;
+    color: var(--text-on-dark);
     text-decoration: none;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
@@ -42,7 +42,7 @@
 .logoutButton {
     margin-top: 0.5rem;
     background-color: #c53030;
-    color: white;
+    color: var(--text-on-dark);
     border: none;
     padding: 0.5rem 1rem;
     cursor: pointer;

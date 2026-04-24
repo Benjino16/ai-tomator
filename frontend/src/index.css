@@ -1,4 +1,38 @@
 :root {
+    /* 1. Primitive tokens – rohe Farbwerte */
+    --color-navy-900: #1e1e2f;
+    --color-navy-800: #30304a;
+    --color-navy-700: #51517c;
+    --color-white:    #ffffff;
+    --color-gray-50:  #f4f4f4;
+    --color-gray-100: #f1f3f5;
+    --color-gray-500: #6b7280;
+    --color-gray-900: #111827;
+
+    /* 2. Semantic tokens – was die Farbe *bedeutet* */
+
+    /* Backgrounds */
+    --bg-app:         var(--color-gray-50);
+    --bg-surface:     var(--color-white);
+    --bg-sidebar:     var(--color-navy-900);
+
+    /* Text */
+    --text-primary:   var(--color-gray-900);
+    --text-secondary: var(--color-gray-500);
+    --text-on-dark:   var(--color-white);
+
+    /* Text */
+    --button-primary:   var(--color-navy-900);
+    --button-hover:   var(--color-navy-700);
+
+    /* Accent / Interactive */
+    --accent:         var(--color-navy-900);
+    --accent-hover:   var(--color-navy-900);
+
+    /* Border */
+    --border:         var(--color-gray-100);
+
+
     /* Colors */
     --color-bg: #f4f4f4;
     --color-text: #222;
@@ -27,7 +61,7 @@
 
 body {
     margin: 0;
-    background: var(--color-bg);
+    background: var(--bg-app);
     font-family: var(--font-base);
     color: var(--color-text);
 }
@@ -93,8 +127,8 @@ select, button, input {
 
 button {
     padding: 12px;
-    background-color: #3498db;
-    color: white;
+    background-color: var(--button-primary);
+    color: var(--text-on-dark);
     border: none;
     border-radius: 6px;
     font-size: 1rem;
@@ -102,7 +136,7 @@ button {
     transition: background-color 0.3s;
 }
 button:hover {
-    background-color: #2980b9;
+    background-color: var(--button-hover);
 }
 button:active {
     transform: scale(0.98);

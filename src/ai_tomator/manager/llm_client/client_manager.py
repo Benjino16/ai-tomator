@@ -17,25 +17,18 @@ class ClientManager:
             "openai": OpenAILLMClient,
             "ollama": OllamaLLMClient,
         }
-        self._instances = {}
 
     def _get_engine_instance(self, endpoint):
-        name = endpoint["name"]
+        client_type = endpoint["client"]
 
-        # create the llm_client only once per endpoint
-        if name not in self._instances:
-            client_type = endpoint["client"]
+        if client_type not in self.client_map:
+            raise ValueError(f"Engine '{client_type}' not supported.")
 
-            if client_type not in self.client_map:
-                raise ValueError(f"Engine '{client_type}' not supported.")
-
-            client_cls = self.client_map[client_type]
-            self._instances[name] = client_cls(
-                api_token=endpoint["token"],
-                base_url=endpoint["url"],
-            )
-
-        return self._instances[name]
+        client_cls = self.client_map[client_type]
+        return client_cls(
+            api_token=endpoint["token"],
+            base_url=endpoint["url"],
+        )
 
     def process(
         self,
