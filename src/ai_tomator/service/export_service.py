@@ -22,6 +22,7 @@ class ExportService:
                     {
                         "batch_id": batch_id,
                         "batch_task_id": batch_tasks.id,
+                        "status": str(batch_tasks.status),
                         "client": batch_export.endpoint.client,
                         "provider": batch_export.endpoint.provider,
                         "model": batch_export.batch.model,

@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import List
 
-from sqlalchemy import func
+from sqlalchemy import func, asc
 from sqlalchemy.orm import sessionmaker, selectinload
 from ai_tomator.manager.database.models.batch_task import BatchTask, BatchTaskStatus
 from ai_tomator.manager.database.models.endpoint import Endpoint
@@ -287,13 +288,25 @@ class BatchOps:
 
             return [bl.to_dict(include_batch_tasks=True) for bl in batch.batch_files]
 
-    def get_log(self, batch_id: int, user_id: int) -> dict:
+    def get_batch_log(
+        self, batch_id: int, user_id: int, since: datetime = None
+    ) -> list:
         with self.SessionLocal() as session:
-            query = session.query(Batch).filter_by(id=batch_id)
-            batch = Batch.accessible_by(query, user_id).first()
+            batch_query = session.query(Batch).filter_by(id=batch_id)
+            batch = Batch.accessible_by(batch_query, user_id).first()
             if not batch:
                 raise ValueError(f"Batch id '{batch_id}' not found.")
-            return [bl.to_dict() for bl in batch.batch_log_entries]
+
+            query = session.query(BatchLogEntry).filter(
+                BatchLogEntry.batch_id == batch_id
+            )
+            if since:
+                query = query.filter(BatchLogEntry.created_at > since)
+
+            return [
+                bl.to_dict()
+                for bl in query.order_by(asc(BatchLogEntry.created_at)).all()
+            ]
 
     def list(self, user_id: int):
         with self.SessionLocal() as session:

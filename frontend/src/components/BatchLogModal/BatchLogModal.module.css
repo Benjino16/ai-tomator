@@ -152,3 +152,20 @@
     font-size: 0.82rem;
     color: #9ca3af;
 }
+
+/* ── Slide-in Animation für neue Einträge ────────────────────────── */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.newEntry {
+    animation: slideIn 0.25s ease-out forwards;
+}
