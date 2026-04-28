@@ -198,8 +198,12 @@ class BatchOps:
 
             if costs_in_usd and batch_task.costs_in_usd is None:
                 batch_task.costs_in_usd = costs_in_usd
-                batch_task.batch.costs_in_usd = (batch_task.batch.costs_in_usd or 0) + costs_in_usd
-                batch_task.batch_file.costs_in_usd = (batch_task.batch_file.costs_in_usd or 0) + costs_in_usd
+                batch_task.batch.costs_in_usd = (
+                    batch_task.batch.costs_in_usd or 0
+                ) + costs_in_usd
+                batch_task.batch_file.costs_in_usd = (
+                    batch_task.batch_file.costs_in_usd or 0
+                ) + costs_in_usd
 
             session.commit()
             session.refresh(batch_task)
