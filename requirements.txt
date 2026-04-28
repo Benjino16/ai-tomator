@@ -3,6 +3,7 @@ uvicorn
 python-multipart
 openai
 google-genai
+anthropic
 PyPDF2
 PyMuPDF
 openpyxl
@@ -17,4 +18,5 @@ redis
 minio
 pydantic
 pydantic_settings
+requests
 psycopg2
