@@ -18,4 +18,5 @@ redis
 minio
 pydantic
 pydantic_settings
+requests
 psycopg2

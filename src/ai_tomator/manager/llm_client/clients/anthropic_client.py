@@ -52,7 +52,7 @@ class AnthropicLLMClient(BaseLLMClient):
             user_content = [
                 {"type": "text", "text": prompt},
                 {
-                    "type": "image",  # für PDFs: "type": "document"
+                    "type": "document",
                     "source": {
                         "type": "base64",
                         "media_type": file.mime_type,
