@@ -3,6 +3,7 @@ uvicorn
 python-multipart
 openai
 google-genai
+anthropic
 PyPDF2
 PyMuPDF
 openpyxl

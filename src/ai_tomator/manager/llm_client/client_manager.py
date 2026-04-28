@@ -5,6 +5,7 @@ from ai_tomator.manager.llm_client.models.model_settings_model import ModelSetti
 from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
 from ai_tomator.manager.llm_client.clients.openai_client import OpenAILLMClient
 from ai_tomator.manager.llm_client.clients.ollama_client import OllamaLLMClient
+from ai_tomator.manager.llm_client.clients.anthropic_client import AnthropicLLMClient
 from ai_tomator.manager.llm_client.clients.test_client import TestLLMClient
 from ai_tomator.manager.file_reader.reader_manager import FileReaderManager
 
@@ -16,6 +17,7 @@ class ClientManager:
             "gemini": GeminiLLMClient,
             "openai": OpenAILLMClient,
             "ollama": OllamaLLMClient,
+            "anthropic": AnthropicLLMClient,
         }
 
     def _get_engine_instance(self, endpoint):

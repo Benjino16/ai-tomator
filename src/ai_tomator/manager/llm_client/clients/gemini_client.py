@@ -101,6 +101,7 @@ class GeminiLLMClient(BaseLLMClient):
                 raise RateLimitError(e)
             else:
                 raise e
+
         return LLMClientResponse(
             client=self.__class__.__name__,
             model=model,
