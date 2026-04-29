@@ -7,6 +7,7 @@ from ai_tomator.manager.database.models.batch_task import BatchTaskStatus
 
 service_settings = ServiceSettings()
 logger = get_task_logger(__name__)
+db = Database(service_settings.postgres_dsn)
 
 
 def is_task_dead(task_id):
@@ -16,7 +17,6 @@ def is_task_dead(task_id):
 
 @app.task
 def cleanup_crashed_tasks():
-    db = Database(service_settings.postgres_dsn)
     for task in db.worker.get_running_batch_tasks():
         if not task.worker_task_id:
             db.batches.update_batch_task_status(task.id, BatchTaskStatus.FAILED)

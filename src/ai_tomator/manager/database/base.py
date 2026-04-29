@@ -26,7 +26,13 @@ def get_session(db_path: str = "sqlite:///ai_tomator.db"):
         if db_path.startswith("sqlite://"):
             connect_args["check_same_thread"] = False
 
-        engine = create_engine(db_path, connect_args=connect_args)
+        engine = create_engine(
+            db_path,
+            connect_args=connect_args,
+            pool_size=3,
+            max_overflow=5,
+            pool_pre_ping=True,
+        )
 
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine, expire_on_commit=False)

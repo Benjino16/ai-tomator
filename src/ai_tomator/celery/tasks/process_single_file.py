@@ -11,6 +11,7 @@ from ai_tomator.manager.price_calculator import calculate_price
 
 service_settings = ServiceSettings()
 logger = get_task_logger(__name__)
+db = Database(service_settings.postgres_dsn)
 
 
 @app.task(bind=True)
@@ -25,7 +26,6 @@ def process_single_file(
     temperature,
     json_format,
 ):
-    db = Database(service_settings.postgres_dsn)
     file_storage = MinIOStorage(
         service_settings.minio_endpoint,
         service_settings.minio_access_key,
