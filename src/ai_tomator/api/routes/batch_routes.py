@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import APIRouter, HTTPException, status, Security
 
 from ai_tomator.api.models.batch_models import BatchData, BatchRunRequest, BatchFileData
@@ -47,9 +45,9 @@ def build_batch_router(
 
     @router.get("/log/{batch_id}")
     def get_batch_log(
-        batch_id: int, since: datetime = None, user=Security(jwt_authenticator)
+        batch_id: int, after_id: int = None, user=Security(jwt_authenticator)
     ):
-        return batch_service.get_batch_log(batch_id, user["id"], since)
+        return batch_service.get_batch_log(batch_id, user["id"], after_id)
 
     @router.get("/", response_model=list[BatchData])
     def list_runs(user=Security(jwt_authenticator)):

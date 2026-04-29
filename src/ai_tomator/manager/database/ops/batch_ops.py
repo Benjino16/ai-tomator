@@ -289,7 +289,7 @@ class BatchOps:
             return [bl.to_dict(include_batch_tasks=True) for bl in batch.batch_files]
 
     def get_batch_log(
-        self, batch_id: int, user_id: int, since: datetime = None
+        self, batch_id: int, user_id: int, after_id: int = None
     ) -> list:
         with self.SessionLocal() as session:
             batch_query = session.query(Batch).filter_by(id=batch_id)
@@ -300,8 +300,8 @@ class BatchOps:
             query = session.query(BatchLogEntry).filter(
                 BatchLogEntry.batch_id == batch_id
             )
-            if since:
-                query = query.filter(BatchLogEntry.created_at > since)
+            if after_id:
+                query = query.filter(BatchLogEntry.id > after_id)
 
             return [
                 bl.to_dict()

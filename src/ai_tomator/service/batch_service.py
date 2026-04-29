@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 from .endpoint_service import EndpointService
 from .file_service import FileService
@@ -119,9 +118,9 @@ class BatchService:
         return self.db.batches.get_files(batch_id, user_id)
 
     def get_batch_log(
-        self, batch_id: int, user_id: int, since: datetime = None
+        self, batch_id: int, user_id: int, after_id: int = None
     ) -> dict:
-        return self.db.batches.get_batch_log(batch_id, user_id, since)
+        return self.db.batches.get_batch_log(batch_id, user_id, after_id)
 
     def list_batches(self, user_id: int) -> dict:
         result = self.db.batches.list(user_id)

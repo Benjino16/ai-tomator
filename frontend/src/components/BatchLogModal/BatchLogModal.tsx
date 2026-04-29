@@ -41,12 +41,12 @@ export function BatchLogModal({ isOpen, onClose, batch }: Props) {
         el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     }, []);
 
-    const fetchLog = useCallback((id: number, since?: Date) => {
-        BatchesAPI.getLogEntries(id, since)
+    const fetchLog = useCallback((id: number, afterId?: number) => {
+        BatchesAPI.getLogEntries(id, afterId)
             .then((entries) => {
                 setFetchError(undefined);
 
-                if (!since) {
+                if (afterId === undefined) {
                     setBatchLog(entries);
                     isAtBottomRef.current = true;
                     return;
@@ -77,7 +77,7 @@ export function BatchLogModal({ isOpen, onClose, batch }: Props) {
         const interval = setInterval(() => {
             setBatchLog((current) => {
                 const latest = current.at(-1);
-                fetchLog(batch.id, latest ? new Date(latest.created_at) : undefined);
+                fetchLog(batch.id, latest?.id);
                 return current;
             });
         }, 5000);
