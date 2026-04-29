@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 
 from sqlalchemy import func, asc
@@ -294,9 +293,7 @@ class BatchOps:
 
             return [bl.to_dict(include_batch_tasks=True) for bl in batch.batch_files]
 
-    def get_batch_log(
-        self, batch_id: int, user_id: int, after_id: int = None
-    ) -> list:
+    def get_batch_log(self, batch_id: int, user_id: int, after_id: int = None) -> list:
         with self.SessionLocal() as session:
             batch_query = session.query(Batch).filter_by(id=batch_id)
             batch = Batch.accessible_by(batch_query, user_id).first()

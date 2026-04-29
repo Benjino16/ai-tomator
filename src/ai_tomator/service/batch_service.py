@@ -117,9 +117,7 @@ class BatchService:
     def get_batch_files(self, batch_id: int, user_id: int) -> dict:
         return self.db.batches.get_files(batch_id, user_id)
 
-    def get_batch_log(
-        self, batch_id: int, user_id: int, after_id: int = None
-    ) -> dict:
+    def get_batch_log(self, batch_id: int, user_id: int, after_id: int = None) -> dict:
         return self.db.batches.get_batch_log(batch_id, user_id, after_id)
 
     def list_batches(self, user_id: int) -> dict:
