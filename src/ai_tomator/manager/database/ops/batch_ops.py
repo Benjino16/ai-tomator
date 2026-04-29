@@ -178,6 +178,12 @@ class BatchOps:
 
             batch_task.status = status
 
+            if status in BatchTask.RUNNING_STATUSES and not batch_task.started_at:
+                batch_task.started_at = func.now()
+
+            if status in BatchTask.STOPPED_STATUSES and not batch_task.stopped_at:
+                batch_task.stopped_at = func.now()
+
             if worker_task_id:
                 batch_task.worker_task_id = worker_task_id
 
@@ -220,18 +226,18 @@ class BatchOps:
                     f"BatchTask with batch_task_id '{batch_task_id}' not found."
                 )
 
-        batch_log = BatchLogEntry(
-            batch_id=batch_task.batch_id,
-            batch_file_id=batch_task.batch_file_id,
-            batch_task_id=batch_task.id,
-            message=message,
-            level=level,
-        )
+            batch_log = BatchLogEntry(
+                batch_id=batch_task.batch_id,
+                batch_file_id=batch_task.batch_file_id,
+                batch_task_id=batch_task.id,
+                message=message,
+                level=level,
+            )
 
-        session.add(batch_log)
-        session.commit()
-        session.refresh(batch_log)
-        return batch_log.to_dict()
+            session.add(batch_log)
+            session.commit()
+            session.refresh(batch_log)
+            return batch_log.to_dict()
 
     def add_batch_log(
         self,
