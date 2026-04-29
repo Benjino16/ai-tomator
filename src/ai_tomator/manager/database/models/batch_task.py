@@ -65,6 +65,10 @@ class BatchTask(Base):
         back_populates="batch_task"
     )
 
+    RUNNING_STATUSES = [
+        BatchTaskStatus.RUNNING,
+    ]
+
     STOPPED_STATUSES = [
         BatchTaskStatus.COMPLETED,
         BatchTaskStatus.FAILED,

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import List
 
 from sqlalchemy import func, asc
@@ -178,6 +177,12 @@ class BatchOps:
 
             batch_task.status = status
 
+            if status in BatchTask.RUNNING_STATUSES and not batch_task.started_at:
+                batch_task.started_at = func.now()
+
+            if status in BatchTask.STOPPED_STATUSES and not batch_task.stopped_at:
+                batch_task.stopped_at = func.now()
+
             if worker_task_id:
                 batch_task.worker_task_id = worker_task_id
 
@@ -220,18 +225,18 @@ class BatchOps:
                     f"BatchTask with batch_task_id '{batch_task_id}' not found."
                 )
 
-        batch_log = BatchLogEntry(
-            batch_id=batch_task.batch_id,
-            batch_file_id=batch_task.batch_file_id,
-            batch_task_id=batch_task.id,
-            message=message,
-            level=level,
-        )
+            batch_log = BatchLogEntry(
+                batch_id=batch_task.batch_id,
+                batch_file_id=batch_task.batch_file_id,
+                batch_task_id=batch_task.id,
+                message=message,
+                level=level,
+            )
 
-        session.add(batch_log)
-        session.commit()
-        session.refresh(batch_log)
-        return batch_log.to_dict()
+            session.add(batch_log)
+            session.commit()
+            session.refresh(batch_log)
+            return batch_log.to_dict()
 
     def add_batch_log(
         self,
@@ -288,9 +293,7 @@ class BatchOps:
 
             return [bl.to_dict(include_batch_tasks=True) for bl in batch.batch_files]
 
-    def get_batch_log(
-        self, batch_id: int, user_id: int, since: datetime = None
-    ) -> list:
+    def get_batch_log(self, batch_id: int, user_id: int, after_id: int = None) -> list:
         with self.SessionLocal() as session:
             batch_query = session.query(Batch).filter_by(id=batch_id)
             batch = Batch.accessible_by(batch_query, user_id).first()
@@ -300,8 +303,8 @@ class BatchOps:
             query = session.query(BatchLogEntry).filter(
                 BatchLogEntry.batch_id == batch_id
             )
-            if since:
-                query = query.filter(BatchLogEntry.created_at > since)
+            if after_id:
+                query = query.filter(BatchLogEntry.id > after_id)
 
             return [
                 bl.to_dict()

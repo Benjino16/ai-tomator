@@ -7,8 +7,8 @@ import type {BatchLogEntry} from "../types/BatchLogEntry.ts";
 
 export const BatchesAPI = {
     getAll: (): Promise<Batch[]> => api.get("/batches/").then(r => r.data),
-    getLogEntries: (id: number, since?: Date): Promise<BatchLogEntry[]> => {
-        const params = since ? { since: since.toISOString() } : {};
+    getLogEntries: (id: number, afterId?: number): Promise<BatchLogEntry[]> => {
+        const params = afterId !== undefined ? { after_id: afterId } : {};
         return api.get(`/batches/log/${id}`, { params }).then(r => r.data);
     },
     getById: (id: number): Promise<Batch> => api.get(`/batches/${id}`).then(r => r.data),

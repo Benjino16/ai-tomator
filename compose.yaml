@@ -63,7 +63,7 @@ services:
 
   worker:
     image: ghcr.io/benjino16/ai-tomator/backend:latest
-    command: celery -A ai_tomator.celery.worker worker --loglevel=info -E
+    command: celery -A ai_tomator.celery.worker worker --loglevel=info
     environment:
       - DATABASE_URL=postgresql://user:pass@db:5432/ai_tomator
       - REDIS_URL=redis://redis:6379/0

@@ -9,11 +9,11 @@ from ai_tomator.manager.database.models.batch_task import BatchTaskStatus
 
 service_settings = ServiceSettings()
 logger = get_task_logger(__name__)
+db = Database(service_settings.postgres_dsn)
 
 
 @app.task
 def dispatch_database_tasks():
-    db = Database(service_settings.postgres_dsn)
 
     task_with_open_retry = db.worker.get_failed_tasks_with_open_retry()
     logger.debug(f"Fetched {len(task_with_open_retry)} task with open retry")
