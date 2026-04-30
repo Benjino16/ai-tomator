@@ -10,24 +10,31 @@ http:
     type: json
     data: |-
       {
-        "prompt_id": 0,
-        "files": [
-          0
-        ],
-        "endpoint_id": 0,
-        "file_reader": "string",
-        "model": "string",
-        "temperature": 3,
+        "prompt_id": {{prompt_id}},
+        "files": {{uploaded_file_ids}},
+        "endpoint_id": {{endpoint_id}},
+        "file_reader": "pymupdf_default",
+        "model": "test_model_fast",
+        "temperature": 1,
         "json_format": false,
         "batch_worker_settings": {
-          "max_tasks_per_minute": 1,
+          "max_tasks_per_minute": 5,
           "max_parallel_tasks": 1,
-          "retries_per_failed_task": 20,
-          "max_retries": 20,
+          "retries_per_failed_task": 0,
+          "max_retries": 0,
           "queue_batch": true
         }
       }
   auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 200) {
+          var newId = res.getBody().id;
+          bru.setVar("batch_id", newId);
+        }
 
 settings:
   encodeUrl: true
