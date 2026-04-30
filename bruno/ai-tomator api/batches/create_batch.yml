@@ -1,0 +1,36 @@
+info:
+  name: create_batch
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/batches/start"
+  body:
+    type: json
+    data: |-
+      {
+        "prompt_id": 0,
+        "files": [
+          0
+        ],
+        "endpoint_id": 0,
+        "file_reader": "string",
+        "model": "string",
+        "temperature": 3,
+        "json_format": false,
+        "batch_worker_settings": {
+          "max_tasks_per_minute": 1,
+          "max_parallel_tasks": 1,
+          "retries_per_failed_task": 20,
+          "max_retries": 20,
+          "queue_batch": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
