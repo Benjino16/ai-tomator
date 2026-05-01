@@ -1,4 +1,5 @@
 import base64
+import json
 from typing import Optional
 
 import anthropic
@@ -9,7 +10,11 @@ from ai_tomator.manager.llm_client.clients.base import BaseLLMClient
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
 from ai_tomator.manager.llm_client.models.exceptions import RateLimitError
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
-from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
+from ai_tomator.manager.llm_client.models.response_model import (
+    LLMClientResponse,
+    ProviderBatchStatus,
+    BatchResultEntry,
+)
 
 
 class AnthropicLLMClient(BaseLLMClient):
@@ -17,6 +22,7 @@ class AnthropicLLMClient(BaseLLMClient):
     def __init__(self, api_token=None, base_url=None):
         super().__init__(api_token, base_url)
         self.client = anthropic.Anthropic(api_key=api_token)
+        self._batch_requests: list = []
 
     def models(self) -> list[str]:
         models = self.client.models.list()
@@ -110,3 +116,94 @@ class AnthropicLLMClient(BaseLLMClient):
             input_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
         )
+
+    def supports_provider_batch(self) -> bool:
+        return True
+
+    def add_to_batch(
+        self,
+        custom_id: str,
+        model: str,
+        prompt: str,
+        file: Optional[MediaFile],
+        content: Optional[str],
+        model_settings: ModelSettings,
+    ) -> None:
+        if file:
+            encoded = base64.standard_b64encode(file.data).decode("utf-8")
+            user_content = [
+                {"type": "text", "text": prompt},
+                {
+                    "type": "document",
+                    "source": {
+                        "type": "base64",
+                        "media_type": file.mime_type,
+                        "data": encoded,
+                    },
+                },
+            ]
+        else:
+            user_content = [
+                {"type": "text", "text": prompt},
+                {"type": "text", "text": content},
+            ]
+
+        params: dict = {
+            "model": model,
+            "max_tokens": model_settings.max_output_tokens or 4096,
+            "messages": [{"role": "user", "content": user_content}],
+            "temperature": model_settings.temperature,
+        }
+        if model_settings.json_format:
+            params["system"] = "Respond only with valid JSON. No explanation, no markdown."
+        if model_settings.top_p is not None:
+            params["top_p"] = model_settings.top_p
+        if model_settings.top_k is not None:
+            params["top_k"] = model_settings.top_k
+
+        self._batch_requests.append({"custom_id": custom_id, "params": params})
+
+    def submit_batch(self) -> tuple[str, bytes]:
+        response = self.client.beta.messages.batches.create(
+            requests=self._batch_requests
+        )
+        jsonl_bytes = "\n".join(
+            json.dumps(r) for r in self._batch_requests
+        ).encode()
+        return response.id, jsonl_bytes
+
+    def get_batch_status(self, provider_batch_id: str) -> ProviderBatchStatus:
+        batch = self.client.beta.messages.batches.retrieve(provider_batch_id)
+        is_complete = batch.processing_status == "ended"
+        counts = batch.request_counts
+        return ProviderBatchStatus(
+            is_complete=is_complete,
+            is_failed=is_complete and counts.succeeded == 0 and counts.errored > 0,
+            completed_count=counts.succeeded,
+            failed_count=counts.errored,
+            raw_status=batch.processing_status,
+        )
+
+    def retrieve_batch_results(self, provider_batch_id: str) -> list[BatchResultEntry]:
+        results = []
+        for item in self.client.beta.messages.batches.results(provider_batch_id):
+            if item.result.type == "succeeded":
+                message = item.result.message
+                results.append(BatchResultEntry(
+                    custom_id=item.custom_id,
+                    success=True,
+                    output=message.content[0].text,
+                    input_tokens=message.usage.input_tokens,
+                    output_tokens=message.usage.output_tokens,
+                    error_message=None,
+                ))
+            else:
+                results.append(BatchResultEntry(
+                    custom_id=item.custom_id,
+                    success=False,
+                    output=None,
+                    input_tokens=0,
+                    output_tokens=0,
+                    error_message=str(item.result),
+                ))
+        return results

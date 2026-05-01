@@ -33,6 +33,7 @@ class BatchOps:
         json_format: bool,
         user_id: int,
         batch_worker_settings,
+        use_provider_batch: bool = False,
     ):
         with self.SessionLocal() as session:
             subq = get_group_id_subquery(session, user_id)
@@ -48,6 +49,7 @@ class BatchOps:
                 json_format=json_format,
                 user_id=user_id,
                 group_id=subq,
+                use_provider_batch=use_provider_batch,
                 max_tasks_per_minute=batch_worker_settings.max_tasks_per_minute,
                 max_parallel_tasks=batch_worker_settings.max_parallel_tasks,
                 retries_per_failed_task=batch_worker_settings.retries_per_failed_task,
@@ -338,6 +340,29 @@ class BatchOps:
                 batch_dict["endpoint_name"] = endpoint_name
                 result.append(batch_dict)
             return result
+
+    def update_provider_batch_submitted(self, batch_id: int, provider_batch_id: str):
+        with self.SessionLocal() as session:
+            batch = session.query(Batch).filter_by(id=batch_id).first()
+            if not batch:
+                raise ValueError(f"Batch id '{batch_id}' not found.")
+            batch.provider_batch_id = provider_batch_id
+            batch.started_at = func.now()
+            session.commit()
+            session.refresh(batch)
+            return batch.to_dict()
+
+    def fail_all_queued_tasks(self, batch_id: int):
+        with self.SessionLocal() as session:
+            tasks = (
+                session.query(BatchTask)
+                .filter_by(batch_id=batch_id, status=BatchTaskStatus.QUEUED)
+                .all()
+            )
+            for task in tasks:
+                task.status = BatchTaskStatus.FAILED
+                task.stopped_at = func.now()
+            session.commit()
 
     def get_active_batches(self):
         with self.SessionLocal() as session:

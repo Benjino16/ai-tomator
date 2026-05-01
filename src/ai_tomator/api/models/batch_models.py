@@ -21,6 +21,7 @@ class BatchRunRequest(BaseModel):
     model: str
     temperature: float = Field(..., ge=0.0, le=3.0)
     json_format: Optional[bool] = False
+    use_provider_batch: bool = False
     # todo: implement/check limits
     batch_worker_settings: BatchWorkerSettings
 
@@ -39,6 +40,8 @@ class BatchData(BaseModel):
     model: str
     temperature: float
     costs_in_usd: float
+    use_provider_batch: Optional[bool] = None
+    provider_batch_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     started_at: Optional[datetime]

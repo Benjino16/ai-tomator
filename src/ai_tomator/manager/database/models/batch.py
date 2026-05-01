@@ -1,6 +1,6 @@
 import enum
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, func, Enum, Integer, Float, Boolean
+from sqlalchemy import ForeignKey, func, Enum, Integer, Float, Boolean, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from ai_tomator.manager.database.base import Base
@@ -17,6 +17,7 @@ class BatchStatus(enum.Enum):
     SCHEDULED = "SCHEDULED"
     QUEUED = "QUEUED"
     RUNNING = "RUNNING"
+    PROVIDER_BATCH_PENDING = "PROVIDER_BATCH_PENDING"
     COMPLETED = "COMPLETED"
     STOPPED = "STOPPED"
     FAILED = "FAILED"
@@ -44,6 +45,9 @@ class Batch(Base, UserGroupMixin):
     context_window: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     costs_in_usd: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+
+    use_provider_batch: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    provider_batch_id: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     max_tasks_per_minute: Mapped[int] = mapped_column(Integer, nullable=False)
     max_parallel_tasks: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -80,6 +84,7 @@ class Batch(Base, UserGroupMixin):
         BatchStatus.RUNNING,
         BatchStatus.SCHEDULED,
         BatchStatus.QUEUED,
+        BatchStatus.PROVIDER_BATCH_PENDING,
     ]
 
     RUNNING_STATUSES = [

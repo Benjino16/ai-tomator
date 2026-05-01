@@ -3,7 +3,11 @@ from typing import Optional
 
 from ai_tomator.manager.file_manager import MediaFile
 from ai_tomator.manager.llm_client.models.engine_health_model import EngineHealth
-from ai_tomator.manager.llm_client.models.response_model import LLMClientResponse
+from ai_tomator.manager.llm_client.models.response_model import (
+    LLMClientResponse,
+    ProviderBatchStatus,
+    BatchResultEntry,
+)
 from ai_tomator.manager.llm_client.models.model_settings_model import ModelSettings
 
 
@@ -35,3 +39,26 @@ class BaseLLMClient(ABC):
     @abstractmethod
     def token_count(self, model: str, text: str) -> int:
         pass
+
+    def supports_provider_batch(self) -> bool:
+        return False
+
+    def add_to_batch(
+        self,
+        custom_id: str,
+        model: str,
+        prompt: str,
+        file: Optional[MediaFile],
+        content: Optional[str],
+        model_settings: ModelSettings,
+    ) -> None:
+        raise NotImplementedError
+
+    def submit_batch(self) -> tuple[str, bytes]:
+        raise NotImplementedError
+
+    def get_batch_status(self, provider_batch_id: str) -> ProviderBatchStatus:
+        raise NotImplementedError
+
+    def retrieve_batch_results(self, provider_batch_id: str) -> list[BatchResultEntry]:
+        raise NotImplementedError

@@ -23,6 +23,7 @@ def build_batch_router(
             user_id=user["id"],
             json_format=request.json_format,
             batch_worker_settings=request.batch_worker_settings,
+            use_provider_batch=request.use_provider_batch,
         )
         return BatchData(**result)
 

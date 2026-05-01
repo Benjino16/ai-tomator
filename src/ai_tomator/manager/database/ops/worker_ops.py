@@ -170,3 +170,29 @@ class WorkerOps:
         with self.SessionLocal() as session:
             file_path = session.query(File).filter_by(id=file_id).first().path
             return file_path
+
+    def get_batch_by_id(self, batch_id: int) -> Batch:
+        with self.SessionLocal() as session:
+            batch = session.query(Batch).filter_by(id=batch_id).first()
+            if not batch:
+                raise ValueError(f"Batch id '{batch_id}' not found.")
+            return batch
+
+    def get_queued_tasks_for_batch(self, batch_id: int) -> list[BatchTask]:
+        with self.SessionLocal() as session:
+            return (
+                session.query(BatchTask)
+                .filter_by(batch_id=batch_id, status=BatchTaskStatus.QUEUED)
+                .all()
+            )
+
+    def get_provider_batch_pending_batches(self) -> list[Batch]:
+        with self.SessionLocal() as session:
+            return (
+                session.query(Batch)
+                .filter(
+                    Batch.status == BatchStatus.PROVIDER_BATCH_PENDING,
+                    Batch.provider_batch_id.isnot(None),
+                )
+                .all()
+            )

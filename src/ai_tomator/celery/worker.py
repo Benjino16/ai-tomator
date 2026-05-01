@@ -18,6 +18,10 @@ app.conf.beat_schedule = {
         "task": "ai_tomator.celery.tasks.cleanup_crashed_tasks.cleanup_crashed_tasks",
         "schedule": 30.0,
     },
+    "poll-provider-batches": {
+        "task": "ai_tomator.celery.tasks.poll_provider_batches.poll_provider_batches",
+        "schedule": 60.0,
+    },
 }
 app.conf.task_track_started = True
 

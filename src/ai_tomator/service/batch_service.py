@@ -8,6 +8,7 @@ from ai_tomator.manager.prompt_interpreter import interpret_prompt
 from ..manager.database import Database
 from ..manager.database.models.batch import BatchStatus
 from ..manager.prompt_interpreter.prompt_interpreter import MultiPrompt
+from ai_tomator.celery.tasks.submit_provider_batch import submit_provider_batch
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ class BatchService:
         json_format: bool,
         user_id: int,
         batch_worker_settings,
+        use_provider_batch: bool = False,
     ) -> dict:
         batch_name = f"batch_{hash(model + str(endpoint_id) + str(prompt_id))}"
         endpoint = self.endpoint_service.get(endpoint_id, user_id, True)
@@ -60,9 +62,12 @@ class BatchService:
         else:
             prompts_list = [MultiPrompt("-", prompt_content)]
 
+        initial_status = (
+            BatchStatus.PROVIDER_BATCH_PENDING if use_provider_batch else BatchStatus.QUEUED
+        )
         batch_args = {
             "name": batch_name,
-            "status": BatchStatus.QUEUED,
+            "status": initial_status,
             "endpoint_id": endpoint_id,
             "prompt_id": prompt_id,
             "file_reader": file_reader,
@@ -71,12 +76,13 @@ class BatchService:
             "json_format": json_format,
             "user_id": user_id,
             "batch_worker_settings": batch_worker_settings,
+            "use_provider_batch": use_provider_batch,
         }
 
         db_batch = self.db.batches.add(**batch_args)
         self.db.batches.add_batch_log(
             batch_id=db_batch["id"],
-            message=f"Batch is now in queue with settings: \n {batch_args}",
+            message=f"Batch created with settings: \n {batch_args}",
         )
 
         for file_id in files:
@@ -96,6 +102,13 @@ class BatchService:
                     prompt=prompt.prompt,
                     prompt_marker=prompt.marker,
                 )
+
+        if use_provider_batch:
+            submit_provider_batch.delay(db_batch["id"])
+            self.db.batches.add_batch_log(
+                batch_id=db_batch["id"],
+                message="Provider batch submission queued.",
+            )
 
         return db_batch
 

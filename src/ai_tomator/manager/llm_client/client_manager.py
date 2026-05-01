@@ -84,5 +84,8 @@ class ClientManager:
         engine = self._get_engine_instance(endpoint)
         return engine.token_count(model, prompt_tokens, completion_tokens)
 
+    def get_client(self, endpoint) -> "BaseLLMClient":
+        return self._get_engine_instance(endpoint)
+
     def get_engines(self):
         return list(self.client_map.keys())
